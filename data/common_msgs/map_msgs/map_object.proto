@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package planning.hdmap;
+
+import "common_msgs/basic_msgs/geometry.proto";
+import "common_msgs/map_msgs/map_geometry.proto";
+import "common_msgs/map_msgs/map_id.proto";
+
+message Object {
+  enum Type {
+    UNKNOWN = 1;
+    FENCE = 2;
+    LAMPPOSTS = 3;
+    ROADSIGNAL = 4;
+    BARRIERGATE = 5;
+  };
+
+  enum RoadSignalType{
+    ROAD_SIGNAL_UNKNOWN = 1;
+    THROUGH = 2;
+    THROUGH_AND_LEFT = 3;
+    LEFT = 4;
+    THROUGH_AND_RIGHT = 5;
+    RIGHT = 6;
+    UTURN = 7;
+    THROUGH_AND_UTURN = 8;
+    LEFT_AND_UTURN = 9;
+    LEFT_AND_RIGHT = 10;
+    MERGE_LEFT = 11;
+    MERGE_RIGHT = 12;
+  };
+
+  optional Id id = 1;
+  optional Polygon boundary = 2;
+  optional Type type = 3;
+  optional RoadSignalType subtype = 4;
+  repeated Id overlap_id = 5;
+  repeated Curve segment = 6;
+}

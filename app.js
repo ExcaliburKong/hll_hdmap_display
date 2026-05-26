@@ -39,6 +39,8 @@
   let isRotating = false;
   let rotateStart = null;
 
+  let protoReady = false;
+
   btnImport.addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", onFileSelected);
   btnResetView.addEventListener("click", resetView);
@@ -401,6 +403,10 @@
   function onFileSelected() {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
+    if (!protoReady) {
+      setStatus("错误: Proto 定义尚未加载完成，请稍候再试");
+      return;
+    }
     if (typeof MapParser === "undefined") {
       setStatus("错误: 未加载 map_parser.js，请通过 HTTP 打开页面或检查静态资源");
       return;
@@ -436,4 +442,31 @@
   window.addEventListener("resize", () => {
     if (mapData?.meta?.bounds) fitViewToBounds(mapData.meta.bounds);
   });
+
+  function initProtoLoader() {
+    if (typeof MapProtoLoader === "undefined") {
+      setStatus("错误: 未加载 map_proto_loader.js");
+      return;
+    }
+    btnImport.disabled = true;
+    setStatus("正在加载 proto 定义…");
+    MapProtoLoader.load()
+      .then(() => {
+        protoReady = true;
+        btnImport.disabled = false;
+        setStatus("Proto 已就绪，请导入本地地图 bin 文件");
+      })
+      .catch((err) => {
+        protoReady = false;
+        btnImport.disabled = true;
+        const hint =
+          location.protocol === "file:"
+            ? "（请用 HTTP 服务打开本页，例如: python3 -m http.server 8080）"
+            : "";
+        setStatus(`Proto 加载失败: ${err.message}${hint}`);
+        laneInfo.textContent = `Proto 加载失败:\n${err.message}${hint}`;
+      });
+  }
+
+  initProtoLoader();
 })();

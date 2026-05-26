@@ -1,5 +1,5 @@
 /**
- * 浏览器端解析 HD map .bin（依赖 map_proto_bundle.js + protobuf.min.js）
+ * 浏览器端解析 HD map .bin（依赖 map_proto_loader.js + protobuf.min.js）
  */
 (function (global) {
   "use strict";
@@ -35,14 +35,10 @@
   const SIMPLIFY_RING_EPSILON_M = 0.25;
 
   function getMapType() {
-    if (typeof protobuf === "undefined") {
-      throw new Error("未加载 protobuf.min.js");
+    if (typeof MapProtoLoader === "undefined") {
+      throw new Error("未加载 map_proto_loader.js");
     }
-    const root = protobuf.roots.default || protobuf.roots["default"];
-    if (!root || !root.planning || !root.planning.hdmap || !root.planning.hdmap.Map) {
-      throw new Error("未加载 map_proto_bundle.js");
-    }
-    return root.planning.hdmap.Map;
+    return MapProtoLoader.getMapType();
   }
 
   function roundCoord(v) {

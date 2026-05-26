@@ -30,7 +30,7 @@
     
                 /**
                  * Properties of a Projection.
-                 * @typedef {Object} planning.hdmap.Projection.$Properties
+                 * @typedef {MapObject} planning.hdmap.Projection.$Properties
                  * @property {string|null} [proj] Projection proj
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -58,7 +58,7 @@
                  */
                 function Projection(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -103,9 +103,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.proj != null && Object.hasOwnProperty.call(message, "proj"))
+                    if (message.proj != null && MapObject.hasOwnProperty.call(message, "proj"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.proj);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -189,7 +189,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Projection
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Projection.verify = function verify(message, _depth) {
@@ -210,7 +210,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Projection
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Projection} Projection
                  */
                 Projection.fromObject = function fromObject(object, _depth) {
@@ -233,7 +233,7 @@
                  * @static
                  * @param {planning.hdmap.Projection} message Projection
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Projection.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -255,7 +255,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Projection
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Projection.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -282,7 +282,7 @@
     
                 /**
                  * Properties of a Header.
-                 * @typedef {Object} planning.hdmap.Header.$Properties
+                 * @typedef {MapObject} planning.hdmap.Header.$Properties
                  * @property {Uint8Array|null} [version] Header version
                  * @property {Uint8Array|null} [date] Header date
                  * @property {planning.hdmap.Projection.$Properties|null} [projection] Header projection
@@ -321,7 +321,7 @@
                  */
                 function Header(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -454,31 +454,31 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.version != null && Object.hasOwnProperty.call(message, "version"))
+                    if (message.version != null && MapObject.hasOwnProperty.call(message, "version"))
                         writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.version);
-                    if (message.date != null && Object.hasOwnProperty.call(message, "date"))
+                    if (message.date != null && MapObject.hasOwnProperty.call(message, "date"))
                         writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.date);
-                    if (message.projection != null && Object.hasOwnProperty.call(message, "projection"))
+                    if (message.projection != null && MapObject.hasOwnProperty.call(message, "projection"))
                         $root.planning.hdmap.Projection.encode(message.projection, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.district != null && Object.hasOwnProperty.call(message, "district"))
+                    if (message.district != null && MapObject.hasOwnProperty.call(message, "district"))
                         writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.district);
-                    if (message.generation != null && Object.hasOwnProperty.call(message, "generation"))
+                    if (message.generation != null && MapObject.hasOwnProperty.call(message, "generation"))
                         writer.uint32(/* id 5, wireType 2 =*/42).bytes(message.generation);
-                    if (message.revMajor != null && Object.hasOwnProperty.call(message, "revMajor"))
+                    if (message.revMajor != null && MapObject.hasOwnProperty.call(message, "revMajor"))
                         writer.uint32(/* id 6, wireType 2 =*/50).bytes(message.revMajor);
-                    if (message.revMinor != null && Object.hasOwnProperty.call(message, "revMinor"))
+                    if (message.revMinor != null && MapObject.hasOwnProperty.call(message, "revMinor"))
                         writer.uint32(/* id 7, wireType 2 =*/58).bytes(message.revMinor);
-                    if (message.left != null && Object.hasOwnProperty.call(message, "left"))
+                    if (message.left != null && MapObject.hasOwnProperty.call(message, "left"))
                         writer.uint32(/* id 8, wireType 1 =*/65).double(message.left);
-                    if (message.top != null && Object.hasOwnProperty.call(message, "top"))
+                    if (message.top != null && MapObject.hasOwnProperty.call(message, "top"))
                         writer.uint32(/* id 9, wireType 1 =*/73).double(message.top);
-                    if (message.right != null && Object.hasOwnProperty.call(message, "right"))
+                    if (message.right != null && MapObject.hasOwnProperty.call(message, "right"))
                         writer.uint32(/* id 10, wireType 1 =*/81).double(message.right);
-                    if (message.bottom != null && Object.hasOwnProperty.call(message, "bottom"))
+                    if (message.bottom != null && MapObject.hasOwnProperty.call(message, "bottom"))
                         writer.uint32(/* id 11, wireType 1 =*/89).double(message.bottom);
-                    if (message.vendor != null && Object.hasOwnProperty.call(message, "vendor"))
+                    if (message.vendor != null && MapObject.hasOwnProperty.call(message, "vendor"))
                         writer.uint32(/* id 12, wireType 2 =*/98).bytes(message.vendor);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -628,7 +628,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Header
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Header.verify = function verify(message, _depth) {
@@ -684,7 +684,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Header
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Header} Header
                  */
                 Header.fromObject = function fromObject(object, _depth) {
@@ -753,7 +753,7 @@
                  * @static
                  * @param {planning.hdmap.Header} message Header
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Header.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -851,7 +851,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Header
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Header.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -878,7 +878,7 @@
     
                 /**
                  * Properties of a Map.
-                 * @typedef {Object} planning.hdmap.Map.$Properties
+                 * @typedef {MapObject} planning.hdmap.Map.$Properties
                  * @property {planning.hdmap.Header.$Properties|null} [header] Map header
                  * @property {Array.<planning.hdmap.Crosswalk.$Properties>|null} [crosswalk] Map crosswalk
                  * @property {Array.<planning.hdmap.Junction.$Properties>|null} [junction] Map junction
@@ -893,7 +893,7 @@
                  * @property {Array.<planning.hdmap.ParkingSpace.$Properties>|null} [parkingSpace] Map parkingSpace
                  * @property {Array.<planning.hdmap.PNCJunction.$Properties>|null} [pncJunction] Map pncJunction
                  * @property {Array.<planning.hdmap.RSU.$Properties>|null} [rsu] Map rsu
-                 * @property {Array.<planning.hdmap.Object.$Properties>|null} [object] Map object
+                 * @property {Array.<planning.hdmap.MapObject.$Properties>|null} [object] Map object
                  * @property {Array.<planning.hdmap.TrafficIsland.$Properties>|null} [trafficIsland] Map trafficIsland
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -923,7 +923,7 @@
                  *   parkingSpace?: Array.<planning.hdmap.ParkingSpace.$Shape>|null;
                  *   pncJunction?: Array.<planning.hdmap.PNCJunction.$Shape>|null;
                  *   rsu?: Array.<planning.hdmap.RSU.$Shape>|null;
-                 *   object?: Array.<planning.hdmap.Object.$Shape>|null;
+                 *   object?: Array.<planning.hdmap.MapObject.$Shape>|null;
                  *   trafficIsland?: Array.<planning.hdmap.TrafficIsland.$Shape>|null;
                  *   $unknowns?: Array.<Uint8Array>;
                  * }} planning.hdmap.Map.$Shape
@@ -954,7 +954,7 @@
                     this.object = [];
                     this.trafficIsland = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -1073,7 +1073,7 @@
     
                 /**
                  * Map object.
-                 * @member {Array.<planning.hdmap.Object.$Properties>} object
+                 * @member {Array.<planning.hdmap.MapObject.$Properties>} object
                  * @memberof planning.hdmap.Map
                  * @instance
                  */
@@ -1119,7 +1119,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.header != null && Object.hasOwnProperty.call(message, "header"))
+                    if (message.header != null && MapObject.hasOwnProperty.call(message, "header"))
                         $root.planning.hdmap.Header.encode(message.header, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.crosswalk != null && message.crosswalk.length)
                         for (var i = 0; i < message.crosswalk.length; ++i)
@@ -1162,11 +1162,11 @@
                             $root.planning.hdmap.RSU.encode(message.rsu[i], writer.uint32(/* id 14, wireType 2 =*/114).fork(), _depth + 1).ldelim();
                     if (message.object != null && message.object.length)
                         for (var i = 0; i < message.object.length; ++i)
-                            $root.planning.hdmap.Object.encode(message.object[i], writer.uint32(/* id 15, wireType 2 =*/122).fork(), _depth + 1).ldelim();
+                            $root.planning.hdmap.MapObject.encode(message.object[i], writer.uint32(/* id 15, wireType 2 =*/122).fork(), _depth + 1).ldelim();
                     if (message.trafficIsland != null && message.trafficIsland.length)
                         for (var i = 0; i < message.trafficIsland.length; ++i)
                             $root.planning.hdmap.TrafficIsland.encode(message.trafficIsland[i], writer.uint32(/* id 16, wireType 2 =*/130).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -1328,7 +1328,7 @@
                                     break;
                                 if (!(message.object && message.object.length))
                                     message.object = [];
-                                message.object.push($root.planning.hdmap.Object.decode(reader, reader.uint32(), undefined, _depth + 1));
+                                message.object.push($root.planning.hdmap.MapObject.decode(reader, reader.uint32(), undefined, _depth + 1));
                                 continue;
                             }
                         case 16: {
@@ -1370,7 +1370,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Map
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Map.verify = function verify(message, _depth) {
@@ -1506,7 +1506,7 @@
                         if (!Array.isArray(message.object))
                             return "object: array expected";
                         for (var i = 0; i < message.object.length; ++i) {
-                            var error = $root.planning.hdmap.Object.verify(message.object[i], _depth + 1);
+                            var error = $root.planning.hdmap.MapObject.verify(message.object[i], _depth + 1);
                             if (error)
                                 return "object." + error;
                         }
@@ -1528,7 +1528,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Map
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Map} Map
                  */
                 Map.fromObject = function fromObject(object, _depth) {
@@ -1681,7 +1681,7 @@
                         for (var i = 0; i < object.object.length; ++i) {
                             if (typeof object.object[i] !== "object")
                                 throw TypeError(".planning.hdmap.Map.object: object expected");
-                            message.object[i] = $root.planning.hdmap.Object.fromObject(object.object[i], _depth + 1);
+                            message.object[i] = $root.planning.hdmap.MapObject.fromObject(object.object[i], _depth + 1);
                         }
                     }
                     if (object.trafficIsland) {
@@ -1704,7 +1704,7 @@
                  * @static
                  * @param {planning.hdmap.Map} message Map
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Map.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -1803,7 +1803,7 @@
                     if (message.object && message.object.length) {
                         object.object = Array(message.object.length);
                         for (var j = 0; j < message.object.length; ++j)
-                            object.object[j] = $root.planning.hdmap.Object.toObject(message.object[j], options, _depth + 1);
+                            object.object[j] = $root.planning.hdmap.MapObject.toObject(message.object[j], options, _depth + 1);
                     }
                     if (message.trafficIsland && message.trafficIsland.length) {
                         object.trafficIsland = Array(message.trafficIsland.length);
@@ -1818,7 +1818,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Map
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Map.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -1845,7 +1845,7 @@
     
                 /**
                  * Properties of a ClearArea.
-                 * @typedef {Object} planning.hdmap.ClearArea.$Properties
+                 * @typedef {MapObject} planning.hdmap.ClearArea.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] ClearArea id
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] ClearArea overlapId
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] ClearArea polygon
@@ -1876,7 +1876,7 @@
                 function ClearArea(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -1937,14 +1937,14 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -2042,7 +2042,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ClearArea
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ClearArea.verify = function verify(message, _depth) {
@@ -2079,7 +2079,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ClearArea
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ClearArea} ClearArea
                  */
                 ClearArea.fromObject = function fromObject(object, _depth) {
@@ -2120,7 +2120,7 @@
                  * @static
                  * @param {planning.hdmap.ClearArea} message ClearArea
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ClearArea.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -2153,7 +2153,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ClearArea
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ClearArea.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -2180,7 +2180,7 @@
     
                 /**
                  * Properties of a Polygon.
-                 * @typedef {Object} planning.hdmap.Polygon.$Properties
+                 * @typedef {MapObject} planning.hdmap.Polygon.$Properties
                  * @property {Array.<planning.common.PointENU.$Properties>|null} [point] Polygon point
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -2209,7 +2209,7 @@
                 function Polygon(properties) {
                     this.point = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -2257,7 +2257,7 @@
                     if (message.point != null && message.point.length)
                         for (var i = 0; i < message.point.length; ++i)
                             $root.planning.common.PointENU.encode(message.point[i], writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -2343,7 +2343,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Polygon
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Polygon.verify = function verify(message, _depth) {
@@ -2370,7 +2370,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Polygon
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Polygon} Polygon
                  */
                 Polygon.fromObject = function fromObject(object, _depth) {
@@ -2401,7 +2401,7 @@
                  * @static
                  * @param {planning.hdmap.Polygon} message Polygon
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Polygon.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -2426,7 +2426,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Polygon
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Polygon.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -2453,7 +2453,7 @@
     
                 /**
                  * Properties of a LineSegment.
-                 * @typedef {Object} planning.hdmap.LineSegment.$Properties
+                 * @typedef {MapObject} planning.hdmap.LineSegment.$Properties
                  * @property {Array.<planning.common.PointENU.$Properties>|null} [point] LineSegment point
                  * @property {Array.<planning.common.PointENU.$Properties>|null} [wgs84Point] LineSegment wgs84Point
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -2484,7 +2484,7 @@
                     this.point = [];
                     this.wgs84Point = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -2543,7 +2543,7 @@
                     if (message.wgs84Point != null && message.wgs84Point.length)
                         for (var i = 0; i < message.wgs84Point.length; ++i)
                             $root.planning.common.PointENU.encode(message.wgs84Point[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -2637,7 +2637,7 @@
                  * @function verify
                  * @memberof planning.hdmap.LineSegment
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 LineSegment.verify = function verify(message, _depth) {
@@ -2673,7 +2673,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.LineSegment
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.LineSegment} LineSegment
                  */
                 LineSegment.fromObject = function fromObject(object, _depth) {
@@ -2714,7 +2714,7 @@
                  * @static
                  * @param {planning.hdmap.LineSegment} message LineSegment
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 LineSegment.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -2746,7 +2746,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.LineSegment
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 LineSegment.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -2773,7 +2773,7 @@
     
                 /**
                  * Properties of a CurveSegment.
-                 * @typedef {Object} planning.hdmap.CurveSegment.$Properties
+                 * @typedef {MapObject} planning.hdmap.CurveSegment.$Properties
                  * @property {planning.hdmap.LineSegment.$Properties|null} [lineSegment] CurveSegment lineSegment
                  * @property {number|null} [s] CurveSegment s
                  * @property {planning.common.PointENU.$Properties|null} [startPosition] CurveSegment startPosition
@@ -2815,7 +2815,7 @@
                  */
                 function CurveSegment(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -2869,7 +2869,7 @@
                  * @memberof planning.hdmap.CurveSegment
                  * @instance
                  */
-                Object.defineProperty(CurveSegment.prototype, "curveType", {
+                MapObject.defineProperty(CurveSegment.prototype, "curveType", {
                     get: $util.oneOfGetter($oneOfFields = ["lineSegment"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
@@ -2906,17 +2906,17 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.lineSegment != null && Object.hasOwnProperty.call(message, "lineSegment"))
+                    if (message.lineSegment != null && MapObject.hasOwnProperty.call(message, "lineSegment"))
                         $root.planning.hdmap.LineSegment.encode(message.lineSegment, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.s != null && Object.hasOwnProperty.call(message, "s"))
+                    if (message.s != null && MapObject.hasOwnProperty.call(message, "s"))
                         writer.uint32(/* id 6, wireType 1 =*/49).double(message.s);
-                    if (message.startPosition != null && Object.hasOwnProperty.call(message, "startPosition"))
+                    if (message.startPosition != null && MapObject.hasOwnProperty.call(message, "startPosition"))
                         $root.planning.common.PointENU.encode(message.startPosition, writer.uint32(/* id 7, wireType 2 =*/58).fork(), _depth + 1).ldelim();
-                    if (message.heading != null && Object.hasOwnProperty.call(message, "heading"))
+                    if (message.heading != null && MapObject.hasOwnProperty.call(message, "heading"))
                         writer.uint32(/* id 8, wireType 1 =*/65).double(message.heading);
-                    if (message.length != null && Object.hasOwnProperty.call(message, "length"))
+                    if (message.length != null && MapObject.hasOwnProperty.call(message, "length"))
                         writer.uint32(/* id 9, wireType 1 =*/73).double(message.length);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -3025,7 +3025,7 @@
                  * @function verify
                  * @memberof planning.hdmap.CurveSegment
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 CurveSegment.verify = function verify(message, _depth) {
@@ -3066,7 +3066,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.CurveSegment
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.CurveSegment} CurveSegment
                  */
                 CurveSegment.fromObject = function fromObject(object, _depth) {
@@ -3103,7 +3103,7 @@
                  * @static
                  * @param {planning.hdmap.CurveSegment} message CurveSegment
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 CurveSegment.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -3140,7 +3140,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.CurveSegment
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 CurveSegment.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -3167,7 +3167,7 @@
     
                 /**
                  * Properties of a Curve.
-                 * @typedef {Object} planning.hdmap.Curve.$Properties
+                 * @typedef {MapObject} planning.hdmap.Curve.$Properties
                  * @property {Array.<planning.hdmap.CurveSegment.$Properties>|null} [segment] Curve segment
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -3199,7 +3199,7 @@
                 function Curve(properties) {
                     this.segment = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -3247,7 +3247,7 @@
                     if (message.segment != null && message.segment.length)
                         for (var i = 0; i < message.segment.length; ++i)
                             $root.planning.hdmap.CurveSegment.encode(message.segment[i], writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -3333,7 +3333,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Curve
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Curve.verify = function verify(message, _depth) {
@@ -3360,7 +3360,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Curve
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Curve} Curve
                  */
                 Curve.fromObject = function fromObject(object, _depth) {
@@ -3391,7 +3391,7 @@
                  * @static
                  * @param {planning.hdmap.Curve} message Curve
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Curve.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -3416,7 +3416,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Curve
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Curve.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -3443,7 +3443,7 @@
     
                 /**
                  * Properties of an Id.
-                 * @typedef {Object} planning.hdmap.Id.$Properties
+                 * @typedef {MapObject} planning.hdmap.Id.$Properties
                  * @property {string|null} [id] Id id
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -3471,7 +3471,7 @@
                  */
                 function Id(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -3516,9 +3516,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -3602,7 +3602,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Id
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Id.verify = function verify(message, _depth) {
@@ -3623,7 +3623,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Id
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Id} Id
                  */
                 Id.fromObject = function fromObject(object, _depth) {
@@ -3646,7 +3646,7 @@
                  * @static
                  * @param {planning.hdmap.Id} message Id
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Id.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -3668,7 +3668,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Id
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Id.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -3695,7 +3695,7 @@
     
                 /**
                  * Properties of a Crosswalk.
-                 * @typedef {Object} planning.hdmap.Crosswalk.$Properties
+                 * @typedef {MapObject} planning.hdmap.Crosswalk.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Crosswalk id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] Crosswalk polygon
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] Crosswalk overlapId
@@ -3726,7 +3726,7 @@
                 function Crosswalk(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -3787,14 +3787,14 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -3892,7 +3892,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Crosswalk
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Crosswalk.verify = function verify(message, _depth) {
@@ -3929,7 +3929,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Crosswalk
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Crosswalk} Crosswalk
                  */
                 Crosswalk.fromObject = function fromObject(object, _depth) {
@@ -3970,7 +3970,7 @@
                  * @static
                  * @param {planning.hdmap.Crosswalk} message Crosswalk
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Crosswalk.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -4003,7 +4003,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Crosswalk
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Crosswalk.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -4030,7 +4030,7 @@
     
                 /**
                  * Properties of a Junction.
-                 * @typedef {Object} planning.hdmap.Junction.$Properties
+                 * @typedef {MapObject} planning.hdmap.Junction.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Junction id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] Junction polygon
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] Junction overlapId
@@ -4062,7 +4062,7 @@
                 function Junction(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -4131,16 +4131,16 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 4, wireType 0 =*/32).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -4244,7 +4244,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Junction
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Junction.verify = function verify(message, _depth) {
@@ -4293,7 +4293,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Junction
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Junction} Junction
                  */
                 Junction.fromObject = function fromObject(object, _depth) {
@@ -4366,7 +4366,7 @@
                  * @static
                  * @param {planning.hdmap.Junction} message Junction
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Junction.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -4402,7 +4402,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Junction
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Junction.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -4434,7 +4434,7 @@
                  * @property {number} DEAD_END=5 DEAD_END value
                  */
                 Junction.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "IN_ROAD"] = 1;
                     values[valuesById[2] = "CROSS_ROAD"] = 2;
@@ -4451,7 +4451,7 @@
     
                 /**
                  * Properties of a LaneBoundaryType.
-                 * @typedef {Object} planning.hdmap.LaneBoundaryType.$Properties
+                 * @typedef {MapObject} planning.hdmap.LaneBoundaryType.$Properties
                  * @property {number|null} [s] LaneBoundaryType s
                  * @property {Array.<planning.hdmap.LaneBoundaryType.Type>|null} [types] LaneBoundaryType types
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -4481,7 +4481,7 @@
                 function LaneBoundaryType(properties) {
                     this.types = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -4534,12 +4534,12 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.s != null && Object.hasOwnProperty.call(message, "s"))
+                    if (message.s != null && MapObject.hasOwnProperty.call(message, "s"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.s);
                     if (message.types != null && message.types.length)
                         for (var i = 0; i < message.types.length; ++i)
                             writer.uint32(/* id 2, wireType 0 =*/16).int32(message.types[i]);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -4639,7 +4639,7 @@
                  * @function verify
                  * @memberof planning.hdmap.LaneBoundaryType
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 LaneBoundaryType.verify = function verify(message, _depth) {
@@ -4677,7 +4677,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.LaneBoundaryType
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.LaneBoundaryType} LaneBoundaryType
                  */
                 LaneBoundaryType.fromObject = function fromObject(object, _depth) {
@@ -4741,7 +4741,7 @@
                  * @static
                  * @param {planning.hdmap.LaneBoundaryType} message LaneBoundaryType
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 LaneBoundaryType.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -4770,7 +4770,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.LaneBoundaryType
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 LaneBoundaryType.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -4803,7 +4803,7 @@
                  * @property {number} CURB=6 CURB value
                  */
                 LaneBoundaryType.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "DOTTED_YELLOW"] = 1;
                     values[valuesById[2] = "DOTTED_WHITE"] = 2;
@@ -4821,7 +4821,7 @@
     
                 /**
                  * Properties of a LaneBoundary.
-                 * @typedef {Object} planning.hdmap.LaneBoundary.$Properties
+                 * @typedef {MapObject} planning.hdmap.LaneBoundary.$Properties
                  * @property {planning.hdmap.Curve.$Properties|null} [curve] LaneBoundary curve
                  * @property {number|null} [length] LaneBoundary length
                  * @property {boolean|null} [virtual] LaneBoundary virtual
@@ -4861,7 +4861,7 @@
                 function LaneBoundary(properties) {
                     this.boundaryType = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -4938,18 +4938,18 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.curve != null && Object.hasOwnProperty.call(message, "curve"))
+                    if (message.curve != null && MapObject.hasOwnProperty.call(message, "curve"))
                         $root.planning.hdmap.Curve.encode(message.curve, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.length != null && Object.hasOwnProperty.call(message, "length"))
+                    if (message.length != null && MapObject.hasOwnProperty.call(message, "length"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.length);
-                    if (message.virtual != null && Object.hasOwnProperty.call(message, "virtual"))
+                    if (message.virtual != null && MapObject.hasOwnProperty.call(message, "virtual"))
                         writer.uint32(/* id 3, wireType 0 =*/24).bool(message.virtual);
                     if (message.boundaryType != null && message.boundaryType.length)
                         for (var i = 0; i < message.boundaryType.length; ++i)
                             $root.planning.hdmap.LaneBoundaryType.encode(message.boundaryType[i], writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.fromLaneId != null && Object.hasOwnProperty.call(message, "fromLaneId"))
+                    if (message.fromLaneId != null && MapObject.hasOwnProperty.call(message, "fromLaneId"))
                         $root.planning.hdmap.Id.encode(message.fromLaneId, writer.uint32(/* id 5, wireType 2 =*/42).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -5059,7 +5059,7 @@
                  * @function verify
                  * @memberof planning.hdmap.LaneBoundary
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 LaneBoundary.verify = function verify(message, _depth) {
@@ -5102,7 +5102,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.LaneBoundary
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.LaneBoundary} LaneBoundary
                  */
                 LaneBoundary.fromObject = function fromObject(object, _depth) {
@@ -5147,7 +5147,7 @@
                  * @static
                  * @param {planning.hdmap.LaneBoundary} message LaneBoundary
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 LaneBoundary.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -5186,7 +5186,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.LaneBoundary
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 LaneBoundary.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -5213,7 +5213,7 @@
     
                 /**
                  * Properties of a LaneSampleAssociation.
-                 * @typedef {Object} planning.hdmap.LaneSampleAssociation.$Properties
+                 * @typedef {MapObject} planning.hdmap.LaneSampleAssociation.$Properties
                  * @property {number|null} [s] LaneSampleAssociation s
                  * @property {number|null} [width] LaneSampleAssociation width
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -5242,7 +5242,7 @@
                  */
                 function LaneSampleAssociation(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -5295,11 +5295,11 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.s != null && Object.hasOwnProperty.call(message, "s"))
+                    if (message.s != null && MapObject.hasOwnProperty.call(message, "s"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.s);
-                    if (message.width != null && Object.hasOwnProperty.call(message, "width"))
+                    if (message.width != null && MapObject.hasOwnProperty.call(message, "width"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.width);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -5389,7 +5389,7 @@
                  * @function verify
                  * @memberof planning.hdmap.LaneSampleAssociation
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 LaneSampleAssociation.verify = function verify(message, _depth) {
@@ -5413,7 +5413,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.LaneSampleAssociation
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.LaneSampleAssociation} LaneSampleAssociation
                  */
                 LaneSampleAssociation.fromObject = function fromObject(object, _depth) {
@@ -5438,7 +5438,7 @@
                  * @static
                  * @param {planning.hdmap.LaneSampleAssociation} message LaneSampleAssociation
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 LaneSampleAssociation.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -5464,7 +5464,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.LaneSampleAssociation
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 LaneSampleAssociation.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -5491,7 +5491,7 @@
     
                 /**
                  * Properties of a Lane.
-                 * @typedef {Object} planning.hdmap.Lane.$Properties
+                 * @typedef {MapObject} planning.hdmap.Lane.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Lane id
                  * @property {planning.hdmap.Curve.$Properties|null} [centralCurve] Lane centralCurve
                  * @property {planning.hdmap.LaneBoundary.$Properties|null} [leftBoundary] Lane leftBoundary
@@ -5576,7 +5576,7 @@
                     this.rightRoadSample = [];
                     this.selfReverseLaneId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -5789,17 +5789,17 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.centralCurve != null && Object.hasOwnProperty.call(message, "centralCurve"))
+                    if (message.centralCurve != null && MapObject.hasOwnProperty.call(message, "centralCurve"))
                         $root.planning.hdmap.Curve.encode(message.centralCurve, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.leftBoundary != null && Object.hasOwnProperty.call(message, "leftBoundary"))
+                    if (message.leftBoundary != null && MapObject.hasOwnProperty.call(message, "leftBoundary"))
                         $root.planning.hdmap.LaneBoundary.encode(message.leftBoundary, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.rightBoundary != null && Object.hasOwnProperty.call(message, "rightBoundary"))
+                    if (message.rightBoundary != null && MapObject.hasOwnProperty.call(message, "rightBoundary"))
                         $root.planning.hdmap.LaneBoundary.encode(message.rightBoundary, writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.length != null && Object.hasOwnProperty.call(message, "length"))
+                    if (message.length != null && MapObject.hasOwnProperty.call(message, "length"))
                         writer.uint32(/* id 5, wireType 1 =*/41).double(message.length);
-                    if (message.speedLimit != null && Object.hasOwnProperty.call(message, "speedLimit"))
+                    if (message.speedLimit != null && MapObject.hasOwnProperty.call(message, "speedLimit"))
                         writer.uint32(/* id 6, wireType 1 =*/49).double(message.speedLimit);
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
@@ -5816,9 +5816,9 @@
                     if (message.rightNeighborForwardLaneId != null && message.rightNeighborForwardLaneId.length)
                         for (var i = 0; i < message.rightNeighborForwardLaneId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.rightNeighborForwardLaneId[i], writer.uint32(/* id 11, wireType 2 =*/90).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 12, wireType 0 =*/96).int32(message.type);
-                    if (message.turn != null && Object.hasOwnProperty.call(message, "turn"))
+                    if (message.turn != null && MapObject.hasOwnProperty.call(message, "turn"))
                         writer.uint32(/* id 13, wireType 0 =*/104).int32(message.turn);
                     if (message.leftNeighborReverseLaneId != null && message.leftNeighborReverseLaneId.length)
                         for (var i = 0; i < message.leftNeighborReverseLaneId.length; ++i)
@@ -5826,7 +5826,7 @@
                     if (message.rightNeighborReverseLaneId != null && message.rightNeighborReverseLaneId.length)
                         for (var i = 0; i < message.rightNeighborReverseLaneId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.rightNeighborReverseLaneId[i], writer.uint32(/* id 15, wireType 2 =*/122).fork(), _depth + 1).ldelim();
-                    if (message.junctionId != null && Object.hasOwnProperty.call(message, "junctionId"))
+                    if (message.junctionId != null && MapObject.hasOwnProperty.call(message, "junctionId"))
                         $root.planning.hdmap.Id.encode(message.junctionId, writer.uint32(/* id 16, wireType 2 =*/130).fork(), _depth + 1).ldelim();
                     if (message.leftSample != null && message.leftSample.length)
                         for (var i = 0; i < message.leftSample.length; ++i)
@@ -5834,7 +5834,7 @@
                     if (message.rightSample != null && message.rightSample.length)
                         for (var i = 0; i < message.rightSample.length; ++i)
                             $root.planning.hdmap.LaneSampleAssociation.encode(message.rightSample[i], writer.uint32(/* id 18, wireType 2 =*/146).fork(), _depth + 1).ldelim();
-                    if (message.direction != null && Object.hasOwnProperty.call(message, "direction"))
+                    if (message.direction != null && MapObject.hasOwnProperty.call(message, "direction"))
                         writer.uint32(/* id 19, wireType 0 =*/152).int32(message.direction);
                     if (message.leftRoadSample != null && message.leftRoadSample.length)
                         for (var i = 0; i < message.leftRoadSample.length; ++i)
@@ -5845,7 +5845,7 @@
                     if (message.selfReverseLaneId != null && message.selfReverseLaneId.length)
                         for (var i = 0; i < message.selfReverseLaneId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.selfReverseLaneId[i], writer.uint32(/* id 22, wireType 2 =*/178).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -6079,7 +6079,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Lane
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Lane.verify = function verify(message, _depth) {
@@ -6271,7 +6271,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Lane
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Lane} Lane
                  */
                 Lane.fromObject = function fromObject(object, _depth) {
@@ -6533,7 +6533,7 @@
                  * @static
                  * @param {planning.hdmap.Lane} message Lane
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Lane.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -6657,7 +6657,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Lane
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Lane.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -6691,7 +6691,7 @@
                  * @property {number} ENTRANCE_WAY=8 ENTRANCE_WAY value
                  */
                 Lane.LaneType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "NONE"] = 1;
                     values[valuesById[2] = "CITY_DRIVING"] = 2;
                     values[valuesById[3] = "BIKING"] = 3;
@@ -6715,7 +6715,7 @@
                  * @property {number} U_TURN_WAITING=6 U_TURN_WAITING value
                  */
                 Lane.LaneTurn = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "NO_TURN"] = 1;
                     values[valuesById[2] = "LEFT_TURN"] = 2;
                     values[valuesById[3] = "RIGHT_TURN"] = 3;
@@ -6734,7 +6734,7 @@
                  * @property {number} BIDIRECTION=3 BIDIRECTION value
                  */
                 Lane.LaneDirection = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "FORWARD"] = 1;
                     values[valuesById[2] = "BACKWARD"] = 2;
                     values[valuesById[3] = "BIDIRECTION"] = 3;
@@ -6748,7 +6748,7 @@
     
                 /**
                  * Properties of a LaneOverlapInfo.
-                 * @typedef {Object} planning.hdmap.LaneOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.LaneOverlapInfo.$Properties
                  * @property {number|null} [startS] LaneOverlapInfo startS
                  * @property {number|null} [endS] LaneOverlapInfo endS
                  * @property {boolean|null} [isMerge] LaneOverlapInfo isMerge
@@ -6779,7 +6779,7 @@
                  */
                 function LaneOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -6848,15 +6848,15 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.startS != null && Object.hasOwnProperty.call(message, "startS"))
+                    if (message.startS != null && MapObject.hasOwnProperty.call(message, "startS"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.startS);
-                    if (message.endS != null && Object.hasOwnProperty.call(message, "endS"))
+                    if (message.endS != null && MapObject.hasOwnProperty.call(message, "endS"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.endS);
-                    if (message.isMerge != null && Object.hasOwnProperty.call(message, "isMerge"))
+                    if (message.isMerge != null && MapObject.hasOwnProperty.call(message, "isMerge"))
                         writer.uint32(/* id 3, wireType 0 =*/24).bool(message.isMerge);
-                    if (message.regionOverlapId != null && Object.hasOwnProperty.call(message, "regionOverlapId"))
+                    if (message.regionOverlapId != null && MapObject.hasOwnProperty.call(message, "regionOverlapId"))
                         $root.planning.hdmap.Id.encode(message.regionOverlapId, writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -6958,7 +6958,7 @@
                  * @function verify
                  * @memberof planning.hdmap.LaneOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 LaneOverlapInfo.verify = function verify(message, _depth) {
@@ -6990,7 +6990,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.LaneOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.LaneOverlapInfo} LaneOverlapInfo
                  */
                 LaneOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -7022,7 +7022,7 @@
                  * @static
                  * @param {planning.hdmap.LaneOverlapInfo} message LaneOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 LaneOverlapInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -7054,7 +7054,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.LaneOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 LaneOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -7081,7 +7081,7 @@
     
                 /**
                  * Properties of a SignalOverlapInfo.
-                 * @typedef {Object} planning.hdmap.SignalOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.SignalOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -7108,7 +7108,7 @@
                  */
                 function SignalOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -7145,7 +7145,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -7220,7 +7220,7 @@
                  * @function verify
                  * @memberof planning.hdmap.SignalOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 SignalOverlapInfo.verify = function verify(message, _depth) {
@@ -7238,7 +7238,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.SignalOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.SignalOverlapInfo} SignalOverlapInfo
                  */
                 SignalOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -7258,7 +7258,7 @@
                  * @static
                  * @param {planning.hdmap.SignalOverlapInfo} message SignalOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 SignalOverlapInfo.toObject = function toObject() {
                     return {};
@@ -7269,7 +7269,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.SignalOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 SignalOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -7296,7 +7296,7 @@
     
                 /**
                  * Properties of a StopSignOverlapInfo.
-                 * @typedef {Object} planning.hdmap.StopSignOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.StopSignOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -7323,7 +7323,7 @@
                  */
                 function StopSignOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -7360,7 +7360,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -7435,7 +7435,7 @@
                  * @function verify
                  * @memberof planning.hdmap.StopSignOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 StopSignOverlapInfo.verify = function verify(message, _depth) {
@@ -7453,7 +7453,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.StopSignOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.StopSignOverlapInfo} StopSignOverlapInfo
                  */
                 StopSignOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -7473,7 +7473,7 @@
                  * @static
                  * @param {planning.hdmap.StopSignOverlapInfo} message StopSignOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 StopSignOverlapInfo.toObject = function toObject() {
                     return {};
@@ -7484,7 +7484,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.StopSignOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 StopSignOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -7511,7 +7511,7 @@
     
                 /**
                  * Properties of a CrosswalkOverlapInfo.
-                 * @typedef {Object} planning.hdmap.CrosswalkOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.CrosswalkOverlapInfo.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [regionOverlapId] CrosswalkOverlapInfo regionOverlapId
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -7539,7 +7539,7 @@
                  */
                 function CrosswalkOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -7584,9 +7584,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.regionOverlapId != null && Object.hasOwnProperty.call(message, "regionOverlapId"))
+                    if (message.regionOverlapId != null && MapObject.hasOwnProperty.call(message, "regionOverlapId"))
                         $root.planning.hdmap.Id.encode(message.regionOverlapId, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -7670,7 +7670,7 @@
                  * @function verify
                  * @memberof planning.hdmap.CrosswalkOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 CrosswalkOverlapInfo.verify = function verify(message, _depth) {
@@ -7693,7 +7693,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.CrosswalkOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.CrosswalkOverlapInfo} CrosswalkOverlapInfo
                  */
                 CrosswalkOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -7719,7 +7719,7 @@
                  * @static
                  * @param {planning.hdmap.CrosswalkOverlapInfo} message CrosswalkOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 CrosswalkOverlapInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -7741,7 +7741,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.CrosswalkOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 CrosswalkOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -7768,7 +7768,7 @@
     
                 /**
                  * Properties of a JunctionOverlapInfo.
-                 * @typedef {Object} planning.hdmap.JunctionOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.JunctionOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -7795,7 +7795,7 @@
                  */
                 function JunctionOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -7832,7 +7832,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -7907,7 +7907,7 @@
                  * @function verify
                  * @memberof planning.hdmap.JunctionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 JunctionOverlapInfo.verify = function verify(message, _depth) {
@@ -7925,7 +7925,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.JunctionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.JunctionOverlapInfo} JunctionOverlapInfo
                  */
                 JunctionOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -7945,7 +7945,7 @@
                  * @static
                  * @param {planning.hdmap.JunctionOverlapInfo} message JunctionOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 JunctionOverlapInfo.toObject = function toObject() {
                     return {};
@@ -7956,7 +7956,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.JunctionOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 JunctionOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -7983,7 +7983,7 @@
     
                 /**
                  * Properties of a YieldOverlapInfo.
-                 * @typedef {Object} planning.hdmap.YieldOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.YieldOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -8010,7 +8010,7 @@
                  */
                 function YieldOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -8047,7 +8047,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -8122,7 +8122,7 @@
                  * @function verify
                  * @memberof planning.hdmap.YieldOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 YieldOverlapInfo.verify = function verify(message, _depth) {
@@ -8140,7 +8140,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.YieldOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.YieldOverlapInfo} YieldOverlapInfo
                  */
                 YieldOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -8160,7 +8160,7 @@
                  * @static
                  * @param {planning.hdmap.YieldOverlapInfo} message YieldOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 YieldOverlapInfo.toObject = function toObject() {
                     return {};
@@ -8171,7 +8171,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.YieldOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 YieldOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -8198,7 +8198,7 @@
     
                 /**
                  * Properties of a ClearAreaOverlapInfo.
-                 * @typedef {Object} planning.hdmap.ClearAreaOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.ClearAreaOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -8225,7 +8225,7 @@
                  */
                 function ClearAreaOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -8262,7 +8262,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -8337,7 +8337,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ClearAreaOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ClearAreaOverlapInfo.verify = function verify(message, _depth) {
@@ -8355,7 +8355,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ClearAreaOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ClearAreaOverlapInfo} ClearAreaOverlapInfo
                  */
                 ClearAreaOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -8375,7 +8375,7 @@
                  * @static
                  * @param {planning.hdmap.ClearAreaOverlapInfo} message ClearAreaOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ClearAreaOverlapInfo.toObject = function toObject() {
                     return {};
@@ -8386,7 +8386,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ClearAreaOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ClearAreaOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -8413,7 +8413,7 @@
     
                 /**
                  * Properties of a SpeedBumpOverlapInfo.
-                 * @typedef {Object} planning.hdmap.SpeedBumpOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.SpeedBumpOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -8440,7 +8440,7 @@
                  */
                 function SpeedBumpOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -8477,7 +8477,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -8552,7 +8552,7 @@
                  * @function verify
                  * @memberof planning.hdmap.SpeedBumpOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 SpeedBumpOverlapInfo.verify = function verify(message, _depth) {
@@ -8570,7 +8570,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.SpeedBumpOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.SpeedBumpOverlapInfo} SpeedBumpOverlapInfo
                  */
                 SpeedBumpOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -8590,7 +8590,7 @@
                  * @static
                  * @param {planning.hdmap.SpeedBumpOverlapInfo} message SpeedBumpOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 SpeedBumpOverlapInfo.toObject = function toObject() {
                     return {};
@@ -8601,7 +8601,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.SpeedBumpOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 SpeedBumpOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -8628,7 +8628,7 @@
     
                 /**
                  * Properties of a ParkingSpaceOverlapInfo.
-                 * @typedef {Object} planning.hdmap.ParkingSpaceOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.ParkingSpaceOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -8655,7 +8655,7 @@
                  */
                 function ParkingSpaceOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -8692,7 +8692,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -8767,7 +8767,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ParkingSpaceOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ParkingSpaceOverlapInfo.verify = function verify(message, _depth) {
@@ -8785,7 +8785,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ParkingSpaceOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ParkingSpaceOverlapInfo} ParkingSpaceOverlapInfo
                  */
                 ParkingSpaceOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -8805,7 +8805,7 @@
                  * @static
                  * @param {planning.hdmap.ParkingSpaceOverlapInfo} message ParkingSpaceOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ParkingSpaceOverlapInfo.toObject = function toObject() {
                     return {};
@@ -8816,7 +8816,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ParkingSpaceOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ParkingSpaceOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -8843,7 +8843,7 @@
     
                 /**
                  * Properties of a PNCJunctionOverlapInfo.
-                 * @typedef {Object} planning.hdmap.PNCJunctionOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.PNCJunctionOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -8870,7 +8870,7 @@
                  */
                 function PNCJunctionOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -8907,7 +8907,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -8982,7 +8982,7 @@
                  * @function verify
                  * @memberof planning.hdmap.PNCJunctionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 PNCJunctionOverlapInfo.verify = function verify(message, _depth) {
@@ -9000,7 +9000,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.PNCJunctionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.PNCJunctionOverlapInfo} PNCJunctionOverlapInfo
                  */
                 PNCJunctionOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -9020,7 +9020,7 @@
                  * @static
                  * @param {planning.hdmap.PNCJunctionOverlapInfo} message PNCJunctionOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 PNCJunctionOverlapInfo.toObject = function toObject() {
                     return {};
@@ -9031,7 +9031,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.PNCJunctionOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 PNCJunctionOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -9058,7 +9058,7 @@
     
                 /**
                  * Properties of a RSUOverlapInfo.
-                 * @typedef {Object} planning.hdmap.RSUOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.RSUOverlapInfo.$Properties
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
@@ -9085,7 +9085,7 @@
                  */
                 function RSUOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -9122,7 +9122,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -9197,7 +9197,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RSUOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RSUOverlapInfo.verify = function verify(message, _depth) {
@@ -9215,7 +9215,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RSUOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RSUOverlapInfo} RSUOverlapInfo
                  */
                 RSUOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -9235,7 +9235,7 @@
                  * @static
                  * @param {planning.hdmap.RSUOverlapInfo} message RSUOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RSUOverlapInfo.toObject = function toObject() {
                     return {};
@@ -9246,7 +9246,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RSUOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RSUOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -9273,7 +9273,7 @@
     
                 /**
                  * Properties of a RegionOverlapInfo.
-                 * @typedef {Object} planning.hdmap.RegionOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.RegionOverlapInfo.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] RegionOverlapInfo id
                  * @property {Array.<planning.hdmap.Polygon.$Properties>|null} [polygon] RegionOverlapInfo polygon
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -9303,7 +9303,7 @@
                 function RegionOverlapInfo(properties) {
                     this.polygon = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -9356,12 +9356,12 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.polygon != null && message.polygon.length)
                         for (var i = 0; i < message.polygon.length; ++i)
                             $root.planning.hdmap.Polygon.encode(message.polygon[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -9453,7 +9453,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RegionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RegionOverlapInfo.verify = function verify(message, _depth) {
@@ -9485,7 +9485,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RegionOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RegionOverlapInfo} RegionOverlapInfo
                  */
                 RegionOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -9521,7 +9521,7 @@
                  * @static
                  * @param {planning.hdmap.RegionOverlapInfo} message RegionOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RegionOverlapInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -9550,7 +9550,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RegionOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RegionOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -9581,7 +9581,7 @@
              * @property {number} RIGHT_BOUNDARY=2 RIGHT_BOUNDARY value
              */
             hdmap.AssociatedBoundaryType = (function() {
-                var valuesById = {}, values = Object.create(valuesById);
+                var valuesById = {}, values = MapObject.create(valuesById);
                 values[valuesById[1] = "LEFT_BOUNDARY"] = 1;
                 values[valuesById[2] = "RIGHT_BOUNDARY"] = 2;
                 return values;
@@ -9591,7 +9591,7 @@
     
                 /**
                  * Properties of a FenceOverlapInfo.
-                 * @typedef {Object} planning.hdmap.FenceOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.FenceOverlapInfo.$Properties
                  * @property {planning.hdmap.AssociatedBoundaryType|null} [boundaryType] FenceOverlapInfo boundaryType
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -9619,7 +9619,7 @@
                  */
                 function FenceOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -9664,9 +9664,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.boundaryType != null && Object.hasOwnProperty.call(message, "boundaryType"))
+                    if (message.boundaryType != null && MapObject.hasOwnProperty.call(message, "boundaryType"))
                         writer.uint32(/* id 1, wireType 0 =*/8).int32(message.boundaryType);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -9750,7 +9750,7 @@
                  * @function verify
                  * @memberof planning.hdmap.FenceOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 FenceOverlapInfo.verify = function verify(message, _depth) {
@@ -9776,7 +9776,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.FenceOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.FenceOverlapInfo} FenceOverlapInfo
                  */
                 FenceOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -9813,7 +9813,7 @@
                  * @static
                  * @param {planning.hdmap.FenceOverlapInfo} message FenceOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 FenceOverlapInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -9835,7 +9835,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.FenceOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 FenceOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -9862,7 +9862,7 @@
     
                 /**
                  * Properties of an ObjectOverlapInfo.
-                 * @typedef {Object} planning.hdmap.ObjectOverlapInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.ObjectOverlapInfo.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] ObjectOverlapInfo id
                  * @property {planning.hdmap.LaneOverlapInfo.$Properties|null} [laneOverlapInfo] ObjectOverlapInfo laneOverlapInfo
                  * @property {planning.hdmap.SignalOverlapInfo.$Properties|null} [signalOverlapInfo] ObjectOverlapInfo signalOverlapInfo
@@ -9920,7 +9920,7 @@
                  */
                 function ObjectOverlapInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -10038,7 +10038,7 @@
                  * @memberof planning.hdmap.ObjectOverlapInfo
                  * @instance
                  */
-                Object.defineProperty(ObjectOverlapInfo.prototype, "overlapInfo", {
+                MapObject.defineProperty(ObjectOverlapInfo.prototype, "overlapInfo", {
                     get: $util.oneOfGetter($oneOfFields = ["laneOverlapInfo", "signalOverlapInfo", "stopSignOverlapInfo", "crosswalkOverlapInfo", "junctionOverlapInfo", "yieldSignOverlapInfo", "clearAreaOverlapInfo", "speedBumpOverlapInfo", "parkingSpaceOverlapInfo", "pncJunctionOverlapInfo", "rsuOverlapInfo", "fenceOverlapInfo"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
@@ -10075,33 +10075,33 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.laneOverlapInfo != null && Object.hasOwnProperty.call(message, "laneOverlapInfo"))
+                    if (message.laneOverlapInfo != null && MapObject.hasOwnProperty.call(message, "laneOverlapInfo"))
                         $root.planning.hdmap.LaneOverlapInfo.encode(message.laneOverlapInfo, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.signalOverlapInfo != null && Object.hasOwnProperty.call(message, "signalOverlapInfo"))
+                    if (message.signalOverlapInfo != null && MapObject.hasOwnProperty.call(message, "signalOverlapInfo"))
                         $root.planning.hdmap.SignalOverlapInfo.encode(message.signalOverlapInfo, writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.stopSignOverlapInfo != null && Object.hasOwnProperty.call(message, "stopSignOverlapInfo"))
+                    if (message.stopSignOverlapInfo != null && MapObject.hasOwnProperty.call(message, "stopSignOverlapInfo"))
                         $root.planning.hdmap.StopSignOverlapInfo.encode(message.stopSignOverlapInfo, writer.uint32(/* id 5, wireType 2 =*/42).fork(), _depth + 1).ldelim();
-                    if (message.crosswalkOverlapInfo != null && Object.hasOwnProperty.call(message, "crosswalkOverlapInfo"))
+                    if (message.crosswalkOverlapInfo != null && MapObject.hasOwnProperty.call(message, "crosswalkOverlapInfo"))
                         $root.planning.hdmap.CrosswalkOverlapInfo.encode(message.crosswalkOverlapInfo, writer.uint32(/* id 6, wireType 2 =*/50).fork(), _depth + 1).ldelim();
-                    if (message.junctionOverlapInfo != null && Object.hasOwnProperty.call(message, "junctionOverlapInfo"))
+                    if (message.junctionOverlapInfo != null && MapObject.hasOwnProperty.call(message, "junctionOverlapInfo"))
                         $root.planning.hdmap.JunctionOverlapInfo.encode(message.junctionOverlapInfo, writer.uint32(/* id 7, wireType 2 =*/58).fork(), _depth + 1).ldelim();
-                    if (message.yieldSignOverlapInfo != null && Object.hasOwnProperty.call(message, "yieldSignOverlapInfo"))
+                    if (message.yieldSignOverlapInfo != null && MapObject.hasOwnProperty.call(message, "yieldSignOverlapInfo"))
                         $root.planning.hdmap.YieldOverlapInfo.encode(message.yieldSignOverlapInfo, writer.uint32(/* id 8, wireType 2 =*/66).fork(), _depth + 1).ldelim();
-                    if (message.clearAreaOverlapInfo != null && Object.hasOwnProperty.call(message, "clearAreaOverlapInfo"))
+                    if (message.clearAreaOverlapInfo != null && MapObject.hasOwnProperty.call(message, "clearAreaOverlapInfo"))
                         $root.planning.hdmap.ClearAreaOverlapInfo.encode(message.clearAreaOverlapInfo, writer.uint32(/* id 9, wireType 2 =*/74).fork(), _depth + 1).ldelim();
-                    if (message.speedBumpOverlapInfo != null && Object.hasOwnProperty.call(message, "speedBumpOverlapInfo"))
+                    if (message.speedBumpOverlapInfo != null && MapObject.hasOwnProperty.call(message, "speedBumpOverlapInfo"))
                         $root.planning.hdmap.SpeedBumpOverlapInfo.encode(message.speedBumpOverlapInfo, writer.uint32(/* id 10, wireType 2 =*/82).fork(), _depth + 1).ldelim();
-                    if (message.parkingSpaceOverlapInfo != null && Object.hasOwnProperty.call(message, "parkingSpaceOverlapInfo"))
+                    if (message.parkingSpaceOverlapInfo != null && MapObject.hasOwnProperty.call(message, "parkingSpaceOverlapInfo"))
                         $root.planning.hdmap.ParkingSpaceOverlapInfo.encode(message.parkingSpaceOverlapInfo, writer.uint32(/* id 11, wireType 2 =*/90).fork(), _depth + 1).ldelim();
-                    if (message.pncJunctionOverlapInfo != null && Object.hasOwnProperty.call(message, "pncJunctionOverlapInfo"))
+                    if (message.pncJunctionOverlapInfo != null && MapObject.hasOwnProperty.call(message, "pncJunctionOverlapInfo"))
                         $root.planning.hdmap.PNCJunctionOverlapInfo.encode(message.pncJunctionOverlapInfo, writer.uint32(/* id 12, wireType 2 =*/98).fork(), _depth + 1).ldelim();
-                    if (message.rsuOverlapInfo != null && Object.hasOwnProperty.call(message, "rsuOverlapInfo"))
+                    if (message.rsuOverlapInfo != null && MapObject.hasOwnProperty.call(message, "rsuOverlapInfo"))
                         $root.planning.hdmap.RSUOverlapInfo.encode(message.rsuOverlapInfo, writer.uint32(/* id 13, wireType 2 =*/106).fork(), _depth + 1).ldelim();
-                    if (message.fenceOverlapInfo != null && Object.hasOwnProperty.call(message, "fenceOverlapInfo"))
+                    if (message.fenceOverlapInfo != null && MapObject.hasOwnProperty.call(message, "fenceOverlapInfo"))
                         $root.planning.hdmap.FenceOverlapInfo.encode(message.fenceOverlapInfo, writer.uint32(/* id 14, wireType 2 =*/114).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -10269,7 +10269,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ObjectOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ObjectOverlapInfo.verify = function verify(message, _depth) {
@@ -10411,7 +10411,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ObjectOverlapInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ObjectOverlapInfo} ObjectOverlapInfo
                  */
                 ObjectOverlapInfo.fromObject = function fromObject(object, _depth) {
@@ -10497,7 +10497,7 @@
                  * @static
                  * @param {planning.hdmap.ObjectOverlapInfo} message ObjectOverlapInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ObjectOverlapInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -10579,7 +10579,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ObjectOverlapInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ObjectOverlapInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -10606,7 +10606,7 @@
     
                 /**
                  * Properties of an Overlap.
-                 * @typedef {Object} planning.hdmap.Overlap.$Properties
+                 * @typedef {MapObject} planning.hdmap.Overlap.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Overlap id
                  * @property {Array.<planning.hdmap.ObjectOverlapInfo.$Properties>|null} [object] Overlap object
                  * @property {Array.<planning.hdmap.RegionOverlapInfo.$Properties>|null} [regionOverlap] Overlap regionOverlap
@@ -10643,7 +10643,7 @@
                     this.object = [];
                     this.regionOverlap = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -10704,7 +10704,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.object != null && message.object.length)
                         for (var i = 0; i < message.object.length; ++i)
@@ -10712,7 +10712,7 @@
                     if (message.regionOverlap != null && message.regionOverlap.length)
                         for (var i = 0; i < message.regionOverlap.length; ++i)
                             $root.planning.hdmap.RegionOverlapInfo.encode(message.regionOverlap[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -10812,7 +10812,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Overlap
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Overlap.verify = function verify(message, _depth) {
@@ -10853,7 +10853,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Overlap
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Overlap} Overlap
                  */
                 Overlap.fromObject = function fromObject(object, _depth) {
@@ -10899,7 +10899,7 @@
                  * @static
                  * @param {planning.hdmap.Overlap} message Overlap
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Overlap.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -10935,7 +10935,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Overlap
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Overlap.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -10962,7 +10962,7 @@
     
                 /**
                  * Properties of a ParkingSpace.
-                 * @typedef {Object} planning.hdmap.ParkingSpace.$Properties
+                 * @typedef {MapObject} planning.hdmap.ParkingSpace.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] ParkingSpace id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] ParkingSpace polygon
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] ParkingSpace overlapId
@@ -10994,7 +10994,7 @@
                 function ParkingSpace(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -11063,16 +11063,16 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.heading != null && Object.hasOwnProperty.call(message, "heading"))
+                    if (message.heading != null && MapObject.hasOwnProperty.call(message, "heading"))
                         writer.uint32(/* id 4, wireType 1 =*/33).double(message.heading);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -11176,7 +11176,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ParkingSpace
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ParkingSpace.verify = function verify(message, _depth) {
@@ -11216,7 +11216,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ParkingSpace
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ParkingSpace} ParkingSpace
                  */
                 ParkingSpace.fromObject = function fromObject(object, _depth) {
@@ -11259,7 +11259,7 @@
                  * @static
                  * @param {planning.hdmap.ParkingSpace} message ParkingSpace
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ParkingSpace.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -11295,7 +11295,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ParkingSpace
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ParkingSpace.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -11322,7 +11322,7 @@
     
                 /**
                  * Properties of a ParkingLot.
-                 * @typedef {Object} planning.hdmap.ParkingLot.$Properties
+                 * @typedef {MapObject} planning.hdmap.ParkingLot.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] ParkingLot id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] ParkingLot polygon
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] ParkingLot overlapId
@@ -11353,7 +11353,7 @@
                 function ParkingLot(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -11414,14 +11414,14 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -11519,7 +11519,7 @@
                  * @function verify
                  * @memberof planning.hdmap.ParkingLot
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 ParkingLot.verify = function verify(message, _depth) {
@@ -11556,7 +11556,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.ParkingLot
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.ParkingLot} ParkingLot
                  */
                 ParkingLot.fromObject = function fromObject(object, _depth) {
@@ -11597,7 +11597,7 @@
                  * @static
                  * @param {planning.hdmap.ParkingLot} message ParkingLot
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 ParkingLot.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -11630,7 +11630,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.ParkingLot
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 ParkingLot.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -11657,7 +11657,7 @@
     
                 /**
                  * Properties of a Passage.
-                 * @typedef {Object} planning.hdmap.Passage.$Properties
+                 * @typedef {MapObject} planning.hdmap.Passage.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Passage id
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [signalId] Passage signalId
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [yieldId] Passage yieldId
@@ -11694,7 +11694,7 @@
                     this.stopSignId = [];
                     this.laneId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -11779,7 +11779,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.signalId != null && message.signalId.length)
                         for (var i = 0; i < message.signalId.length; ++i)
@@ -11793,9 +11793,9 @@
                     if (message.laneId != null && message.laneId.length)
                         for (var i = 0; i < message.laneId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.laneId[i], writer.uint32(/* id 5, wireType 2 =*/42).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 6, wireType 0 =*/48).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -11917,7 +11917,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Passage
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Passage.verify = function verify(message, _depth) {
@@ -11985,7 +11985,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Passage
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Passage} Passage
                  */
                 Passage.fromObject = function fromObject(object, _depth) {
@@ -12071,7 +12071,7 @@
                  * @static
                  * @param {planning.hdmap.Passage} message Passage
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Passage.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -12123,7 +12123,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Passage
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Passage.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -12152,7 +12152,7 @@
                  * @property {number} EXIT=2 EXIT value
                  */
                 Passage.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "ENTRANCE"] = 1;
                     values[valuesById[2] = "EXIT"] = 2;
@@ -12166,7 +12166,7 @@
     
                 /**
                  * Properties of a PassageGroup.
-                 * @typedef {Object} planning.hdmap.PassageGroup.$Properties
+                 * @typedef {MapObject} planning.hdmap.PassageGroup.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] PassageGroup id
                  * @property {Array.<planning.hdmap.Passage.$Properties>|null} [passage] PassageGroup passage
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -12196,7 +12196,7 @@
                 function PassageGroup(properties) {
                     this.passage = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -12249,12 +12249,12 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.passage != null && message.passage.length)
                         for (var i = 0; i < message.passage.length; ++i)
                             $root.planning.hdmap.Passage.encode(message.passage[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -12346,7 +12346,7 @@
                  * @function verify
                  * @memberof planning.hdmap.PassageGroup
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 PassageGroup.verify = function verify(message, _depth) {
@@ -12378,7 +12378,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.PassageGroup
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.PassageGroup} PassageGroup
                  */
                 PassageGroup.fromObject = function fromObject(object, _depth) {
@@ -12414,7 +12414,7 @@
                  * @static
                  * @param {planning.hdmap.PassageGroup} message PassageGroup
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 PassageGroup.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -12443,7 +12443,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.PassageGroup
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 PassageGroup.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -12470,7 +12470,7 @@
     
                 /**
                  * Properties of a PNCJunction.
-                 * @typedef {Object} planning.hdmap.PNCJunction.$Properties
+                 * @typedef {MapObject} planning.hdmap.PNCJunction.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] PNCJunction id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] PNCJunction polygon
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] PNCJunction overlapId
@@ -12503,7 +12503,7 @@
                     this.overlapId = [];
                     this.passageGroup = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -12572,9 +12572,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
@@ -12582,7 +12582,7 @@
                     if (message.passageGroup != null && message.passageGroup.length)
                         for (var i = 0; i < message.passageGroup.length; ++i)
                             $root.planning.hdmap.PassageGroup.encode(message.passageGroup[i], writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -12688,7 +12688,7 @@
                  * @function verify
                  * @memberof planning.hdmap.PNCJunction
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 PNCJunction.verify = function verify(message, _depth) {
@@ -12734,7 +12734,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.PNCJunction
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.PNCJunction} PNCJunction
                  */
                 PNCJunction.fromObject = function fromObject(object, _depth) {
@@ -12785,7 +12785,7 @@
                  * @static
                  * @param {planning.hdmap.PNCJunction} message PNCJunction
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 PNCJunction.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -12825,7 +12825,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.PNCJunction
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 PNCJunction.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -12852,7 +12852,7 @@
     
                 /**
                  * Properties of a BoundaryEdge.
-                 * @typedef {Object} planning.hdmap.BoundaryEdge.$Properties
+                 * @typedef {MapObject} planning.hdmap.BoundaryEdge.$Properties
                  * @property {planning.hdmap.Curve.$Properties|null} [curve] BoundaryEdge curve
                  * @property {planning.hdmap.BoundaryEdge.Type|null} [type] BoundaryEdge type
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -12885,7 +12885,7 @@
                  */
                 function BoundaryEdge(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -12938,11 +12938,11 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.curve != null && Object.hasOwnProperty.call(message, "curve"))
+                    if (message.curve != null && MapObject.hasOwnProperty.call(message, "curve"))
                         $root.planning.hdmap.Curve.encode(message.curve, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -13032,7 +13032,7 @@
                  * @function verify
                  * @memberof planning.hdmap.BoundaryEdge
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 BoundaryEdge.verify = function verify(message, _depth) {
@@ -13065,7 +13065,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.BoundaryEdge
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.BoundaryEdge} BoundaryEdge
                  */
                 BoundaryEdge.fromObject = function fromObject(object, _depth) {
@@ -13115,7 +13115,7 @@
                  * @static
                  * @param {planning.hdmap.BoundaryEdge} message BoundaryEdge
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 BoundaryEdge.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -13141,7 +13141,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.BoundaryEdge
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 BoundaryEdge.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -13171,7 +13171,7 @@
                  * @property {number} RIGHT_BOUNDARY=3 RIGHT_BOUNDARY value
                  */
                 BoundaryEdge.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "NORMAL"] = 1;
                     values[valuesById[2] = "LEFT_BOUNDARY"] = 2;
@@ -13186,7 +13186,7 @@
     
                 /**
                  * Properties of a BoundaryPolygon.
-                 * @typedef {Object} planning.hdmap.BoundaryPolygon.$Properties
+                 * @typedef {MapObject} planning.hdmap.BoundaryPolygon.$Properties
                  * @property {Array.<planning.hdmap.BoundaryEdge.$Properties>|null} [edge] BoundaryPolygon edge
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -13218,7 +13218,7 @@
                 function BoundaryPolygon(properties) {
                     this.edge = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -13266,7 +13266,7 @@
                     if (message.edge != null && message.edge.length)
                         for (var i = 0; i < message.edge.length; ++i)
                             $root.planning.hdmap.BoundaryEdge.encode(message.edge[i], writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -13352,7 +13352,7 @@
                  * @function verify
                  * @memberof planning.hdmap.BoundaryPolygon
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 BoundaryPolygon.verify = function verify(message, _depth) {
@@ -13379,7 +13379,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.BoundaryPolygon
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.BoundaryPolygon} BoundaryPolygon
                  */
                 BoundaryPolygon.fromObject = function fromObject(object, _depth) {
@@ -13410,7 +13410,7 @@
                  * @static
                  * @param {planning.hdmap.BoundaryPolygon} message BoundaryPolygon
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 BoundaryPolygon.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -13435,7 +13435,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.BoundaryPolygon
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 BoundaryPolygon.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -13462,7 +13462,7 @@
     
                 /**
                  * Properties of a RoadBoundary.
-                 * @typedef {Object} planning.hdmap.RoadBoundary.$Properties
+                 * @typedef {MapObject} planning.hdmap.RoadBoundary.$Properties
                  * @property {planning.hdmap.BoundaryPolygon.$Properties|null} [outerPolygon] RoadBoundary outerPolygon
                  * @property {Array.<planning.hdmap.BoundaryPolygon.$Properties>|null} [hole] RoadBoundary hole
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -13496,7 +13496,7 @@
                 function RoadBoundary(properties) {
                     this.hole = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -13549,12 +13549,12 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.outerPolygon != null && Object.hasOwnProperty.call(message, "outerPolygon"))
+                    if (message.outerPolygon != null && MapObject.hasOwnProperty.call(message, "outerPolygon"))
                         $root.planning.hdmap.BoundaryPolygon.encode(message.outerPolygon, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.hole != null && message.hole.length)
                         for (var i = 0; i < message.hole.length; ++i)
                             $root.planning.hdmap.BoundaryPolygon.encode(message.hole[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -13646,7 +13646,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RoadBoundary
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RoadBoundary.verify = function verify(message, _depth) {
@@ -13678,7 +13678,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RoadBoundary
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RoadBoundary} RoadBoundary
                  */
                 RoadBoundary.fromObject = function fromObject(object, _depth) {
@@ -13714,7 +13714,7 @@
                  * @static
                  * @param {planning.hdmap.RoadBoundary} message RoadBoundary
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RoadBoundary.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -13743,7 +13743,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RoadBoundary
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RoadBoundary.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -13770,7 +13770,7 @@
     
                 /**
                  * Properties of a RoadROIBoundary.
-                 * @typedef {Object} planning.hdmap.RoadROIBoundary.$Properties
+                 * @typedef {MapObject} planning.hdmap.RoadROIBoundary.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] RoadROIBoundary id
                  * @property {Array.<planning.hdmap.RoadBoundary.$Properties>|null} [roadBoundaries] RoadROIBoundary roadBoundaries
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -13804,7 +13804,7 @@
                 function RoadROIBoundary(properties) {
                     this.roadBoundaries = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -13857,12 +13857,12 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.roadBoundaries != null && message.roadBoundaries.length)
                         for (var i = 0; i < message.roadBoundaries.length; ++i)
                             $root.planning.hdmap.RoadBoundary.encode(message.roadBoundaries[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -13954,7 +13954,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RoadROIBoundary
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RoadROIBoundary.verify = function verify(message, _depth) {
@@ -13986,7 +13986,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RoadROIBoundary
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RoadROIBoundary} RoadROIBoundary
                  */
                 RoadROIBoundary.fromObject = function fromObject(object, _depth) {
@@ -14022,7 +14022,7 @@
                  * @static
                  * @param {planning.hdmap.RoadROIBoundary} message RoadROIBoundary
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RoadROIBoundary.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -14051,7 +14051,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RoadROIBoundary
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RoadROIBoundary.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -14078,7 +14078,7 @@
     
                 /**
                  * Properties of a RoadSection.
-                 * @typedef {Object} planning.hdmap.RoadSection.$Properties
+                 * @typedef {MapObject} planning.hdmap.RoadSection.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] RoadSection id
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [laneId] RoadSection laneId
                  * @property {planning.hdmap.RoadBoundary.$Properties|null} [boundary] RoadSection boundary
@@ -14114,7 +14114,7 @@
                 function RoadSection(properties) {
                     this.laneId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -14175,14 +14175,14 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.laneId != null && message.laneId.length)
                         for (var i = 0; i < message.laneId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.laneId[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.boundary != null && Object.hasOwnProperty.call(message, "boundary"))
+                    if (message.boundary != null && MapObject.hasOwnProperty.call(message, "boundary"))
                         $root.planning.hdmap.RoadBoundary.encode(message.boundary, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -14280,7 +14280,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RoadSection
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RoadSection.verify = function verify(message, _depth) {
@@ -14317,7 +14317,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RoadSection
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RoadSection} RoadSection
                  */
                 RoadSection.fromObject = function fromObject(object, _depth) {
@@ -14358,7 +14358,7 @@
                  * @static
                  * @param {planning.hdmap.RoadSection} message RoadSection
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RoadSection.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -14391,7 +14391,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RoadSection
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RoadSection.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -14418,7 +14418,7 @@
     
                 /**
                  * Properties of a Road.
-                 * @typedef {Object} planning.hdmap.Road.$Properties
+                 * @typedef {MapObject} planning.hdmap.Road.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Road id
                  * @property {Array.<planning.hdmap.RoadSection.$Properties>|null} [section] Road section
                  * @property {planning.hdmap.Id.$Properties|null} [junctionId] Road junctionId
@@ -14456,7 +14456,7 @@
                 function Road(properties) {
                     this.section = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -14525,16 +14525,16 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.section != null && message.section.length)
                         for (var i = 0; i < message.section.length; ++i)
                             $root.planning.hdmap.RoadSection.encode(message.section[i], writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.junctionId != null && Object.hasOwnProperty.call(message, "junctionId"))
+                    if (message.junctionId != null && MapObject.hasOwnProperty.call(message, "junctionId"))
                         $root.planning.hdmap.Id.encode(message.junctionId, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 4, wireType 0 =*/32).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -14638,7 +14638,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Road
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Road.verify = function verify(message, _depth) {
@@ -14685,7 +14685,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Road
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Road} Road
                  */
                 Road.fromObject = function fromObject(object, _depth) {
@@ -14750,7 +14750,7 @@
                  * @static
                  * @param {planning.hdmap.Road} message Road
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Road.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -14786,7 +14786,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Road
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Road.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -14816,7 +14816,7 @@
                  * @property {number} PARK=3 PARK value
                  */
                 Road.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "HIGHWAY"] = 1;
                     values[valuesById[2] = "CITY_ROAD"] = 2;
@@ -14831,7 +14831,7 @@
     
                 /**
                  * Properties of a RSU.
-                 * @typedef {Object} planning.hdmap.RSU.$Properties
+                 * @typedef {MapObject} planning.hdmap.RSU.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] RSU id
                  * @property {planning.hdmap.Id.$Properties|null} [junctionId] RSU junctionId
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] RSU overlapId
@@ -14862,7 +14862,7 @@
                 function RSU(properties) {
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -14923,14 +14923,14 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.junctionId != null && Object.hasOwnProperty.call(message, "junctionId"))
+                    if (message.junctionId != null && MapObject.hasOwnProperty.call(message, "junctionId"))
                         $root.planning.hdmap.Id.encode(message.junctionId, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -15028,7 +15028,7 @@
                  * @function verify
                  * @memberof planning.hdmap.RSU
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 RSU.verify = function verify(message, _depth) {
@@ -15065,7 +15065,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.RSU
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.RSU} RSU
                  */
                 RSU.fromObject = function fromObject(object, _depth) {
@@ -15106,7 +15106,7 @@
                  * @static
                  * @param {planning.hdmap.RSU} message RSU
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 RSU.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -15139,7 +15139,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.RSU
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 RSU.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -15166,7 +15166,7 @@
     
                 /**
                  * Properties of a Subsignal.
-                 * @typedef {Object} planning.hdmap.Subsignal.$Properties
+                 * @typedef {MapObject} planning.hdmap.Subsignal.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Subsignal id
                  * @property {planning.hdmap.Subsignal.Type|null} [type] Subsignal type
                  * @property {planning.common.PointENU.$Properties|null} [location] Subsignal location
@@ -15196,7 +15196,7 @@
                  */
                 function Subsignal(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -15257,13 +15257,13 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
-                    if (message.location != null && Object.hasOwnProperty.call(message, "location"))
+                    if (message.location != null && MapObject.hasOwnProperty.call(message, "location"))
                         $root.planning.common.PointENU.encode(message.location, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -15359,7 +15359,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Subsignal
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Subsignal.verify = function verify(message, _depth) {
@@ -15401,7 +15401,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Subsignal
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Subsignal} Subsignal
                  */
                 Subsignal.fromObject = function fromObject(object, _depth) {
@@ -15472,7 +15472,7 @@
                  * @static
                  * @param {planning.hdmap.Subsignal} message Subsignal
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Subsignal.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -15501,7 +15501,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Subsignal
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Subsignal.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -15535,7 +15535,7 @@
                  * @property {number} ARROW_U_TURN=8 ARROW_U_TURN value
                  */
                 Subsignal.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "UNKNOWN"] = 1;
                     values[valuesById[2] = "CIRCLE"] = 2;
                     values[valuesById[3] = "ARROW_LEFT"] = 3;
@@ -15554,7 +15554,7 @@
     
                 /**
                  * Properties of a SignInfo.
-                 * @typedef {Object} planning.hdmap.SignInfo.$Properties
+                 * @typedef {MapObject} planning.hdmap.SignInfo.$Properties
                  * @property {planning.hdmap.SignInfo.Type|null} [type] SignInfo type
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -15582,7 +15582,7 @@
                  */
                 function SignInfo(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -15627,9 +15627,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -15713,7 +15713,7 @@
                  * @function verify
                  * @memberof planning.hdmap.SignInfo
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 SignInfo.verify = function verify(message, _depth) {
@@ -15740,7 +15740,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.SignInfo
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.SignInfo} SignInfo
                  */
                 SignInfo.fromObject = function fromObject(object, _depth) {
@@ -15781,7 +15781,7 @@
                  * @static
                  * @param {planning.hdmap.SignInfo} message SignInfo
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 SignInfo.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -15803,7 +15803,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.SignInfo
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 SignInfo.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -15832,7 +15832,7 @@
                  * @property {number} NO_LEFT_TURN_ENTER_WAITING=2 NO_LEFT_TURN_ENTER_WAITING value
                  */
                 SignInfo.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "None"] = 0;
                     values[valuesById[1] = "NO_RIGHT_TURN_ON_RED"] = 1;
                     values[valuesById[2] = "NO_LEFT_TURN_ENTER_WAITING"] = 2;
@@ -15846,7 +15846,7 @@
     
                 /**
                  * Properties of a Signal.
-                 * @typedef {Object} planning.hdmap.Signal.$Properties
+                 * @typedef {MapObject} planning.hdmap.Signal.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] Signal id
                  * @property {planning.hdmap.Polygon.$Properties|null} [boundary] Signal boundary
                  * @property {Array.<planning.hdmap.Subsignal.$Properties>|null} [subsignal] Signal subsignal
@@ -15896,7 +15896,7 @@
                     this.signInfo = [];
                     this.relativeSignalId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -15997,9 +15997,9 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.boundary != null && Object.hasOwnProperty.call(message, "boundary"))
+                    if (message.boundary != null && MapObject.hasOwnProperty.call(message, "boundary"))
                         $root.planning.hdmap.Polygon.encode(message.boundary, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
                     if (message.subsignal != null && message.subsignal.length)
                         for (var i = 0; i < message.subsignal.length; ++i)
@@ -16007,7 +16007,7 @@
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 4, wireType 2 =*/34).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 5, wireType 0 =*/40).int32(message.type);
                     if (message.stopLine != null && message.stopLine.length)
                         for (var i = 0; i < message.stopLine.length; ++i)
@@ -16018,7 +16018,7 @@
                     if (message.relativeSignalId != null && message.relativeSignalId.length)
                         for (var i = 0; i < message.relativeSignalId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.relativeSignalId[i], writer.uint32(/* id 8, wireType 2 =*/66).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -16154,7 +16154,7 @@
                  * @function verify
                  * @memberof planning.hdmap.Signal
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Signal.verify = function verify(message, _depth) {
@@ -16239,7 +16239,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.Signal
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.Signal} Signal
                  */
                 Signal.fromObject = function fromObject(object, _depth) {
@@ -16352,7 +16352,7 @@
                  * @static
                  * @param {planning.hdmap.Signal} message Signal
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Signal.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -16413,7 +16413,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.Signal
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Signal.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -16445,7 +16445,7 @@
                  * @property {number} SINGLE=6 SINGLE value
                  */
                 Signal.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "UNKNOWN"] = 1;
                     values[valuesById[2] = "MIX_2_HORIZONTAL"] = 2;
                     values[valuesById[3] = "MIX_2_VERTICAL"] = 3;
@@ -16462,7 +16462,7 @@
     
                 /**
                  * Properties of a SpeedBump.
-                 * @typedef {Object} planning.hdmap.SpeedBump.$Properties
+                 * @typedef {MapObject} planning.hdmap.SpeedBump.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] SpeedBump id
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] SpeedBump overlapId
                  * @property {Array.<planning.hdmap.Curve.$Properties>|null} [position] SpeedBump position
@@ -16499,7 +16499,7 @@
                     this.overlapId = [];
                     this.position = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -16560,7 +16560,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
@@ -16568,7 +16568,7 @@
                     if (message.position != null && message.position.length)
                         for (var i = 0; i < message.position.length; ++i)
                             $root.planning.hdmap.Curve.encode(message.position[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -16668,7 +16668,7 @@
                  * @function verify
                  * @memberof planning.hdmap.SpeedBump
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 SpeedBump.verify = function verify(message, _depth) {
@@ -16709,7 +16709,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.SpeedBump
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.SpeedBump} SpeedBump
                  */
                 SpeedBump.fromObject = function fromObject(object, _depth) {
@@ -16755,7 +16755,7 @@
                  * @static
                  * @param {planning.hdmap.SpeedBump} message SpeedBump
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 SpeedBump.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -16791,7 +16791,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.SpeedBump
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 SpeedBump.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -16818,7 +16818,7 @@
     
                 /**
                  * Properties of a StopSign.
-                 * @typedef {Object} planning.hdmap.StopSign.$Properties
+                 * @typedef {MapObject} planning.hdmap.StopSign.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] StopSign id
                  * @property {Array.<planning.hdmap.Curve.$Properties>|null} [stopLine] StopSign stopLine
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] StopSign overlapId
@@ -16857,7 +16857,7 @@
                     this.stopLine = [];
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -16926,7 +16926,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.stopLine != null && message.stopLine.length)
                         for (var i = 0; i < message.stopLine.length; ++i)
@@ -16934,9 +16934,9 @@
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 4, wireType 0 =*/32).int32(message.type);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -17042,7 +17042,7 @@
                  * @function verify
                  * @memberof planning.hdmap.StopSign
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 StopSign.verify = function verify(message, _depth) {
@@ -17095,7 +17095,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.StopSign
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.StopSign} StopSign
                  */
                 StopSign.fromObject = function fromObject(object, _depth) {
@@ -17173,7 +17173,7 @@
                  * @static
                  * @param {planning.hdmap.StopSign} message StopSign
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 StopSign.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -17213,7 +17213,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.StopSign
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 StopSign.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -17245,7 +17245,7 @@
                  * @property {number} ALL_WAY=5 ALL_WAY value
                  */
                 StopSign.StopType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[0] = "UNKNOWN"] = 0;
                     values[valuesById[1] = "ONE_WAY"] = 1;
                     values[valuesById[2] = "TWO_WAY"] = 2;
@@ -17262,7 +17262,7 @@
     
                 /**
                  * Properties of a YieldSign.
-                 * @typedef {Object} planning.hdmap.YieldSign.$Properties
+                 * @typedef {MapObject} planning.hdmap.YieldSign.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] YieldSign id
                  * @property {Array.<planning.hdmap.Curve.$Properties>|null} [stopLine] YieldSign stopLine
                  * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] YieldSign overlapId
@@ -17299,7 +17299,7 @@
                     this.stopLine = [];
                     this.overlapId = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -17360,7 +17360,7 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
                     if (message.stopLine != null && message.stopLine.length)
                         for (var i = 0; i < message.stopLine.length; ++i)
@@ -17368,7 +17368,7 @@
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
                             $root.planning.hdmap.Id.encode(message.overlapId[i], writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -17468,7 +17468,7 @@
                  * @function verify
                  * @memberof planning.hdmap.YieldSign
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 YieldSign.verify = function verify(message, _depth) {
@@ -17509,7 +17509,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.YieldSign
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.YieldSign} YieldSign
                  */
                 YieldSign.fromObject = function fromObject(object, _depth) {
@@ -17555,7 +17555,7 @@
                  * @static
                  * @param {planning.hdmap.YieldSign} message YieldSign
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 YieldSign.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -17591,7 +17591,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.YieldSign
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 YieldSign.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -17614,145 +17614,145 @@
                 return YieldSign;
             })();
     
-            hdmap.Object = (function() {
+            hdmap.MapObject = (function() {
     
                 /**
-                 * Properties of an Object.
-                 * @typedef {Object} planning.hdmap.Object.$Properties
-                 * @property {planning.hdmap.Id.$Properties|null} [id] Object id
-                 * @property {planning.hdmap.Polygon.$Properties|null} [boundary] Object boundary
-                 * @property {planning.hdmap.Object.Type|null} [type] Object type
-                 * @property {planning.hdmap.Object.RoadSignalType|null} [subtype] Object subtype
-                 * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] Object overlapId
-                 * @property {Array.<planning.hdmap.Curve.$Properties>|null} [segment] Object segment
+                 * Properties of an MapObject.
+                 * @typedef {MapObject} planning.hdmap.MapObject.$Properties
+                 * @property {planning.hdmap.Id.$Properties|null} [id] MapObject id
+                 * @property {planning.hdmap.Polygon.$Properties|null} [boundary] MapObject boundary
+                 * @property {planning.hdmap.MapObject.Type|null} [type] MapObject type
+                 * @property {planning.hdmap.MapObject.RoadSignalType|null} [subtype] MapObject subtype
+                 * @property {Array.<planning.hdmap.Id.$Properties>|null} [overlapId] MapObject overlapId
+                 * @property {Array.<planning.hdmap.Curve.$Properties>|null} [segment] MapObject segment
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
     
                 /**
-                 * Properties of an Object.
+                 * Properties of an MapObject.
                  * @memberof planning.hdmap
                  * @interface IObject
-                 * @augments planning.hdmap.Object.$Properties
-                 * @deprecated Use planning.hdmap.Object.$Properties instead.
+                 * @augments planning.hdmap.MapObject.$Properties
+                 * @deprecated Use planning.hdmap.MapObject.$Properties instead.
                  */
     
                 /**
-                 * Shape of an Object.
+                 * Shape of an MapObject.
                  * @typedef {{
                  *   id?: planning.hdmap.Id.$Shape|null;
                  *   boundary?: planning.hdmap.Polygon.$Shape|null;
-                 *   type?: planning.hdmap.Object.Type|null;
-                 *   subtype?: planning.hdmap.Object.RoadSignalType|null;
+                 *   type?: planning.hdmap.MapObject.Type|null;
+                 *   subtype?: planning.hdmap.MapObject.RoadSignalType|null;
                  *   overlapId?: Array.<planning.hdmap.Id.$Shape>|null;
                  *   segment?: Array.<planning.hdmap.Curve.$Shape>|null;
                  *   $unknowns?: Array.<Uint8Array>;
-                 * }} planning.hdmap.Object.$Shape
+                 * }} planning.hdmap.MapObject.$Shape
                  */
     
                 /**
-                 * Constructs a new Object.
+                 * Constructs a new MapObject.
                  * @memberof planning.hdmap
-                 * @classdesc Represents an Object.
+                 * @classdesc Represents an MapObject.
                  * @constructor
-                 * @param {planning.hdmap.Object.$Properties=} [properties] Properties to set
+                 * @param {planning.hdmap.MapObject.$Properties=} [properties] Properties to set
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
-                function Object(properties) {
+                function MapObject(properties) {
                     this.overlapId = [];
                     this.segment = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
     
                 /**
-                 * Object id.
+                 * MapObject id.
                  * @member {planning.hdmap.Id.$Properties|null|undefined} id
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.id = null;
+                MapObject.prototype.id = null;
     
                 /**
-                 * Object boundary.
+                 * MapObject boundary.
                  * @member {planning.hdmap.Polygon.$Properties|null|undefined} boundary
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.boundary = null;
+                MapObject.prototype.boundary = null;
     
                 /**
-                 * Object type.
-                 * @member {planning.hdmap.Object.Type} type
-                 * @memberof planning.hdmap.Object
+                 * MapObject type.
+                 * @member {planning.hdmap.MapObject.Type} type
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.type = 1;
+                MapObject.prototype.type = 1;
     
                 /**
-                 * Object subtype.
-                 * @member {planning.hdmap.Object.RoadSignalType} subtype
-                 * @memberof planning.hdmap.Object
+                 * MapObject subtype.
+                 * @member {planning.hdmap.MapObject.RoadSignalType} subtype
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.subtype = 1;
+                MapObject.prototype.subtype = 1;
     
                 /**
-                 * Object overlapId.
+                 * MapObject overlapId.
                  * @member {Array.<planning.hdmap.Id.$Properties>} overlapId
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.overlapId = $util.emptyArray;
+                MapObject.prototype.overlapId = $util.emptyArray;
     
                 /**
-                 * Object segment.
+                 * MapObject segment.
                  * @member {Array.<planning.hdmap.Curve.$Properties>} segment
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @instance
                  */
-                Object.prototype.segment = $util.emptyArray;
+                MapObject.prototype.segment = $util.emptyArray;
     
                 /**
-                 * Creates a new Object instance using the specified properties.
+                 * Creates a new MapObject instance using the specified properties.
                  * @function create
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {planning.hdmap.Object.$Properties=} [properties] Properties to set
-                 * @returns {planning.hdmap.Object} Object instance
+                 * @param {planning.hdmap.MapObject.$Properties=} [properties] Properties to set
+                 * @returns {planning.hdmap.MapObject} MapObject instance
                  * @type {{
-                 *   (properties: planning.hdmap.Object.$Shape): planning.hdmap.Object & planning.hdmap.Object.$Shape;
-                 *   (properties?: planning.hdmap.Object.$Properties): planning.hdmap.Object;
+                 *   (properties: planning.hdmap.MapObject.$Shape): planning.hdmap.MapObject & planning.hdmap.MapObject.$Shape;
+                 *   (properties?: planning.hdmap.MapObject.$Properties): planning.hdmap.MapObject;
                  * }}
                  */
-                Object.create = function create(properties) {
-                    return new Object(properties);
+                MapObject.create = function create(properties) {
+                    return new MapObject(properties);
                 };
     
                 /**
-                 * Encodes the specified Object message. Does not implicitly {@link planning.hdmap.Object.verify|verify} messages.
+                 * Encodes the specified MapObject message. Does not implicitly {@link planning.hdmap.MapObject.verify|verify} messages.
                  * @function encode
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {planning.hdmap.Object.$Properties} message Object message or plain object to encode
+                 * @param {planning.hdmap.MapObject.$Properties} message MapObject message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                Object.encode = function encode(message, writer, _depth) {
+                MapObject.encode = function encode(message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
                     if (_depth === undefined)
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.boundary != null && Object.hasOwnProperty.call(message, "boundary"))
+                    if (message.boundary != null && MapObject.hasOwnProperty.call(message, "boundary"))
                         $root.planning.hdmap.Polygon.encode(message.boundary, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                    if (message.type != null && MapObject.hasOwnProperty.call(message, "type"))
                         writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
-                    if (message.subtype != null && Object.hasOwnProperty.call(message, "subtype"))
+                    if (message.subtype != null && MapObject.hasOwnProperty.call(message, "subtype"))
                         writer.uint32(/* id 4, wireType 0 =*/32).int32(message.subtype);
                     if (message.overlapId != null && message.overlapId.length)
                         for (var i = 0; i < message.overlapId.length; ++i)
@@ -17760,44 +17760,44 @@
                     if (message.segment != null && message.segment.length)
                         for (var i = 0; i < message.segment.length; ++i)
                             $root.planning.hdmap.Curve.encode(message.segment[i], writer.uint32(/* id 6, wireType 2 =*/50).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
                 };
     
                 /**
-                 * Encodes the specified Object message, length delimited. Does not implicitly {@link planning.hdmap.Object.verify|verify} messages.
+                 * Encodes the specified MapObject message, length delimited. Does not implicitly {@link planning.hdmap.MapObject.verify|verify} messages.
                  * @function encodeDelimited
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {planning.hdmap.Object.$Properties} message Object message or plain object to encode
+                 * @param {planning.hdmap.MapObject.$Properties} message MapObject message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                Object.encodeDelimited = function encodeDelimited(message, writer) {
+                MapObject.encodeDelimited = function encodeDelimited(message, writer) {
                     return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
     
                 /**
-                 * Decodes an Object message from the specified reader or buffer.
+                 * Decodes an MapObject message from the specified reader or buffer.
                  * @function decode
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {planning.hdmap.Object & planning.hdmap.Object.$Shape} Object
+                 * @returns {planning.hdmap.MapObject & planning.hdmap.MapObject.$Shape} MapObject
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                Object.decode = function decode(reader, length, _end, _depth, _target) {
+                MapObject.decode = function decode(reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
                     if (_depth === undefined)
                         _depth = 0;
                     if (_depth > $Reader.recursionLimit)
                         throw Error("max depth exceeded");
-                    var end = length === undefined ? reader.len : reader.pos + length, message = _target || new $root.planning.hdmap.Object();
+                    var end = length === undefined ? reader.len : reader.pos + length, message = _target || new $root.planning.hdmap.MapObject();
                     while (reader.pos < end) {
                         var start = reader.pos;
                         var tag = reader.tag();
@@ -17858,30 +17858,30 @@
                 };
     
                 /**
-                 * Decodes an Object message from the specified reader or buffer, length delimited.
+                 * Decodes an MapObject message from the specified reader or buffer, length delimited.
                  * @function decodeDelimited
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {planning.hdmap.Object & planning.hdmap.Object.$Shape} Object
+                 * @returns {planning.hdmap.MapObject & planning.hdmap.MapObject.$Shape} MapObject
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                Object.decodeDelimited = function decodeDelimited(reader) {
+                MapObject.decodeDelimited = function decodeDelimited(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
                 };
     
                 /**
-                 * Verifies an Object message.
+                 * Verifies an MapObject message.
                  * @function verify
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                Object.verify = function verify(message, _depth) {
+                MapObject.verify = function verify(message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (_depth === undefined)
@@ -17949,29 +17949,29 @@
                 };
     
                 /**
-                 * Creates an Object message from a plain object. Also converts values to their respective internal types.
+                 * Creates an MapObject message from a plain object. Also converts values to their respective internal types.
                  * @function fromObject
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {planning.hdmap.Object} Object
+                 * @param {MapObject.<string,*>} object Plain object
+                 * @returns {planning.hdmap.MapObject} MapObject
                  */
-                Object.fromObject = function fromObject(object, _depth) {
-                    if (object instanceof $root.planning.hdmap.Object)
+                MapObject.fromObject = function fromObject(object, _depth) {
+                    if (object instanceof $root.planning.hdmap.MapObject)
                         return object;
                     if (_depth === undefined)
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    var message = new $root.planning.hdmap.Object();
+                    var message = new $root.planning.hdmap.MapObject();
                     if (object.id != null) {
                         if (typeof object.id !== "object")
-                            throw TypeError(".planning.hdmap.Object.id: object expected");
+                            throw TypeError(".planning.hdmap.MapObject.id: object expected");
                         message.id = $root.planning.hdmap.Id.fromObject(object.id, _depth + 1);
                     }
                     if (object.boundary != null) {
                         if (typeof object.boundary !== "object")
-                            throw TypeError(".planning.hdmap.Object.boundary: object expected");
+                            throw TypeError(".planning.hdmap.MapObject.boundary: object expected");
                         message.boundary = $root.planning.hdmap.Polygon.fromObject(object.boundary, _depth + 1);
                     }
                     switch (object.type) {
@@ -18060,21 +18060,21 @@
                     }
                     if (object.overlapId) {
                         if (!Array.isArray(object.overlapId))
-                            throw TypeError(".planning.hdmap.Object.overlapId: array expected");
+                            throw TypeError(".planning.hdmap.MapObject.overlapId: array expected");
                         message.overlapId = Array(object.overlapId.length);
                         for (var i = 0; i < object.overlapId.length; ++i) {
                             if (typeof object.overlapId[i] !== "object")
-                                throw TypeError(".planning.hdmap.Object.overlapId: object expected");
+                                throw TypeError(".planning.hdmap.MapObject.overlapId: object expected");
                             message.overlapId[i] = $root.planning.hdmap.Id.fromObject(object.overlapId[i], _depth + 1);
                         }
                     }
                     if (object.segment) {
                         if (!Array.isArray(object.segment))
-                            throw TypeError(".planning.hdmap.Object.segment: array expected");
+                            throw TypeError(".planning.hdmap.MapObject.segment: array expected");
                         message.segment = Array(object.segment.length);
                         for (var i = 0; i < object.segment.length; ++i) {
                             if (typeof object.segment[i] !== "object")
-                                throw TypeError(".planning.hdmap.Object.segment: object expected");
+                                throw TypeError(".planning.hdmap.MapObject.segment: object expected");
                             message.segment[i] = $root.planning.hdmap.Curve.fromObject(object.segment[i], _depth + 1);
                         }
                     }
@@ -18082,15 +18082,15 @@
                 };
     
                 /**
-                 * Creates a plain object from an Object message. Also converts values to other types if specified.
+                 * Creates a plain object from an MapObject message. Also converts values to other types if specified.
                  * @function toObject
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
-                 * @param {planning.hdmap.Object} message Object
+                 * @param {planning.hdmap.MapObject} message MapObject
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
-                Object.toObject = function toObject(message, options, _depth) {
+                MapObject.toObject = function toObject(message, options, _depth) {
                     if (!options)
                         options = {};
                     if (_depth === undefined)
@@ -18113,9 +18113,9 @@
                     if (message.boundary != null && message.hasOwnProperty("boundary"))
                         object.boundary = $root.planning.hdmap.Polygon.toObject(message.boundary, options, _depth + 1);
                     if (message.type != null && message.hasOwnProperty("type"))
-                        object.type = options.enums === String ? $root.planning.hdmap.Object.Type[message.type] === undefined ? message.type : $root.planning.hdmap.Object.Type[message.type] : message.type;
+                        object.type = options.enums === String ? $root.planning.hdmap.MapObject.Type[message.type] === undefined ? message.type : $root.planning.hdmap.MapObject.Type[message.type] : message.type;
                     if (message.subtype != null && message.hasOwnProperty("subtype"))
-                        object.subtype = options.enums === String ? $root.planning.hdmap.Object.RoadSignalType[message.subtype] === undefined ? message.subtype : $root.planning.hdmap.Object.RoadSignalType[message.subtype] : message.subtype;
+                        object.subtype = options.enums === String ? $root.planning.hdmap.MapObject.RoadSignalType[message.subtype] === undefined ? message.subtype : $root.planning.hdmap.MapObject.RoadSignalType[message.subtype] : message.subtype;
                     if (message.overlapId && message.overlapId.length) {
                         object.overlapId = Array(message.overlapId.length);
                         for (var j = 0; j < message.overlapId.length; ++j)
@@ -18130,33 +18130,33 @@
                 };
     
                 /**
-                 * Converts this Object to JSON.
+                 * Converts this MapObject to JSON.
                  * @function toJSON
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
-                Object.prototype.toJSON = function toJSON() {
+                MapObject.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
     
                 /**
-                 * Gets the type url for Object
+                 * Gets the type url for MapObject
                  * @function getTypeUrl
-                 * @memberof planning.hdmap.Object
+                 * @memberof planning.hdmap.MapObject
                  * @static
                  * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
                  * @returns {string} The type url
                  */
-                Object.getTypeUrl = function getTypeUrl(prefix) {
+                MapObject.getTypeUrl = function getTypeUrl(prefix) {
                     if (prefix === undefined)
                         prefix = "type.googleapis.com";
-                    return prefix + "/planning.hdmap.Object";
+                    return prefix + "/planning.hdmap.MapObject";
                 };
     
                 /**
                  * Type enum.
-                 * @name planning.hdmap.Object.Type
+                 * @name planning.hdmap.MapObject.Type
                  * @enum {number}
                  * @property {number} UNKNOWN=1 UNKNOWN value
                  * @property {number} FENCE=2 FENCE value
@@ -18164,8 +18164,8 @@
                  * @property {number} ROADSIGNAL=4 ROADSIGNAL value
                  * @property {number} BARRIERGATE=5 BARRIERGATE value
                  */
-                Object.Type = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                MapObject.Type = (function() {
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "UNKNOWN"] = 1;
                     values[valuesById[2] = "FENCE"] = 2;
                     values[valuesById[3] = "LAMPPOSTS"] = 3;
@@ -18176,7 +18176,7 @@
     
                 /**
                  * RoadSignalType enum.
-                 * @name planning.hdmap.Object.RoadSignalType
+                 * @name planning.hdmap.MapObject.RoadSignalType
                  * @enum {number}
                  * @property {number} ROAD_SIGNAL_UNKNOWN=1 ROAD_SIGNAL_UNKNOWN value
                  * @property {number} THROUGH=2 THROUGH value
@@ -18191,8 +18191,8 @@
                  * @property {number} MERGE_LEFT=11 MERGE_LEFT value
                  * @property {number} MERGE_RIGHT=12 MERGE_RIGHT value
                  */
-                Object.RoadSignalType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                MapObject.RoadSignalType = (function() {
+                    var valuesById = {}, values = MapObject.create(valuesById);
                     values[valuesById[1] = "ROAD_SIGNAL_UNKNOWN"] = 1;
                     values[valuesById[2] = "THROUGH"] = 2;
                     values[valuesById[3] = "THROUGH_AND_LEFT"] = 3;
@@ -18208,14 +18208,14 @@
                     return values;
                 })();
     
-                return Object;
+                return MapObject;
             })();
     
             hdmap.TrafficIsland = (function() {
     
                 /**
                  * Properties of a TrafficIsland.
-                 * @typedef {Object} planning.hdmap.TrafficIsland.$Properties
+                 * @typedef {MapObject} planning.hdmap.TrafficIsland.$Properties
                  * @property {planning.hdmap.Id.$Properties|null} [id] TrafficIsland id
                  * @property {planning.hdmap.Polygon.$Properties|null} [polygon] TrafficIsland polygon
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -18244,7 +18244,7 @@
                  */
                 function TrafficIsland(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -18297,11 +18297,11 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                    if (message.id != null && MapObject.hasOwnProperty.call(message, "id"))
                         $root.planning.hdmap.Id.encode(message.id, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.polygon != null && Object.hasOwnProperty.call(message, "polygon"))
+                    if (message.polygon != null && MapObject.hasOwnProperty.call(message, "polygon"))
                         $root.planning.hdmap.Polygon.encode(message.polygon, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -18391,7 +18391,7 @@
                  * @function verify
                  * @memberof planning.hdmap.TrafficIsland
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 TrafficIsland.verify = function verify(message, _depth) {
@@ -18419,7 +18419,7 @@
                  * @function fromObject
                  * @memberof planning.hdmap.TrafficIsland
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.hdmap.TrafficIsland} TrafficIsland
                  */
                 TrafficIsland.fromObject = function fromObject(object, _depth) {
@@ -18450,7 +18450,7 @@
                  * @static
                  * @param {planning.hdmap.TrafficIsland} message TrafficIsland
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 TrafficIsland.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -18476,7 +18476,7 @@
                  * @function toJSON
                  * @memberof planning.hdmap.TrafficIsland
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 TrafficIsland.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -18515,7 +18515,7 @@
     
                 /**
                  * Properties of a PointENU.
-                 * @typedef {Object} planning.common.PointENU.$Properties
+                 * @typedef {MapObject} planning.common.PointENU.$Properties
                  * @property {number|null} [x] PointENU x
                  * @property {number|null} [y] PointENU y
                  * @property {number|null} [z] PointENU z
@@ -18545,7 +18545,7 @@
                  */
                 function PointENU(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -18606,13 +18606,13 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.x != null && Object.hasOwnProperty.call(message, "x"))
+                    if (message.x != null && MapObject.hasOwnProperty.call(message, "x"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.x);
-                    if (message.y != null && Object.hasOwnProperty.call(message, "y"))
+                    if (message.y != null && MapObject.hasOwnProperty.call(message, "y"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.y);
-                    if (message.z != null && Object.hasOwnProperty.call(message, "z"))
+                    if (message.z != null && MapObject.hasOwnProperty.call(message, "z"))
                         writer.uint32(/* id 3, wireType 1 =*/25).double(message.z);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -18708,7 +18708,7 @@
                  * @function verify
                  * @memberof planning.common.PointENU
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 PointENU.verify = function verify(message, _depth) {
@@ -18735,7 +18735,7 @@
                  * @function fromObject
                  * @memberof planning.common.PointENU
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.PointENU} PointENU
                  */
                 PointENU.fromObject = function fromObject(object, _depth) {
@@ -18762,7 +18762,7 @@
                  * @static
                  * @param {planning.common.PointENU} message PointENU
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 PointENU.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -18791,7 +18791,7 @@
                  * @function toJSON
                  * @memberof planning.common.PointENU
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 PointENU.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -18818,7 +18818,7 @@
     
                 /**
                  * Properties of a PointLLH.
-                 * @typedef {Object} planning.common.PointLLH.$Properties
+                 * @typedef {MapObject} planning.common.PointLLH.$Properties
                  * @property {number|null} [lon] PointLLH lon
                  * @property {number|null} [lat] PointLLH lat
                  * @property {number|null} [height] PointLLH height
@@ -18848,7 +18848,7 @@
                  */
                 function PointLLH(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -18909,13 +18909,13 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.lon != null && Object.hasOwnProperty.call(message, "lon"))
+                    if (message.lon != null && MapObject.hasOwnProperty.call(message, "lon"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.lon);
-                    if (message.lat != null && Object.hasOwnProperty.call(message, "lat"))
+                    if (message.lat != null && MapObject.hasOwnProperty.call(message, "lat"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.lat);
-                    if (message.height != null && Object.hasOwnProperty.call(message, "height"))
+                    if (message.height != null && MapObject.hasOwnProperty.call(message, "height"))
                         writer.uint32(/* id 3, wireType 1 =*/25).double(message.height);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -19011,7 +19011,7 @@
                  * @function verify
                  * @memberof planning.common.PointLLH
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 PointLLH.verify = function verify(message, _depth) {
@@ -19038,7 +19038,7 @@
                  * @function fromObject
                  * @memberof planning.common.PointLLH
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.PointLLH} PointLLH
                  */
                 PointLLH.fromObject = function fromObject(object, _depth) {
@@ -19065,7 +19065,7 @@
                  * @static
                  * @param {planning.common.PointLLH} message PointLLH
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 PointLLH.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -19094,7 +19094,7 @@
                  * @function toJSON
                  * @memberof planning.common.PointLLH
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 PointLLH.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -19121,7 +19121,7 @@
     
                 /**
                  * Properties of a Point2D.
-                 * @typedef {Object} planning.common.Point2D.$Properties
+                 * @typedef {MapObject} planning.common.Point2D.$Properties
                  * @property {number|null} [x] Point2D x
                  * @property {number|null} [y] Point2D y
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
@@ -19150,7 +19150,7 @@
                  */
                 function Point2D(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -19203,11 +19203,11 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.x != null && Object.hasOwnProperty.call(message, "x"))
+                    if (message.x != null && MapObject.hasOwnProperty.call(message, "x"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.x);
-                    if (message.y != null && Object.hasOwnProperty.call(message, "y"))
+                    if (message.y != null && MapObject.hasOwnProperty.call(message, "y"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.y);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -19297,7 +19297,7 @@
                  * @function verify
                  * @memberof planning.common.Point2D
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Point2D.verify = function verify(message, _depth) {
@@ -19321,7 +19321,7 @@
                  * @function fromObject
                  * @memberof planning.common.Point2D
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.Point2D} Point2D
                  */
                 Point2D.fromObject = function fromObject(object, _depth) {
@@ -19346,7 +19346,7 @@
                  * @static
                  * @param {planning.common.Point2D} message Point2D
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Point2D.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -19372,7 +19372,7 @@
                  * @function toJSON
                  * @memberof planning.common.Point2D
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Point2D.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -19399,7 +19399,7 @@
     
                 /**
                  * Properties of a Point3D.
-                 * @typedef {Object} planning.common.Point3D.$Properties
+                 * @typedef {MapObject} planning.common.Point3D.$Properties
                  * @property {number|null} [x] Point3D x
                  * @property {number|null} [y] Point3D y
                  * @property {number|null} [z] Point3D z
@@ -19429,7 +19429,7 @@
                  */
                 function Point3D(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -19490,13 +19490,13 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.x != null && Object.hasOwnProperty.call(message, "x"))
+                    if (message.x != null && MapObject.hasOwnProperty.call(message, "x"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.x);
-                    if (message.y != null && Object.hasOwnProperty.call(message, "y"))
+                    if (message.y != null && MapObject.hasOwnProperty.call(message, "y"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.y);
-                    if (message.z != null && Object.hasOwnProperty.call(message, "z"))
+                    if (message.z != null && MapObject.hasOwnProperty.call(message, "z"))
                         writer.uint32(/* id 3, wireType 1 =*/25).double(message.z);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -19592,7 +19592,7 @@
                  * @function verify
                  * @memberof planning.common.Point3D
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Point3D.verify = function verify(message, _depth) {
@@ -19619,7 +19619,7 @@
                  * @function fromObject
                  * @memberof planning.common.Point3D
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.Point3D} Point3D
                  */
                 Point3D.fromObject = function fromObject(object, _depth) {
@@ -19646,7 +19646,7 @@
                  * @static
                  * @param {planning.common.Point3D} message Point3D
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Point3D.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -19675,7 +19675,7 @@
                  * @function toJSON
                  * @memberof planning.common.Point3D
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Point3D.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -19702,7 +19702,7 @@
     
                 /**
                  * Properties of a Quaternion.
-                 * @typedef {Object} planning.common.Quaternion.$Properties
+                 * @typedef {MapObject} planning.common.Quaternion.$Properties
                  * @property {number|null} [qx] Quaternion qx
                  * @property {number|null} [qy] Quaternion qy
                  * @property {number|null} [qz] Quaternion qz
@@ -19733,7 +19733,7 @@
                  */
                 function Quaternion(properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -19802,15 +19802,15 @@
                         _depth = 0;
                     if (_depth > $util.recursionLimit)
                         throw Error("max depth exceeded");
-                    if (message.qx != null && Object.hasOwnProperty.call(message, "qx"))
+                    if (message.qx != null && MapObject.hasOwnProperty.call(message, "qx"))
                         writer.uint32(/* id 1, wireType 1 =*/9).double(message.qx);
-                    if (message.qy != null && Object.hasOwnProperty.call(message, "qy"))
+                    if (message.qy != null && MapObject.hasOwnProperty.call(message, "qy"))
                         writer.uint32(/* id 2, wireType 1 =*/17).double(message.qy);
-                    if (message.qz != null && Object.hasOwnProperty.call(message, "qz"))
+                    if (message.qz != null && MapObject.hasOwnProperty.call(message, "qz"))
                         writer.uint32(/* id 3, wireType 1 =*/25).double(message.qz);
-                    if (message.qw != null && Object.hasOwnProperty.call(message, "qw"))
+                    if (message.qw != null && MapObject.hasOwnProperty.call(message, "qw"))
                         writer.uint32(/* id 4, wireType 1 =*/33).double(message.qw);
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -19912,7 +19912,7 @@
                  * @function verify
                  * @memberof planning.common.Quaternion
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Quaternion.verify = function verify(message, _depth) {
@@ -19942,7 +19942,7 @@
                  * @function fromObject
                  * @memberof planning.common.Quaternion
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.Quaternion} Quaternion
                  */
                 Quaternion.fromObject = function fromObject(object, _depth) {
@@ -19971,7 +19971,7 @@
                  * @static
                  * @param {planning.common.Quaternion} message Quaternion
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Quaternion.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -20003,7 +20003,7 @@
                  * @function toJSON
                  * @memberof planning.common.Quaternion
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Quaternion.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
@@ -20030,7 +20030,7 @@
     
                 /**
                  * Properties of a Polygon.
-                 * @typedef {Object} planning.common.Polygon.$Properties
+                 * @typedef {MapObject} planning.common.Polygon.$Properties
                  * @property {Array.<planning.common.Point3D.$Properties>|null} [point] Polygon point
                  * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding
                  */
@@ -20059,7 +20059,7 @@
                 function Polygon(properties) {
                     this.point = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        for (var keys = MapObject.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
                 }
@@ -20107,7 +20107,7 @@
                     if (message.point != null && message.point.length)
                         for (var i = 0; i < message.point.length; ++i)
                             $root.planning.common.Point3D.encode(message.point[i], writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
-                    if (message.$unknowns != null && Object.hasOwnProperty.call(message, "$unknowns"))
+                    if (message.$unknowns != null && MapObject.hasOwnProperty.call(message, "$unknowns"))
                         for (var i = 0; i < message.$unknowns.length; ++i)
                             writer.raw(message.$unknowns[i]);
                     return writer;
@@ -20193,7 +20193,7 @@
                  * @function verify
                  * @memberof planning.common.Polygon
                  * @static
-                 * @param {Object.<string,*>} message Plain object to verify
+                 * @param {MapObject.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
                 Polygon.verify = function verify(message, _depth) {
@@ -20220,7 +20220,7 @@
                  * @function fromObject
                  * @memberof planning.common.Polygon
                  * @static
-                 * @param {Object.<string,*>} object Plain object
+                 * @param {MapObject.<string,*>} object Plain object
                  * @returns {planning.common.Polygon} Polygon
                  */
                 Polygon.fromObject = function fromObject(object, _depth) {
@@ -20251,7 +20251,7 @@
                  * @static
                  * @param {planning.common.Polygon} message Polygon
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
+                 * @returns {MapObject.<string,*>} Plain object
                  */
                 Polygon.toObject = function toObject(message, options, _depth) {
                     if (!options)
@@ -20276,7 +20276,7 @@
                  * @function toJSON
                  * @memberof planning.common.Polygon
                  * @instance
-                 * @returns {Object.<string,*>} JSON object
+                 * @returns {MapObject.<string,*>} JSON object
                  */
                 Polygon.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);

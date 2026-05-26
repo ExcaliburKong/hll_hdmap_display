@@ -1,0 +1,263 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #1a1a1e;
+  color: #e8e8ec;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #25252c;
+  border-bottom: 1px solid #3a3a44;
+  flex-shrink: 0;
+}
+
+.toolbar h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.toolbar .hint {
+  font-size: 12px;
+  color: #9a9aa8;
+}
+
+.toolbar .spacer {
+  flex: 1;
+}
+
+#file-input {
+  display: none;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #3d7aed;
+  color: #fff;
+}
+
+.btn:hover {
+  background: #2f6ad8;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #404050;
+}
+
+.btn-secondary:hover {
+  background: #505062;
+}
+
+#status {
+  font-size: 12px;
+  color: #8ec8ff;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+#map-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #121216;
+  cursor: grab;
+}
+
+#map-container.panning,
+#map-container.rotating {
+  cursor: grabbing;
+}
+
+#map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  shape-rendering: geometricPrecision;
+}
+
+.lane-shape {
+  fill: #9a9aa8;
+  stroke: #f0f0f4;
+  stroke-width: 0.6;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+}
+
+.lane-shape.central-only {
+  fill: none;
+  stroke: #9a9aa8;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lane-shape:hover {
+  fill: #b0b0bc;
+  stroke: #ffffff;
+}
+
+.lane-shape.central-only:hover {
+  stroke: #ffffff;
+}
+
+.lane-shape.state-selected {
+  fill: #2196f3;
+  stroke: #1565c0;
+  opacity: 0.85;
+}
+
+.lane-shape.central-only.state-selected {
+  fill: none;
+  stroke: #2196f3;
+  stroke-width: 4;
+  opacity: 1;
+}
+
+.lane-shape.state-predecessor {
+  fill: #43a047;
+  stroke: #2e7d32;
+  opacity: 0.8;
+}
+
+.lane-shape.central-only.state-predecessor {
+  fill: none;
+  stroke: #43a047;
+  stroke-width: 3.5;
+}
+
+.lane-shape.state-successor {
+  fill: #fdd835;
+  stroke: #f9a825;
+  opacity: 0.85;
+}
+
+.lane-shape.central-only.state-successor {
+  fill: none;
+  stroke: #fdd835;
+  stroke-width: 3.5;
+}
+
+.sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #25252c;
+  border-left: 1px solid #3a3a44;
+}
+
+.sidebar-header {
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #3a3a44;
+}
+
+#lane-search {
+  margin: 10px 14px 0;
+  padding: 8px 10px;
+  width: calc(100% - 28px);
+  border: 1px solid #4a4a58;
+  border-radius: 6px;
+  background: #1a1a1e;
+  color: #e8e8ec;
+  font-size: 13px;
+}
+
+#lane-info {
+  flex: 1;
+  margin: 10px 14px 14px;
+  padding: 12px;
+  overflow: auto;
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: #1a1a1e;
+  border: 1px solid #3a3a44;
+  border-radius: 6px;
+  color: #c8d0dc;
+}
+
+.legend {
+  padding: 10px 14px 14px;
+  font-size: 11px;
+  color: #9a9aa8;
+  border-top: 1px solid #3a3a44;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.legend-swatch.default {
+  background: #9a9aa8;
+  border: 1px solid #f0f0f4;
+}
+
+.legend-swatch.selected {
+  background: #2196f3;
+}
+
+.legend-swatch.predecessor {
+  background: #43a047;
+}
+
+.legend-swatch.successor {
+  background: #fdd835;
+}
+
+.empty-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6a6a78;
+  font-size: 15px;
+  pointer-events: none;
+}

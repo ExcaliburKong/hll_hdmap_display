@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HD Map 查看器</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="toolbar">
+      <h1>HD Map 查看器</h1>
+      <input type="file" id="file-input" accept=".bin" />
+      <button type="button" class="btn" id="btn-import">导入地图 (.bin)</button>
+      <button type="button" class="btn btn-secondary" id="btn-reset-view" disabled>重置视图</button>
+      <span class="hint">滚轮缩放 · 左键平移 · 右键旋转 · 点击车道查看详情（纯浏览器解析，无需后端）</span>
+      <span class="spacer"></span>
+      <span id="status">请导入本地地图 bin 文件</span>
+    </header>
+    <div class="main">
+      <div id="map-container">
+        <div class="empty-hint" id="empty-hint">点击「导入地图」加载 bin 文件</div>
+        <svg id="map-svg" xmlns="http://www.w3.org/2000/svg">
+          <g id="viewport">
+            <g id="lanes-layer"></g>
+          </g>
+        </svg>
+      </div>
+      <aside class="sidebar">
+        <div class="sidebar-header">车道信息</div>
+        <input type="text" id="lane-search" placeholder="输入车道 ID 搜索并定位…" disabled />
+        <pre id="lane-info">未选择车道
+
+导入地图后，点击任意车道查看 ID、前后继、限速、类型等信息。
+前驱车道显示为绿色，后继车道显示为黄色。</pre>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch default"></span> 默认车道</div>
+          <div class="legend-item"><span class="legend-swatch selected"></span> 当前选中（蓝）</div>
+          <div class="legend-item"><span class="legend-swatch predecessor"></span> 前驱车道（绿）</div>
+          <div class="legend-item"><span class="legend-swatch successor"></span> 后继车道（黄）</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="protobuf.min.js"></script>
+  <script src="map_proto_bundle.js"></script>
+  <script src="map_parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -28,6 +28,16 @@
   const btnShowAll = document.getElementById("btn-show-all");
   const laneContextMenu = document.getElementById("lane-context-menu");
   const ctxHideLane = document.getElementById("ctx-hide-lane");
+  const sidebar = document.getElementById("sidebar");
+  const sidebarResizer = document.getElementById("sidebar-resizer");
+  const mapMetaPanel = document.getElementById("map-meta-panel");
+  const mapMetaFilename = document.getElementById("map-meta-filename");
+  const mapMetaDate = document.getElementById("map-meta-date");
+  const mapMetaUtm = document.getElementById("map-meta-utm");
+
+  const SIDEBAR_WIDTH_DEFAULT = 360;
+  const SIDEBAR_WIDTH_MIN = 260;
+  const SIDEBAR_WIDTH_MAX = 900;
 
   let mapData = null;
   let laneById = new Map();
@@ -95,14 +105,73 @@
     statusEl.textContent = text;
   }
 
+  function updateMapMetaPanel(meta) {
+    if (!mapMetaPanel) return;
+    if (!meta) {
+      mapMetaPanel.classList.add("is-hidden");
+      return;
+    }
+    mapMetaPanel.classList.remove("is-hidden");
+    if (mapMetaFilename) {
+      mapMetaFilename.textContent = meta.filename || "—";
+    }
+    if (mapMetaDate) {
+      mapMetaDate.textContent = meta.date || "—";
+    }
+    if (mapMetaUtm) {
+      const zone = meta.utm_zone;
+      mapMetaUtm.textContent =
+        zone != null && Number.isFinite(zone) ? String(zone) : "—";
+    }
+  }
+
+  /** 屏幕坐标 → SVG 用户坐标（与 view.tx/ty 同一坐标系） */
+  function clientToSvgPoint(clientX, clientY) {
+    const pt = mapSvg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const ctm = mapSvg.getScreenCTM();
+    if (!ctm) {
+      const rect = mapContainer.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+    const svgPt = pt.matrixTransform(ctm.inverse());
+    return { x: svgPt.x, y: svgPt.y };
+  }
+
   function getContainerPoint(clientX, clientY) {
-    const rect = mapContainer.getBoundingClientRect();
-    return { x: clientX - rect.left, y: clientY - rect.top };
+    return clientToSvgPoint(clientX, clientY);
   }
 
   function getViewCenter() {
     const rect = mapContainer.getBoundingClientRect();
-    return { x: rect.width / 2, y: rect.height / 2 };
+    return getContainerPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+
+  /** 地图容器尺寸变化时同步 viewBox，并保持视口中心下的地图点不动 */
+  function syncMapSvgViewport() {
+    if (!mapSvg) return;
+    const rect = mapContainer.getBoundingClientRect();
+    const w = Math.max(1, rect.width || 800);
+    const h = Math.max(1, rect.height || 600);
+    const vb = mapSvg.viewBox.baseVal;
+    const oldW = vb.width > 0 ? vb.width : w;
+    const oldH = vb.height > 0 ? vb.height : h;
+
+    if (Math.abs(oldW - w) < 0.5 && Math.abs(oldH - h) < 0.5) return;
+
+    if (mapData) {
+      const pivot = getViewCenter();
+      const anchor = screenToMap(pivot.x, pivot.y);
+      mapSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      const pivotAfter = getViewCenter();
+      const after = mapToScreen(anchor.x, anchor.y);
+      view.tx += pivotAfter.x - after.x;
+      view.ty += pivotAfter.y - after.y;
+      applyTransform();
+    } else {
+      mapSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    }
   }
 
   function applyTransform() {
@@ -302,6 +371,7 @@
   }
 
   function resetView() {
+    resetSidebarWidth();
     if (baseView) {
       view = {
         scale: baseView.scale,
@@ -402,6 +472,8 @@
   }
 
   function renderMap(data) {
+    updateMapMetaPanel(data.meta);
+
     lanesLayer.innerHTML = "";
     laneById.clear();
     laneElements.clear();
@@ -748,7 +820,76 @@
       });
   }
 
+  function clampSidebarWidth(width) {
+    const maxByViewport = Math.max(SIDEBAR_WIDTH_MIN, Math.floor(window.innerWidth * 0.75));
+    return Math.min(SIDEBAR_WIDTH_MAX, maxByViewport, Math.max(SIDEBAR_WIDTH_MIN, width));
+  }
+
+  function setSidebarWidth(width) {
+    if (!sidebar) return SIDEBAR_WIDTH_DEFAULT;
+    const w = clampSidebarWidth(width);
+    sidebar.style.setProperty("--sidebar-width", `${w}px`);
+    syncMapSvgViewport();
+    return w;
+  }
+
+  function resetSidebarWidth() {
+    setSidebarWidth(SIDEBAR_WIDTH_DEFAULT);
+  }
+
+  function initSidebarResize() {
+    if (!sidebar || !sidebarResizer) return;
+
+    try {
+      localStorage.removeItem("hdmap-sidebar-width");
+    } catch (_) {
+      /* ignore */
+    }
+    resetSidebarWidth();
+
+    let resizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    const onPointerMove = (e) => {
+      if (!resizing) return;
+      setSidebarWidth(startWidth - (e.clientX - startX));
+    };
+
+    const endResize = (e) => {
+      if (!resizing) return;
+      resizing = false;
+      document.body.classList.remove("sidebar-resizing");
+      sidebarResizer.releasePointerCapture?.(e.pointerId);
+      setSidebarWidth(startWidth - (e.clientX - startX));
+      sidebarResizer.removeEventListener("pointermove", onPointerMove);
+      sidebarResizer.removeEventListener("pointerup", endResize);
+      sidebarResizer.removeEventListener("pointercancel", endResize);
+    };
+
+    sidebarResizer.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      resizing = true;
+      startX = e.clientX;
+      startWidth = sidebar.getBoundingClientRect().width;
+      document.body.classList.add("sidebar-resizing");
+      sidebarResizer.setPointerCapture?.(e.pointerId);
+      sidebarResizer.addEventListener("pointermove", onPointerMove);
+      sidebarResizer.addEventListener("pointerup", endResize);
+      sidebarResizer.addEventListener("pointercancel", endResize);
+    });
+  }
+
+  window.addEventListener("resize", () => {
+    if (sidebar) {
+      const current = sidebar.getBoundingClientRect().width;
+      setSidebarWidth(sidebar.getBoundingClientRect().width);
+    }
+  });
+
   syncLaneTabButtons();
   laneInfo.textContent = DEFAULT_LANE_INFO;
+  initSidebarResize();
   initProtoLoader();
 })();

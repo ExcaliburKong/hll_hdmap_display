@@ -60,6 +60,23 @@
     return MapProtoLoader.getMapType();
   }
 
+  function bytesToUtf8(value) {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    try {
+      return new TextDecoder("utf-8").decode(value);
+    } catch (_) {
+      return "";
+    }
+  }
+
+  /** 从 PROJ 字符串（如 "+proj=utm +zone=49"）解析 UTM 带号 */
+  function parseUtmZoneFromProjection(proj) {
+    if (!proj || typeof proj !== "string") return null;
+    const m = proj.match(/\+zone=(\d+)/i);
+    return m ? Number(m[1]) : null;
+  }
+
   function roundCoord(v) {
     const f = Number(v);
     const p = Math.pow(10, COORD_DECIMALS);
@@ -388,14 +405,21 @@
     }
 
     let projection = "";
-    if (hdMap.header && hdMap.header.projection && hdMap.header.projection.proj) {
-      projection = hdMap.header.projection.proj;
+    let mapDate = "";
+    if (hdMap.header) {
+      mapDate = bytesToUtf8(hdMap.header.date);
+      if (hdMap.header.projection && hdMap.header.projection.proj) {
+        projection = hdMap.header.projection.proj;
+      }
     }
+    const utmZone = parseUtmZoneFromProjection(projection);
 
     return {
       meta: {
         lane_count: lanesOut.length,
+        date: mapDate,
         projection,
+        utm_zone: utmZone,
         bounds,
       },
       lanes: lanesOut,

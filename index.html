@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
   <div id="app">
@@ -23,13 +23,28 @@
         <div id="lane-context-menu" class="lane-context-menu" hidden>
           <button type="button" id="ctx-hide-lane">Hide</button>
         </div>
-        <svg id="map-svg" xmlns="http://www.w3.org/2000/svg">
+        <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
           <g id="viewport">
             <g id="lanes-layer"></g>
           </g>
         </svg>
+        <div id="map-meta-panel" class="map-meta-panel is-hidden" aria-live="polite">
+          <div class="map-meta-row">
+            <span class="map-meta-label">文件</span>
+            <span id="map-meta-filename" class="map-meta-value">—</span>
+          </div>
+          <div class="map-meta-row">
+            <span class="map-meta-label">地图时间</span>
+            <span id="map-meta-date" class="map-meta-value">—</span>
+          </div>
+          <div class="map-meta-row">
+            <span class="map-meta-label">UTM 时区</span>
+            <span id="map-meta-utm" class="map-meta-value">—</span>
+          </div>
+        </div>
       </div>
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-resizer" id="sidebar-resizer" title="拖拽调整侧栏宽度" role="separator" aria-orientation="vertical" aria-label="调整侧栏宽度"></div>
         <div class="sidebar-header">
           <span class="sidebar-header-title">车道信息</span>
           <div class="sidebar-header-actions">
@@ -60,7 +75,7 @@
   </div>
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
-  <script src="map_parser.js"></script>
-  <script src="app.js"></script>
+  <script src="map_parser.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

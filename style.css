@@ -189,6 +189,17 @@ body {
   pointer-events: none;
 }
 
+.lane-selected-centerline {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 0.6;
+  stroke-dasharray: 6 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
 .lane-context-menu {
   position: absolute;
   z-index: 20;
@@ -214,6 +225,304 @@ body {
 
 .lane-context-menu button:hover {
   background: #3d7aed;
+}
+
+.tool-sidebar {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  background: #222228;
+  border-left: 1px solid #3a3a44;
+}
+
+.tool-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+  border-right: 1px solid #3a3a44;
+  background: #1e1e24;
+}
+
+.tool-bar-btn {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 10px 6px;
+  min-width: 36px;
+  border: 1px solid #4a4a58;
+  border-radius: 6px;
+  background: #25252c;
+  color: #c8d0dc;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 2px;
+}
+
+.tool-bar-btn:hover {
+  background: #2e2e38;
+  border-color: #5a5a68;
+}
+
+.tool-bar-btn.active {
+  border-color: #3d7aed;
+  background: #2b3f69;
+  color: #fff;
+}
+
+.tool-panel {
+  display: none;
+  width: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+
+.tool-panel.is-open {
+  display: flex;
+  width: 220px;
+  overflow: auto;
+}
+
+.tool-panel-section {
+  display: none;
+  padding: 12px 10px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-panel-section.is-active {
+  display: flex;
+}
+
+.tool-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e8ec;
+  margin-bottom: 2px;
+}
+
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #9a9aa8;
+}
+
+.tool-field input {
+  padding: 6px 8px;
+  border: 1px solid #4a4a58;
+  border-radius: 4px;
+  background: #1a1a1e;
+  color: #e8e8ec;
+  font-size: 12px;
+  width: 100%;
+}
+
+.tool-hint {
+  margin: 0;
+  font-size: 11px;
+  color: #7a7a88;
+  line-height: 1.4;
+}
+
+.btn-tool-draw {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.tool-vehicle-presets {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-vehicle-preset {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #4a4a58;
+  border-radius: 6px;
+  background: #1f1f25;
+  color: #c8d0dc;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-vehicle-preset:hover {
+  background: #2a2a33;
+  border-color: #5a5a68;
+}
+
+.btn-vehicle-preset.active {
+  border-color: #3d7aed;
+  background: #2b3f69;
+  color: #ffffff;
+}
+
+.tool-record-block {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #3a3a44;
+}
+
+.tool-record-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #9a9aa8;
+}
+
+.tool-record-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 点位列表：默认最多显示 6 条，其余通过滚动查看 */
+:root {
+  --tool-record-max-items: 6;
+  --tool-record-item-est: 74px;
+  --tool-record-gap: 6px;
+}
+
+#tool-point-list,
+#tool-box-list,
+#tool-pick-list {
+  max-height: calc(
+    var(--tool-record-max-items) * var(--tool-record-item-est) +
+      (var(--tool-record-max-items) - 1) * var(--tool-record-gap)
+  );
+}
+
+.tool-record-item {
+  padding: 8px;
+  border: 1px solid #3a3a44;
+  border-radius: 6px;
+  background: #1a1a1e;
+}
+
+.tool-record-item.is-selected {
+  border-color: #3d7aed;
+  box-shadow: inset 0 0 0 1px rgba(61, 122, 237, 0.35);
+}
+
+.tool-record-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8e8ec;
+}
+
+.tool-record-coord {
+  margin-top: 4px;
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 11px;
+  color: #8ec8ff;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.tool-record-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tool-record-empty {
+  padding: 8px 0;
+  font-size: 11px;
+  color: #6a6a78;
+  text-align: center;
+}
+
+.tool-pick-result {
+  margin: 0;
+  padding: 10px;
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: #1a1a1e;
+  border: 1px solid #3a3a44;
+  border-radius: 6px;
+  color: #8ec8ff;
+  min-height: 72px;
+}
+
+#map-container.tool-pick-mode {
+  cursor: crosshair;
+}
+
+#map-container.tool-pick-mode.panning {
+  cursor: grabbing;
+}
+
+.annotation-point {
+  fill: #ff5252;
+  stroke: #ffffff;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.annotation-pick-point {
+  fill: #ff5252;
+  stroke: #ffffff;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.annotation-label,
+.annotation-pick-label {
+  fill: #ff5252;
+  stroke: rgba(0, 0, 0, 0.75);
+  stroke-width: 0.18;
+  paint-order: stroke fill;
+  font-size: 1.35px;
+  font-family: "Consolas", "Menlo", monospace;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  pointer-events: none;
+}
+
+.annotation-pick-heading-line {
+  stroke: #ff5252;
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.annotation-pick-heading-arrow {
+  fill: #ff5252;
+}
+
+.annotation-box {
+  fill: rgba(255, 193, 7, 0.15);
+  stroke: #ffc107;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.annotation-box-center {
+  fill: #ffc107;
+  stroke: #ffffff;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .sidebar {

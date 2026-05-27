@@ -17,6 +17,7 @@
   const mapSvg = document.getElementById("map-svg");
   const viewport = document.getElementById("viewport");
   const lanesLayer = document.getElementById("lanes-layer");
+  const centerlineLayer = document.getElementById("centerline-layer");
   const laneInfo = document.getElementById("lane-info");
   const laneSearch = document.getElementById("lane-search");
   const emptyHint = document.getElementById("empty-hint");
@@ -24,6 +25,7 @@
   const btnLaneTabCenterline = document.getElementById("btn-lane-tab-centerline");
   const btnLaneTabWidth = document.getElementById("btn-lane-tab-width");
   const btnLaneTabRoadWidth = document.getElementById("btn-lane-tab-road-width");
+  const btnClearAll = document.getElementById("btn-clear-all");
   const btnHideAll = document.getElementById("btn-hide-all");
   const btnShowAll = document.getElementById("btn-show-all");
   const laneContextMenu = document.getElementById("lane-context-menu");
@@ -34,8 +36,49 @@
   const mapMetaFilename = document.getElementById("map-meta-filename");
   const mapMetaDate = document.getElementById("map-meta-date");
   const mapMetaUtm = document.getElementById("map-meta-utm");
+  const annotationsLayer = document.getElementById("annotations-layer");
+  const btnToolPoint = document.getElementById("btn-tool-point");
+  const btnToolBox = document.getElementById("btn-tool-box");
+  const btnToolPick = document.getElementById("btn-tool-pick");
+  const toolPanelPoint = document.getElementById("tool-panel-point");
+  const toolPanelBox = document.getElementById("tool-panel-box");
+  const toolPanelPick = document.getElementById("tool-panel-pick");
+  const toolPointX = document.getElementById("tool-point-x");
+  const toolPointY = document.getElementById("tool-point-y");
+  const toolBoxX = document.getElementById("tool-box-x");
+  const toolBoxY = document.getElementById("tool-box-y");
+  const toolBoxHeading = document.getElementById("tool-box-heading");
+  const toolBoxWidth = document.getElementById("tool-box-width");
+  const toolBoxFront = document.getElementById("tool-box-front");
+  const toolBoxRear = document.getElementById("tool-box-rear");
+  const btnVehicleSanfang = document.getElementById("btn-vehicle-sanfang");
+  const btnVehicleLiufang = document.getElementById("btn-vehicle-liufang");
+  const btnDrawPoint = document.getElementById("btn-draw-point");
+  const btnDrawBox = document.getElementById("btn-draw-box");
+  const btnClearAllPoints = document.getElementById("btn-clear-all-points");
+  const btnClearAllBoxes = document.getElementById("btn-clear-all-boxes");
+  const btnClearAllPicks = document.getElementById("btn-clear-all-picks");
+  const toolPointList = document.getElementById("tool-point-list");
+  const toolBoxList = document.getElementById("tool-box-list");
+  const toolPickList = document.getElementById("tool-pick-list");
+  const toolPanel = document.getElementById("tool-panel");
 
   const SIDEBAR_WIDTH_DEFAULT = 360;
+  const VEHICLE_PRESETS = {
+    sanfang: { width: 1.3, front: 2.37, rear: 0.59 },
+    liufang: { width: 1.4, front: 2.95, rear: 0.65 },
+  };
+  const DEFAULT_VEHICLE_PRESET = "liufang";
+  const DEFAULT_VEHICLE_WIDTH = VEHICLE_PRESETS[DEFAULT_VEHICLE_PRESET].width;
+  const DEFAULT_VEHICLE_FRONT = VEHICLE_PRESETS[DEFAULT_VEHICLE_PRESET].front;
+  const DEFAULT_VEHICLE_REAR = VEHICLE_PRESETS[DEFAULT_VEHICLE_PRESET].rear;
+  const ANNOTATION_POINT_RADIUS = 0.1;
+  const ANNOTATION_BOX_CENTER_RADIUS = 0.1;
+  const TOOL_MODES = {
+    point: "point",
+    box: "box",
+    pick: "pick",
+  };
   const SIDEBAR_WIDTH_MIN = 260;
   const SIDEBAR_WIDTH_MAX = 900;
 
@@ -66,8 +109,21 @@
   let pointerDown = null;
   let isRotating = false;
   let rotateStart = null;
+  let rightPointerDown = null;
+  let suppressLaneContextMenu = false;
+  let rightClickContextLaneId = null;
 
   let protoReady = false;
+  let activeTool = null;
+  let pointLabelCounter = 0;
+  let boxLabelCounter = 0;
+  let pickLabelCounter = 0;
+  let annotationSeq = 0;
+  const drawnPoints = [];
+  const drawnBoxes = [];
+  const drawnPicks = [];
+  const selectedPickIds = [];
+  let pickHeadingLinkLayer = null;
 
   btnImport.addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", onFileSelected);
@@ -79,6 +135,7 @@
   btnLaneTabCenterline.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.centerline));
   btnLaneTabWidth.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.width));
   btnLaneTabRoadWidth.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.roadWidth));
+  btnClearAll.addEventListener("click", clearAllAnnotations);
   btnHideAll.addEventListener("click", hideAllLanes);
   btnShowAll.addEventListener("click", showAllLanes);
   ctxHideLane.addEventListener("click", (e) => {
@@ -88,6 +145,24 @@
     if (laneId) hideLane(laneId);
     hideLaneContextMenu();
   });
+
+  btnToolPoint.addEventListener("click", () => toggleTool(TOOL_MODES.point));
+  btnToolBox.addEventListener("click", () => toggleTool(TOOL_MODES.box));
+  btnToolPick.addEventListener("click", () => toggleTool(TOOL_MODES.pick));
+  btnDrawPoint.addEventListener("click", drawPointFromInputs);
+  btnDrawBox.addEventListener("click", drawBoxFromInputs);
+  if (btnVehicleSanfang) {
+    btnVehicleSanfang.addEventListener("click", () => setVehiclePreset("sanfang"));
+  }
+  if (btnVehicleLiufang) {
+    btnVehicleLiufang.addEventListener("click", () => setVehiclePreset("liufang"));
+  }
+  btnClearAllPoints.addEventListener("click", clearAllDrawnPoints);
+  btnClearAllBoxes.addEventListener("click", clearAllDrawnBoxes);
+  btnClearAllPicks.addEventListener("click", clearAllDrawnPicks);
+  toolPointList.addEventListener("click", onPointListClick);
+  toolBoxList.addEventListener("click", onBoxListClick);
+  toolPickList.addEventListener("click", onPickListClick);
 
   mapContainer.addEventListener("wheel", onWheel, { passive: false });
   mapContainer.addEventListener("mousedown", onMouseDown);
@@ -103,6 +178,710 @@
 
   function setStatus(text) {
     statusEl.textContent = text;
+  }
+
+  function toggleTool(mode) {
+    activeTool = activeTool === mode ? null : mode;
+    syncToolUi();
+  }
+
+  function syncToolUi() {
+    const isPoint = activeTool === TOOL_MODES.point;
+    const isBox = activeTool === TOOL_MODES.box;
+    const isPick = activeTool === TOOL_MODES.pick;
+    btnToolPoint.classList.toggle("active", isPoint);
+    btnToolBox.classList.toggle("active", isBox);
+    btnToolPick.classList.toggle("active", isPick);
+    if (toolPanel) toolPanel.classList.toggle("is-open", !!activeTool);
+    if (toolPanelPoint) toolPanelPoint.classList.toggle("is-active", isPoint);
+    if (toolPanelBox) toolPanelBox.classList.toggle("is-active", isBox);
+    if (toolPanelPick) toolPanelPick.classList.toggle("is-active", isPick);
+    mapContainer.classList.toggle("tool-pick-mode", isPick);
+    if (activeTool) {
+      requestAnimationFrame(() => syncMapSvgViewport());
+    }
+  }
+
+  function parseToolNumber(inputEl, label) {
+    const raw = inputEl && String(inputEl.value).trim();
+    if (!raw) throw new Error(`请填写${label}`);
+    const n = Number(raw);
+    if (!Number.isFinite(n)) throw new Error(`${label} 不是有效数字`);
+    return n;
+  }
+
+  function requireMapForTool() {
+    if (!mapData) {
+      setStatus("请先导入地图");
+      return false;
+    }
+    return true;
+  }
+
+  function resolveToolInputToUtm(rawX, rawY) {
+    if (typeof CoordTransform === "undefined") {
+      throw new Error("未加载 coord_transform.js");
+    }
+    if (CoordTransform.isUtmToolInput(rawX, rawY)) {
+      return { x: rawX, y: rawY, coordKind: "utm" };
+    }
+
+    const lon = rawX;
+    const lat = rawY;
+    if (lat < -90 || lat > 90) throw new Error("纬度应在 -90～90 之间");
+    if (lon < -180 || lon > 180) throw new Error("经度应在 -180～180 之间");
+
+    const meta = mapData.meta || {};
+    let zone = meta.utm_zone;
+    if (zone == null) {
+      zone = CoordTransform.parseUtmZoneFromProjection(meta.projection || "");
+    }
+    if (zone == null || !Number.isFinite(zone)) {
+      throw new Error("地图 header.proj 中未找到 UTM 带号（zone），无法转换经纬度");
+    }
+
+    const northern = CoordTransform.parseUtmNorthernFromProjection(meta.projection || "", lat);
+    const { easting, northing } = CoordTransform.wgs84ToUtm(lon, lat, zone, northern);
+    return {
+      x: easting,
+      y: northing,
+      coordKind: "wgs84",
+      lon,
+      lat,
+      zone,
+    };
+  }
+
+  function getMapUtmContext() {
+    if (!mapData?.meta) return null;
+    const meta = mapData.meta;
+    let zone = meta.utm_zone;
+    if (zone == null && typeof CoordTransform !== "undefined") {
+      zone = CoordTransform.parseUtmZoneFromProjection(meta.projection || "");
+    }
+    if (zone == null || !Number.isFinite(zone)) return null;
+    return { zone, projection: meta.projection || "" };
+  }
+
+  function utmToWgs84ForDisplay(utmX, utmY) {
+    const ctx = getMapUtmContext();
+    if (!ctx || typeof CoordTransform === "undefined" || !CoordTransform.utmToWgs84) {
+      return null;
+    }
+    try {
+      const northern = CoordTransform.inferUtmNorthernFromNorthing(utmY, ctx.projection);
+      return CoordTransform.utmToWgs84(utmX, utmY, ctx.zone, northern);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function formatAnnotationCoordX(utmX, utmY, decimals) {
+    const dec = decimals != null ? decimals : 3;
+    let text = `X: ${utmX.toFixed(dec)}`;
+    const wgs = utmToWgs84ForDisplay(utmX, utmY);
+    if (wgs) text += ` (${wgs.lon.toFixed(6)})`;
+    return text;
+  }
+
+  function formatAnnotationCoordY(utmX, utmY, decimals) {
+    const dec = decimals != null ? decimals : 3;
+    let text = `Y: ${utmY.toFixed(dec)}`;
+    const wgs = utmToWgs84ForDisplay(utmX, utmY);
+    if (wgs) text += ` (${wgs.lat.toFixed(6)})`;
+    return text;
+  }
+
+  function formatAnnotationCoordBlock(utmX, utmY, decimals) {
+    return `${formatAnnotationCoordX(utmX, utmY, decimals)}<br>${formatAnnotationCoordY(utmX, utmY, decimals)}`;
+  }
+
+  function formatAnnotationCoordInline(utmX, utmY, decimals, wgs84) {
+    const dec = decimals != null ? decimals : 2;
+    if (wgs84 && wgs84.lon != null && wgs84.lat != null) {
+      return `X: ${utmX.toFixed(dec)} (${wgs84.lon.toFixed(6)}), Y: ${utmY.toFixed(dec)} (${wgs84.lat.toFixed(6)})`;
+    }
+    return `${formatAnnotationCoordX(utmX, utmY, dec)}, ${formatAnnotationCoordY(utmX, utmY, dec)}`;
+  }
+
+  function formatToolUtmStatus(resolved) {
+    if (resolved.coordKind === "wgs84") {
+      return formatAnnotationCoordInline(resolved.x, resolved.y, 2, {
+        lon: resolved.lon,
+        lat: resolved.lat,
+      });
+    }
+    return formatAnnotationCoordInline(resolved.x, resolved.y, 2);
+  }
+
+  function utmToLocalPoint(mx, my) {
+    const { x, y } = utmToLocal(mx, my);
+    return `${x},${y}`;
+  }
+
+  function nextAnnotationId(prefix) {
+    annotationSeq += 1;
+    return `${prefix}-${annotationSeq}`;
+  }
+
+  function createAnnotationGroup(id) {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("data-annotation-id", id);
+    annotationsLayer.appendChild(g);
+    return g;
+  }
+
+  function ensurePickHeadingArrowMarker() {
+    if (!mapSvg) return;
+    if (mapSvg.querySelector("#pick-heading-arrowhead")) return;
+    let defs = mapSvg.querySelector("defs");
+    if (!defs) {
+      defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      mapSvg.insertBefore(defs, mapSvg.firstChild);
+    }
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    marker.setAttribute("id", "pick-heading-arrowhead");
+    marker.setAttribute("viewBox", "0 0 10 10");
+    marker.setAttribute("refX", "9");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("markerWidth", "7");
+    marker.setAttribute("markerHeight", "7");
+    marker.setAttribute("orient", "auto");
+    marker.setAttribute("markerUnits", "strokeWidth");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+    path.setAttribute("class", "annotation-pick-heading-arrow");
+    marker.appendChild(path);
+    defs.appendChild(marker);
+  }
+
+  function ensurePickHeadingLinkLayer() {
+    if (pickHeadingLinkLayer && pickHeadingLinkLayer.parentNode) return pickHeadingLinkLayer;
+    pickHeadingLinkLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    pickHeadingLinkLayer.setAttribute("class", "annotation-pick-heading-layer");
+    annotationsLayer.appendChild(pickHeadingLinkLayer);
+    return pickHeadingLinkLayer;
+  }
+
+  function clearPickHeadingLink() {
+    if (pickHeadingLinkLayer) pickHeadingLinkLayer.innerHTML = "";
+  }
+
+  function renderPickHeadingLink(p0, p1) {
+    if (!p0 || !p1) {
+      clearPickHeadingLink();
+      return;
+    }
+    ensurePickHeadingArrowMarker();
+    const layer = ensurePickHeadingLinkLayer();
+    layer.innerHTML = "";
+    const from = utmToLocal(p0.x, p0.y);
+    const to = utmToLocal(p1.x, p1.y);
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 1e-6) return;
+    const ux = dx / len;
+    const uy = dy / len;
+    // 终点回退，避免箭头被终点圆点覆盖（缩放放大时更明显）。
+    const endBackoff = ANNOTATION_POINT_RADIUS * 2.6;
+    const endX = to.x - ux * endBackoff;
+    const endY = to.y - uy * endBackoff;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", String(from.x));
+    line.setAttribute("y1", String(from.y));
+    line.setAttribute("x2", String(endX));
+    line.setAttribute("y2", String(endY));
+    line.setAttribute("marker-end", "url(#pick-heading-arrowhead)");
+    line.setAttribute("class", "annotation-pick-heading-line");
+    layer.appendChild(line);
+  }
+
+  function mountAnnotationLabel(group, lx, ly, text) {
+    const labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    labelEl.setAttribute("x", "0.35");
+    labelEl.setAttribute("y", "0.35");
+    labelEl.setAttribute("text-anchor", "start");
+    labelEl.setAttribute("dominant-baseline", "central");
+    labelEl.setAttribute("transform", `translate(${lx}, ${ly}) scale(1, -1)`);
+    labelEl.classList.add("annotation-label");
+    labelEl.textContent = text;
+    group.appendChild(labelEl);
+  }
+
+  function mountPointShape(group, mx, my, label) {
+    const { x, y } = utmToLocal(mx, my);
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", String(x));
+    circle.setAttribute("cy", String(y));
+    circle.setAttribute("r", String(ANNOTATION_POINT_RADIUS));
+    circle.classList.add("annotation-point");
+    group.appendChild(circle);
+    if (label) mountAnnotationLabel(group, x, y, label);
+  }
+
+  function mountPickShape(group, mx, my, label) {
+    const { x, y } = utmToLocal(mx, my);
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", String(x));
+    circle.setAttribute("cy", String(y));
+    circle.setAttribute("r", String(ANNOTATION_POINT_RADIUS));
+    circle.classList.add("annotation-pick-point");
+    group.appendChild(circle);
+    if (label) mountAnnotationLabel(group, x, y, label);
+  }
+
+  function mountBoxShapes(group, cx, cy, heading, dims, label) {
+    const { width, front, rear } = dims;
+    const corners = vehicleBoxCornersUtm(cx, cy, heading, front, rear, width);
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute(
+      "points",
+      corners.map((p) => utmToLocalPoint(p.x, p.y)).join(" ")
+    );
+    poly.classList.add("annotation-box");
+    group.appendChild(poly);
+
+    const { x: lx, y: ly } = utmToLocal(cx, cy);
+    const center = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    center.setAttribute("cx", String(lx));
+    center.setAttribute("cy", String(ly));
+    center.setAttribute("r", String(ANNOTATION_BOX_CENTER_RADIUS));
+    center.classList.add("annotation-box-center");
+    group.appendChild(center);
+    if (label) mountAnnotationLabel(group, lx, ly, label);
+  }
+
+  function addDrawnPoint(mx, my) {
+    pointLabelCounter += 1;
+    const id = nextAnnotationId("point");
+    const record = {
+      id,
+      label: `P${pointLabelCounter}`,
+      x: mx,
+      y: my,
+      group: createAnnotationGroup(id),
+    };
+    mountPointShape(record.group, mx, my, record.label);
+    drawnPoints.push(record);
+    renderPointList();
+    return record;
+  }
+
+  function addDrawnBox(cx, cy, heading, dims) {
+    boxLabelCounter += 1;
+    const id = nextAnnotationId("box");
+    const record = {
+      id,
+      label: `B${boxLabelCounter}`,
+      x: cx,
+      y: cy,
+      heading,
+      width: dims.width,
+      front: dims.front,
+      rear: dims.rear,
+      group: createAnnotationGroup(id),
+    };
+    mountBoxShapes(record.group, cx, cy, heading, dims, record.label);
+    drawnBoxes.push(record);
+    renderBoxList();
+    return record;
+  }
+
+  function addDrawnPick(mx, my) {
+    pickLabelCounter += 1;
+    const id = nextAnnotationId("pick");
+    const record = {
+      id,
+      label: `C${pickLabelCounter}`,
+      x: mx,
+      y: my,
+      group: createAnnotationGroup(id),
+    };
+    record.group.classList.add("annotation-pick-marker");
+    mountPickShape(record.group, mx, my, record.label);
+    drawnPicks.push(record);
+    renderPickList();
+    return record;
+  }
+
+  function removeDrawnPoint(id) {
+    const idx = drawnPoints.findIndex((p) => p.id === id);
+    if (idx < 0) return;
+    drawnPoints[idx].group.remove();
+    drawnPoints.splice(idx, 1);
+    renderPointList();
+  }
+
+  function removeDrawnBox(id) {
+    const idx = drawnBoxes.findIndex((b) => b.id === id);
+    if (idx < 0) return;
+    drawnBoxes[idx].group.remove();
+    drawnBoxes.splice(idx, 1);
+    renderBoxList();
+  }
+
+  function clearAllDrawnPoints(silent) {
+    for (const record of drawnPoints) record.group.remove();
+    drawnPoints.length = 0;
+    pointLabelCounter = 0;
+    renderPointList();
+    if (!silent) setStatus("已清空全部绘制点");
+  }
+
+  function clearAllDrawnBoxes(silent) {
+    for (const record of drawnBoxes) record.group.remove();
+    drawnBoxes.length = 0;
+    boxLabelCounter = 0;
+    renderBoxList();
+    if (!silent) setStatus("已清空全部绘制框");
+  }
+
+  function clearAllDrawnPicks(silent) {
+    for (const record of drawnPicks) record.group.remove();
+    drawnPicks.length = 0;
+    selectedPickIds.length = 0;
+    clearPickHeadingLink();
+    pickLabelCounter = 0;
+    renderPickList();
+    setToolPickResultText("暂无记录");
+    if (!silent) setStatus("已清空全部拾取坐标");
+  }
+
+  function getMapViewportSize() {
+    syncMapSvgViewport();
+    const vb = mapSvg.viewBox.baseVal;
+    const rect = mapContainer.getBoundingClientRect();
+    return {
+      w: Math.max(1, vb.width > 0 ? vb.width : rect.width || 800),
+      h: Math.max(1, vb.height > 0 ? vb.height : rect.height || 600),
+    };
+  }
+
+  function locateOnUtm(mx, my, spanMeters) {
+    const { w, h } = getMapViewportSize();
+    const span = Math.max(20, spanMeters || 80);
+    const scale = Math.min(w / span, h / span) * 0.85;
+    view.scale = Math.max(0.02, Math.min(scale, 500));
+    const center = getViewCenter();
+    const local = utmToLocal(mx, my);
+    const px = local.x * view.scale;
+    const py = -local.y * view.scale;
+    const cos = Math.cos(view.rotation);
+    const sin = Math.sin(view.rotation);
+    view.tx = center.x - (cos * px - sin * py);
+    view.ty = center.y - (sin * px + cos * py);
+    applyTransform();
+  }
+
+  function locateDrawnPoint(id) {
+    const record = drawnPoints.find((p) => p.id === id);
+    if (!record) return;
+    locateOnUtm(record.x, record.y, 60);
+    setStatus(`已定位到 ${record.label}`);
+  }
+
+  function locateDrawnBox(id) {
+    const record = drawnBoxes.find((b) => b.id === id);
+    if (!record) return;
+    const span = Math.max(record.front + record.rear, record.width) * 4;
+    locateOnUtm(record.x, record.y, span);
+    setStatus(`已定位到 ${record.label}`);
+  }
+
+  function locateDrawnPick(id) {
+    const record = drawnPicks.find((p) => p.id === id);
+    if (!record) return;
+    locateOnUtm(record.x, record.y, 60);
+    setStatus(`已定位到 ${record.label}`);
+  }
+
+  function renderPointList() {
+    if (!toolPointList) return;
+    toolPointList.innerHTML = "";
+    if (!drawnPoints.length) {
+      const empty = document.createElement("li");
+      empty.className = "tool-record-empty";
+      empty.textContent = "暂无记录";
+      toolPointList.appendChild(empty);
+      return;
+    }
+    for (const record of drawnPoints) {
+      const li = document.createElement("li");
+      li.className = "tool-record-item";
+      li.dataset.id = record.id;
+      li.innerHTML = `
+        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}</div>
+        <div class="tool-record-actions">
+          <button type="button" class="btn-mini" data-action="locate">定位</button>
+          <button type="button" class="btn-mini" data-action="delete">删除</button>
+        </div>`;
+      toolPointList.appendChild(li);
+    }
+  }
+
+  function renderBoxList() {
+    if (!toolBoxList) return;
+    toolBoxList.innerHTML = "";
+    if (!drawnBoxes.length) {
+      const empty = document.createElement("li");
+      empty.className = "tool-record-empty";
+      empty.textContent = "暂无记录";
+      toolBoxList.appendChild(empty);
+      return;
+    }
+    for (const record of drawnBoxes) {
+      const li = document.createElement("li");
+      li.className = "tool-record-item";
+      li.dataset.id = record.id;
+      li.innerHTML = `
+        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}<br>航向: ${record.heading.toFixed(3)} rad<br>宽 ${record.width.toFixed(2)} · 前 ${record.front.toFixed(2)} · 后 ${record.rear.toFixed(2)}</div>
+        <div class="tool-record-actions">
+          <button type="button" class="btn-mini" data-action="locate">定位</button>
+          <button type="button" class="btn-mini" data-action="delete">删除</button>
+        </div>`;
+      toolBoxList.appendChild(li);
+    }
+  }
+
+  function renderPickList() {
+    if (!toolPickList) return;
+    toolPickList.innerHTML = "";
+    if (!drawnPicks.length) {
+      const empty = document.createElement("li");
+      empty.className = "tool-record-empty";
+      empty.textContent = "暂无记录";
+      toolPickList.appendChild(empty);
+      return;
+    }
+    for (const record of drawnPicks) {
+      const li = document.createElement("li");
+      li.className = "tool-record-item";
+      if (selectedPickIds.includes(record.id)) li.classList.add("is-selected");
+      li.dataset.id = record.id;
+      li.innerHTML = `
+        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}</div>
+        <div class="tool-record-actions">
+          <button type="button" class="btn-mini" data-action="locate">定位</button>
+          <button type="button" class="btn-mini" data-action="delete">删除</button>
+        </div>`;
+      toolPickList.appendChild(li);
+    }
+  }
+
+  function removePickSelection(id) {
+    const idx = selectedPickIds.indexOf(id);
+    if (idx >= 0) selectedPickIds.splice(idx, 1);
+  }
+
+  function updatePickHeadingResult() {
+    if (selectedPickIds.length < 2) {
+      clearPickHeadingLink();
+      if (selectedPickIds.length === 1) {
+        const p = drawnPicks.find((item) => item.id === selectedPickIds[0]);
+        if (p) {
+          setToolPickResultText(`已选 1/2 点\n起点: ${p.label}\n请再选择一个点计算航向`);
+          return;
+        }
+      }
+      setToolPickResultText("暂无记录");
+      return;
+    }
+    const p0 = drawnPicks.find((item) => item.id === selectedPickIds[0]);
+    const p1 = drawnPicks.find((item) => item.id === selectedPickIds[1]);
+    if (!p0 || !p1) {
+      clearPickHeadingLink();
+      setToolPickResultText("暂无记录");
+      return;
+    }
+    renderPickHeadingLink(p0, p1);
+    const dx = p1.x - p0.x;
+    const dy = p1.y - p0.y;
+    const heading = Math.atan2(dy, dx);
+    const dist = Math.hypot(dx, dy);
+    setToolPickResultText(
+      `两点连线\n${p0.label} -> ${p1.label}\ndistance: ${dist.toFixed(3)}\nheading: ${heading.toFixed(6)} rad`
+    );
+    setStatus(`航向 ${p0.label} -> ${p1.label}: ${heading.toFixed(6)} rad`);
+  }
+
+  function togglePickSelection(id) {
+    const exists = selectedPickIds.indexOf(id);
+    if (exists >= 0) {
+      selectedPickIds.splice(exists, 1);
+      renderPickList();
+      updatePickHeadingResult();
+      return;
+    }
+    if (selectedPickIds.length >= 2) selectedPickIds.shift();
+    selectedPickIds.push(id);
+    renderPickList();
+    updatePickHeadingResult();
+  }
+
+  function onPointListClick(e) {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const item = btn.closest(".tool-record-item");
+    if (!item || !item.dataset.id) return;
+    if (btn.dataset.action === "locate") locateDrawnPoint(item.dataset.id);
+    else if (btn.dataset.action === "delete") {
+      const record = drawnPoints.find((p) => p.id === item.dataset.id);
+      removeDrawnPoint(item.dataset.id);
+      setStatus(record ? `已删除 ${record.label}` : "已删除");
+    }
+  }
+
+  function onBoxListClick(e) {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const item = btn.closest(".tool-record-item");
+    if (!item || !item.dataset.id) return;
+    if (btn.dataset.action === "locate") locateDrawnBox(item.dataset.id);
+    else if (btn.dataset.action === "delete") {
+      const record = drawnBoxes.find((b) => b.id === item.dataset.id);
+      removeDrawnBox(item.dataset.id);
+      setStatus(record ? `已删除 ${record.label}` : "已删除");
+    }
+  }
+
+  function onPickListClick(e) {
+    const btn = e.target.closest("[data-action]");
+    const item = btn ? btn.closest(".tool-record-item") : e.target.closest(".tool-record-item");
+    if (!item || !item.dataset.id) return;
+    if (!btn) {
+      togglePickSelection(item.dataset.id);
+      return;
+    }
+    if (btn.dataset.action === "locate") locateDrawnPick(item.dataset.id);
+    else if (btn.dataset.action === "delete") {
+      const idx = drawnPicks.findIndex((p) => p.id === item.dataset.id);
+      if (idx < 0) return;
+      const record = drawnPicks[idx];
+      record.group.remove();
+      drawnPicks.splice(idx, 1);
+      removePickSelection(record.id);
+      renderPickList();
+      updatePickHeadingResult();
+      setStatus(`已删除 ${record.label}`);
+    }
+  }
+
+  /** 参考点为后轴中心，沿航向 +前轴 / -后轴，左右 ±车宽/2 */
+  function vehicleBoxCornersUtm(cx, cy, heading, front, rear, width) {
+    const hw = width / 2;
+    const cos = Math.cos(heading);
+    const sin = Math.sin(heading);
+    const local = [
+      [front, -hw],
+      [front, hw],
+      [-rear, hw],
+      [-rear, -hw],
+    ];
+    return local.map(([fx, fy]) => ({
+      x: cx + fx * cos - fy * sin,
+      y: cy + fx * sin + fy * cos,
+    }));
+  }
+
+  function parseToolNumberOrDefault(inputEl, label, defaultValue) {
+    const raw = inputEl && String(inputEl.value).trim();
+    if (!raw) return defaultValue;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) throw new Error(`${label} 不是有效数字`);
+    if (n <= 0) throw new Error(`${label} 须大于 0`);
+    return n;
+  }
+
+  function setVehiclePreset(presetKey) {
+    const preset = VEHICLE_PRESETS[presetKey];
+    if (!preset) return;
+    if (toolBoxWidth) toolBoxWidth.value = String(preset.width);
+    if (toolBoxFront) toolBoxFront.value = String(preset.front);
+    if (toolBoxRear) toolBoxRear.value = String(preset.rear);
+    if (btnVehicleSanfang) {
+      btnVehicleSanfang.classList.toggle("active", presetKey === "sanfang");
+    }
+    if (btnVehicleLiufang) {
+      btnVehicleLiufang.classList.toggle("active", presetKey === "liufang");
+    }
+  }
+
+  function parseVehicleDimsFromInputs() {
+    return {
+      width: parseToolNumberOrDefault(toolBoxWidth, "车宽", DEFAULT_VEHICLE_WIDTH),
+      front: parseToolNumberOrDefault(toolBoxFront, "前轴", DEFAULT_VEHICLE_FRONT),
+      rear: parseToolNumberOrDefault(toolBoxRear, "后轴", DEFAULT_VEHICLE_REAR),
+    };
+  }
+
+  function setToolPickResultText(text) {
+    const resultEl = document.getElementById("tool-pick-result");
+    if (resultEl) resultEl.textContent = text;
+  }
+
+  function drawPointFromInputs() {
+    if (!requireMapForTool()) return;
+    try {
+      const rawX = parseToolNumber(toolPointX, "X 坐标");
+      const rawY = parseToolNumber(toolPointY, "Y 坐标");
+      const resolved = resolveToolInputToUtm(rawX, rawY);
+      const record = addDrawnPoint(resolved.x, resolved.y);
+      if (toolPointX) toolPointX.value = "";
+      if (toolPointY) toolPointY.value = "";
+      setStatus(`已绘制 ${record.label} ${formatToolUtmStatus(resolved)}`);
+    } catch (err) {
+      setStatus(`错误: ${err.message}`);
+    }
+  }
+
+  function drawBoxFromInputs() {
+    if (!requireMapForTool()) return;
+    try {
+      const rawX = parseToolNumber(toolBoxX, "X 坐标");
+      const rawY = parseToolNumber(toolBoxY, "Y 坐标");
+      const resolved = resolveToolInputToUtm(rawX, rawY);
+      const heading = parseToolNumber(toolBoxHeading, "航向角");
+      const dims = parseVehicleDimsFromInputs();
+      const record = addDrawnBox(resolved.x, resolved.y, heading, dims);
+      if (toolBoxX) toolBoxX.value = "";
+      if (toolBoxY) toolBoxY.value = "";
+      if (toolBoxHeading) toolBoxHeading.value = "";
+      setStatus(
+        `已绘制 ${record.label} 后轴 ${formatToolUtmStatus(resolved)} 宽${dims.width} 前${dims.front} 后${dims.rear}`
+      );
+    } catch (err) {
+      setStatus(`错误: ${err.message}`);
+    }
+  }
+
+  function showPickedCoordinates(clientX, clientY) {
+    const { x: sx, y: sy } = getContainerPoint(clientX, clientY);
+    const { x, y } = screenToMap(sx, sy);
+    const record = addDrawnPick(x, y);
+    if (selectedPickIds.length >= 2) selectedPickIds.shift();
+    selectedPickIds.push(record.id);
+    renderPickList();
+    updatePickHeadingResult();
+    setStatus(`已拾取 ${record.label} ${formatAnnotationCoordInline(x, y, 2)}`);
+  }
+
+  function clearAnnotations() {
+    clearAllDrawnPoints(true);
+    clearAllDrawnBoxes(true);
+    clearAllDrawnPicks(true);
+    selectedPickIds.length = 0;
+    annotationSeq = 0;
+    setToolPickResultText("暂无记录");
+  }
+
+  function clearAllAnnotations() {
+    const hadAny = drawnPoints.length > 0 || drawnBoxes.length > 0 || drawnPicks.length > 0;
+    clearAnnotations();
+    setStatus(hadAny ? "已清空全部标注（点、框、坐标）" : "当前无标注可清空");
   }
 
   function updateMapMetaPanel(meta) {
@@ -247,13 +1026,17 @@
   }
 
   function onContextMenu(e) {
-    const shape = e.target.closest(".lane-shape");
-    if (shape && shape.dataset.laneId && mapData) {
-      e.preventDefault();
-      showLaneContextMenu(e.clientX, e.clientY, shape.dataset.laneId);
+    e.preventDefault();
+    if (suppressLaneContextMenu) {
+      rightClickContextLaneId = null;
       return;
     }
-    e.preventDefault();
+    const shape = e.target.closest(".lane-shape");
+    const laneId = (shape && shape.dataset.laneId) || rightClickContextLaneId;
+    rightClickContextLaneId = null;
+    if (laneId && mapData && !hiddenLaneIds.has(laneId)) {
+      showLaneContextMenu(e.clientX, e.clientY, laneId);
+    }
   }
 
   function onMapDoubleClick(e) {
@@ -269,12 +1052,15 @@
     if (laneContextMenu.contains(e.target)) return;
     hideLaneContextMenu();
     if (e.button === 2) {
-      const shape = e.target.closest(".lane-shape");
-      if (shape && shape.dataset.laneId) {
-        e.preventDefault();
-        return;
-      }
       e.preventDefault();
+      const shape = e.target.closest(".lane-shape");
+      const laneId = shape && shape.dataset.laneId;
+      rightPointerDown = {
+        x: e.clientX,
+        y: e.clientY,
+        laneId: laneId && !hiddenLaneIds.has(laneId) ? laneId : null,
+      };
+      suppressLaneContextMenu = false;
       const pivot = getViewCenter();
       const pt = getContainerPoint(e.clientX, e.clientY);
       isRotating = true;
@@ -300,6 +1086,13 @@
 
   function onMouseMove(e) {
     if (isRotating && rotateStart) {
+      if (rightPointerDown) {
+        const rdx = e.clientX - rightPointerDown.x;
+        const rdy = e.clientY - rightPointerDown.y;
+        if (rdx * rdx + rdy * rdy >= DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) {
+          suppressLaneContextMenu = true;
+        }
+      }
       const pt = getContainerPoint(e.clientX, e.clientY);
       const { pivotSx, pivotSy, rotation, startAngle } = rotateStart;
       const angle = Math.atan2(pt.y - pivotSy, pt.x - pivotSx);
@@ -310,10 +1103,11 @@
       const dx = e.clientX - pointerDown.x;
       const dy = e.clientY - pointerDown.y;
       if (dx * dx + dy * dy >= DRAG_THRESHOLD_PX * DRAG_THRESHOLD_PX) {
+        const svgPt = getContainerPoint(pointerDown.x, pointerDown.y);
         isPanning = true;
         panStart = {
-          x: pointerDown.x,
-          y: pointerDown.y,
+          svgX: svgPt.x,
+          svgY: svgPt.y,
           tx: pointerDown.tx,
           ty: pointerDown.ty,
         };
@@ -321,27 +1115,36 @@
       }
     }
     if (!isPanning || !panStart) return;
-    const dx = e.clientX - panStart.x;
-    const dy = e.clientY - panStart.y;
-    view.tx = panStart.tx + dx;
-    view.ty = panStart.ty + dy;
+    const cur = getContainerPoint(e.clientX, e.clientY);
+    view.tx = panStart.tx + (cur.x - panStart.svgX);
+    view.ty = panStart.ty + (cur.y - panStart.svgY);
     applyTransform();
   }
 
   function onMouseUp(e) {
-    if (e.button === 2 && isRotating) {
-      isRotating = false;
-      rotateStart = null;
-      mapContainer.classList.remove("rotating");
+    if (e.button === 2) {
+      if (isRotating) {
+        isRotating = false;
+        rotateStart = null;
+        mapContainer.classList.remove("rotating");
+      }
+      if (!suppressLaneContextMenu && rightPointerDown && rightPointerDown.laneId) {
+        rightClickContextLaneId = rightPointerDown.laneId;
+      } else {
+        rightClickContextLaneId = null;
+      }
+      rightPointerDown = null;
     }
     if (e.button === 0) {
       if (isPanning) {
         isPanning = false;
         panStart = null;
         mapContainer.classList.remove("panning");
+      } else if (pointerDown && activeTool === TOOL_MODES.pick && mapData) {
+        showPickedCoordinates(pointerDown.x, pointerDown.y);
       } else if (pointerDown && pointerDown.laneId) {
         selectLane(pointerDown.laneId);
-      } else if (pointerDown) {
+      } else if (pointerDown && activeTool !== TOOL_MODES.pick) {
         clearLaneSelection();
       }
       pointerDown = null;
@@ -475,6 +1278,8 @@
     updateMapMetaPanel(data.meta);
 
     lanesLayer.innerHTML = "";
+    clearSelectedCenterline();
+    clearAnnotations();
     laneById.clear();
     laneElements.clear();
     hiddenLaneIds.clear();
@@ -502,10 +1307,29 @@
     emptyHint.style.display = "none";
     btnResetView.disabled = false;
     laneSearch.disabled = false;
+    btnClearAll.disabled = false;
     btnHideAll.disabled = false;
     btnShowAll.disabled = false;
     renderActiveLaneInfo();
     syncLaneTabButtons();
+  }
+
+  function clearSelectedCenterline() {
+    if (centerlineLayer) centerlineLayer.innerHTML = "";
+  }
+
+  function renderSelectedCenterline(lane) {
+    clearSelectedCenterline();
+    if (!centerlineLayer || !lane?.central_segments?.length) return;
+    const frag = document.createDocumentFragment();
+    for (const seg of lane.central_segments) {
+      if (!seg || seg.length < 4) continue;
+      const pl = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      pl.setAttribute("points", flatToSvgPoints(seg));
+      pl.classList.add("lane-selected-centerline");
+      frag.appendChild(pl);
+    }
+    centerlineLayer.appendChild(frag);
   }
 
   function clearHighlight() {
@@ -720,6 +1544,7 @@
     if (!selectedLaneId) return;
     selectedLaneId = null;
     clearHighlight();
+    clearSelectedCenterline();
     laneSearch.value = "";
     renderActiveLaneInfo();
     if (mapData?.meta) {
@@ -738,6 +1563,7 @@
     highlightLaneSet(lane.same_road_lane_ids, "state-same-road");
     highlightLaneSet(lane.predecessor_ids, "state-predecessor");
     highlightLaneSet(lane.successor_ids, "state-successor");
+    renderSelectedCenterline(lane);
     renderActiveLaneInfo();
     laneSearch.value = laneId;
     setStatus(`已选中: ${laneId}`);
@@ -889,6 +1715,10 @@
   });
 
   syncLaneTabButtons();
+  syncToolUi();
+  renderPointList();
+  renderBoxList();
+  renderPickList();
   laneInfo.textContent = DEFAULT_LANE_INFO;
   initSidebarResize();
   initProtoLoader();

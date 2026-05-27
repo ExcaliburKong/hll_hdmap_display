@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
   <div id="app">
@@ -13,7 +13,7 @@
       <input type="file" id="file-input" accept=".bin" />
       <button type="button" class="btn" id="btn-import">导入地图 (.bin)</button>
       <button type="button" class="btn btn-secondary" id="btn-reset-view" disabled>重置视图</button>
-      <span class="hint">滚轮缩放 · 左键平移 · 右键旋转 · 点击车道查看详情（纯浏览器解析，无需后端）</span>
+      <span class="hint">滚轮缩放 · 左键平移 · 右键旋转 · 点击车道查看详情</span>
       <span class="spacer"></span>
       <span id="status">请导入本地地图 bin 文件</span>
     </header>
@@ -23,9 +23,11 @@
         <div id="lane-context-menu" class="lane-context-menu" hidden>
           <button type="button" id="ctx-hide-lane">Hide</button>
         </div>
-        <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
           <g id="viewport">
             <g id="lanes-layer"></g>
+            <g id="centerline-layer"></g>
+            <g id="annotations-layer"></g>
           </g>
         </svg>
         <div id="map-meta-panel" class="map-meta-panel is-hidden" aria-live="polite">
@@ -43,11 +45,93 @@
           </div>
         </div>
       </div>
+      <aside class="tool-sidebar" id="tool-sidebar">
+        <div class="tool-bar" role="toolbar" aria-label="地图工具">
+          <button type="button" class="tool-bar-btn" id="btn-tool-point" title="画点">画点</button>
+          <button type="button" class="tool-bar-btn" id="btn-tool-box" title="画框">画框</button>
+          <button type="button" class="tool-bar-btn" id="btn-tool-pick" title="点击显示坐标">坐标</button>
+        </div>
+        <div class="tool-panel" id="tool-panel">
+          <div class="tool-panel-section" id="tool-panel-point">
+            <div class="tool-panel-title">画点</div>
+            <label class="tool-field">
+              <span>X (UTM / 经度)</span>
+              <input type="number" id="tool-point-x" step="any" placeholder="UTM 东向 或 经度" />
+            </label>
+            <label class="tool-field">
+              <span>Y (UTM / 纬度)</span>
+              <input type="number" id="tool-point-y" step="any" placeholder="UTM 北向 或 纬度" />
+            </label>
+            <p class="tool-hint">X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度），按地图 header.proj 的 zone 转换</p>
+            <button type="button" class="btn btn-tool-draw" id="btn-draw-point">绘制</button>
+            <div class="tool-record-block">
+              <div class="tool-record-block-header">
+                <span>已绘制</span>
+                <button type="button" class="btn-mini" id="btn-clear-all-points">一键删除</button>
+              </div>
+              <ul id="tool-point-list" class="tool-record-list"></ul>
+            </div>
+          </div>
+          <div class="tool-panel-section" id="tool-panel-box">
+            <div class="tool-panel-title">画框</div>
+            <label class="tool-field">
+              <span>X (UTM / 经度)</span>
+              <input type="number" id="tool-box-x" step="any" placeholder="后轴 UTM 东向 或 经度" />
+            </label>
+            <label class="tool-field">
+              <span>Y (UTM / 纬度)</span>
+              <input type="number" id="tool-box-y" step="any" placeholder="后轴 UTM 北向 或 纬度" />
+            </label>
+            <label class="tool-field">
+              <span>航向角 (弧度)</span>
+              <input type="number" id="tool-box-heading" step="any" placeholder="heading" />
+            </label>
+            <div class="tool-vehicle-presets">
+              <button type="button" class="btn-vehicle-preset" id="btn-vehicle-sanfang">三方车</button>
+              <button type="button" class="btn-vehicle-preset active" id="btn-vehicle-liufang">六方车</button>
+            </div>
+            <label class="tool-field">
+              <span>车宽 (m)</span>
+              <input type="number" id="tool-box-width" step="any" value="1.4" />
+            </label>
+            <label class="tool-field">
+              <span>前轴 (m)</span>
+              <input type="number" id="tool-box-front" step="any" value="2.95" />
+            </label>
+            <label class="tool-field">
+              <span>后轴 (m)</span>
+              <input type="number" id="tool-box-rear" step="any" value="0.65" />
+            </label>
+            <p class="tool-hint">参考点为后轴中心，沿航向前/后轴距离画框；坐标规则同画点（UTM 或 WGS84 自动识别）</p>
+            <button type="button" class="btn btn-tool-draw" id="btn-draw-box">绘制</button>
+            <div class="tool-record-block">
+              <div class="tool-record-block-header">
+                <span>已绘制</span>
+                <button type="button" class="btn-mini" id="btn-clear-all-boxes">一键删除</button>
+              </div>
+              <ul id="tool-box-list" class="tool-record-list"></ul>
+            </div>
+          </div>
+          <div class="tool-panel-section" id="tool-panel-pick">
+            <div class="tool-panel-title">点击显示坐标</div>
+            <p class="tool-hint">在地图上左键点击拾取坐标；在列表中点选两个点可计算航向角（弧度）</p>
+            <pre id="tool-pick-result" class="tool-pick-result">暂无记录</pre>
+            <div class="tool-record-block">
+              <div class="tool-record-block-header">
+                <span>已拾取</span>
+                <button type="button" class="btn-mini" id="btn-clear-all-picks">一键删除</button>
+              </div>
+              <ul id="tool-pick-list" class="tool-record-list"></ul>
+            </div>
+          </div>
+        </div>
+      </aside>
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-resizer" id="sidebar-resizer" title="拖拽调整侧栏宽度" role="separator" aria-orientation="vertical" aria-label="调整侧栏宽度"></div>
         <div class="sidebar-header">
           <span class="sidebar-header-title">车道信息</span>
           <div class="sidebar-header-actions">
+            <button type="button" class="btn-mini" id="btn-clear-all" disabled>Clear all</button>
             <button type="button" class="btn-mini" id="btn-hide-all" disabled>Hide all</button>
             <button type="button" class="btn-mini" id="btn-show-all" disabled>Show all</button>
           </div>
@@ -75,7 +159,8 @@
   </div>
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
-  <script src="map_parser.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="coord_transform.js"></script>
+  <script src="map_parser.js?v=3"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>

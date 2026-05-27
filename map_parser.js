@@ -70,10 +70,14 @@
     }
   }
 
-  /** 从 PROJ 字符串（如 "+proj=utm +zone=49"）解析 UTM 带号 */
+  /** 从 PROJ 字符串（如 "+proj=utm +zone=49" 或 "zone = 49"）解析 UTM 带号 */
   function parseUtmZoneFromProjection(proj) {
+    if (typeof CoordTransform !== "undefined" && CoordTransform.parseUtmZoneFromProjection) {
+      return CoordTransform.parseUtmZoneFromProjection(proj);
+    }
     if (!proj || typeof proj !== "string") return null;
-    const m = proj.match(/\+zone=(\d+)/i);
+    let m = proj.match(/\+zone=(\d+)/i);
+    if (!m) m = proj.match(/(?:^|[\s+])zone\s*=\s*(\d+)/i);
     return m ? Number(m[1]) : null;
   }
 

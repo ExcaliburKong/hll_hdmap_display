@@ -20,6 +20,9 @@
     <div class="main">
       <div id="map-container">
         <div class="empty-hint" id="empty-hint">点击「导入地图」加载 bin 文件</div>
+        <div id="lane-context-menu" class="lane-context-menu" hidden>
+          <button type="button" id="ctx-hide-lane">Hide</button>
+        </div>
         <svg id="map-svg" xmlns="http://www.w3.org/2000/svg">
           <g id="viewport">
             <g id="lanes-layer"></g>
@@ -27,17 +30,30 @@
         </svg>
       </div>
       <aside class="sidebar">
-        <div class="sidebar-header">车道信息</div>
+        <div class="sidebar-header">
+          <span class="sidebar-header-title">车道信息</span>
+          <div class="sidebar-header-actions">
+            <button type="button" class="btn-mini" id="btn-hide-all" disabled>Hide all</button>
+            <button type="button" class="btn-mini" id="btn-show-all" disabled>Show all</button>
+          </div>
+        </div>
+        <div class="lane-tabs">
+          <button type="button" class="lane-tab-btn active" id="btn-lane-tab-attributes">车道属性</button>
+          <button type="button" class="lane-tab-btn" id="btn-lane-tab-centerline">中心线</button>
+          <button type="button" class="lane-tab-btn" id="btn-lane-tab-width">车道宽度</button>
+          <button type="button" class="lane-tab-btn" id="btn-lane-tab-road-width">道路宽度</button>
+        </div>
         <input type="text" id="lane-search" placeholder="输入车道 ID 搜索并定位…" disabled />
         <pre id="lane-info">未选择车道
 
 导入地图后，点击任意车道查看 ID、前后继、限速、类型等信息。
-前驱车道显示为绿色，后继车道显示为黄色。</pre>
+前驱车道显示为橙色，后继车道显示为绿色。</pre>
         <div class="legend">
           <div class="legend-item"><span class="legend-swatch default"></span> 默认车道</div>
           <div class="legend-item"><span class="legend-swatch selected"></span> 当前选中（蓝）</div>
-          <div class="legend-item"><span class="legend-swatch predecessor"></span> 前驱车道（绿）</div>
-          <div class="legend-item"><span class="legend-swatch successor"></span> 后继车道（黄）</div>
+          <div class="legend-item"><span class="legend-swatch same-road"></span> 同道路车道（淡蓝）</div>
+          <div class="legend-item"><span class="legend-swatch predecessor"></span> 前驱车道（橙）</div>
+          <div class="legend-item"><span class="legend-swatch successor"></span> 后继车道（绿）</div>
         </div>
       </aside>
     </div>

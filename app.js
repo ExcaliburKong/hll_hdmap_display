@@ -1569,10 +1569,52 @@
     setStatus(`已选中: ${laneId}`);
   }
 
+  function getLaneFocus(lane) {
+    const points = [];
+    if (lane?.polygon && lane.polygon.length >= 2) {
+      for (let i = 0; i + 1 < lane.polygon.length; i += 2) {
+        points.push({ x: lane.polygon[i], y: lane.polygon[i + 1] });
+      }
+    }
+    if (!points.length && lane?.central_segments?.length) {
+      for (const seg of lane.central_segments) {
+        for (let i = 0; i + 1 < seg.length; i += 2) {
+          points.push({ x: seg[i], y: seg[i + 1] });
+        }
+      }
+    }
+    if (!points.length) return null;
+
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const pt of points) {
+      if (pt.x < minX) minX = pt.x;
+      if (pt.x > maxX) maxX = pt.x;
+      if (pt.y < minY) minY = pt.y;
+      if (pt.y > maxY) maxY = pt.y;
+    }
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const span = Math.max(30, maxX - minX, maxY - minY) * 1.6;
+    return { x: centerX, y: centerY, span };
+  }
+
+  function locateLaneInView(laneId) {
+    const lane = laneById.get(laneId);
+    if (!lane) return false;
+    const focus = getLaneFocus(lane);
+    if (!focus) return false;
+    locateOnUtm(focus.x, focus.y, focus.span);
+    return true;
+  }
+
   function searchAndSelectLane(id) {
     if (!id) return;
     if (laneById.has(id)) {
       selectLane(id);
+      locateLaneInView(id);
       return;
     }
     setStatus(`未找到车道: ${id}`);

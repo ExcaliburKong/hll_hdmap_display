@@ -58,6 +58,7 @@
   const btnClearAllPoints = document.getElementById("btn-clear-all-points");
   const btnClearAllBoxes = document.getElementById("btn-clear-all-boxes");
   const btnClearAllPicks = document.getElementById("btn-clear-all-picks");
+  const btnCopyPickResult = document.getElementById("btn-copy-pick-result");
   const toolPointList = document.getElementById("tool-point-list");
   const toolBoxList = document.getElementById("tool-box-list");
   const toolPickList = document.getElementById("tool-pick-list");
@@ -160,6 +161,7 @@
   btnClearAllPoints.addEventListener("click", clearAllDrawnPoints);
   btnClearAllBoxes.addEventListener("click", clearAllDrawnBoxes);
   btnClearAllPicks.addEventListener("click", clearAllDrawnPicks);
+  if (btnCopyPickResult) btnCopyPickResult.addEventListener("click", copyPickResultPanel);
   toolPointList.addEventListener("click", onPointListClick);
   toolBoxList.addEventListener("click", onBoxListClick);
   toolPickList.addEventListener("click", onPickListClick);
@@ -294,6 +296,59 @@
 
   function formatAnnotationCoordBlock(utmX, utmY, decimals) {
     return `${formatAnnotationCoordX(utmX, utmY, decimals)}<br>${formatAnnotationCoordY(utmX, utmY, decimals)}`;
+  }
+
+  function formatAnnotationCoordPlainBlock(utmX, utmY, decimals) {
+    return `${formatAnnotationCoordX(utmX, utmY, decimals)}\n${formatAnnotationCoordY(utmX, utmY, decimals)}`;
+  }
+
+  function formatPickRecordClipboard(record) {
+    return `${record.label}\n${formatAnnotationCoordPlainBlock(record.x, record.y, 3)}`;
+  }
+
+  function isUserSelectingText() {
+    const sel = window.getSelection();
+    return !!(sel && !sel.isCollapsed && sel.toString().trim());
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    if (!ok) throw new Error("浏览器不支持剪贴板写入");
+  }
+
+  async function copyPickCoordRecord(record) {
+    if (!record) return;
+    try {
+      await copyTextToClipboard(formatPickRecordClipboard(record));
+      setStatus(`已复制 ${record.label} 坐标`);
+    } catch (err) {
+      setStatus(`复制失败: ${err.message}`);
+    }
+  }
+
+  function copyPickResultPanel() {
+    const resultEl = document.getElementById("tool-pick-result");
+    if (!resultEl) return;
+    const text = resultEl.textContent.trim();
+    if (!text || text === "暂无记录") {
+      setStatus("当前无可复制内容");
+      return;
+    }
+    copyTextToClipboard(text)
+      .then(() => setStatus("已复制结果区内容"))
+      .catch((err) => setStatus(`复制失败: ${err.message}`));
   }
 
   function formatAnnotationCoordInline(utmX, utmY, decimals, wgs84) {
@@ -665,6 +720,7 @@
         <div class="tool-record-name">${record.label}</div>
         <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}</div>
         <div class="tool-record-actions">
+          <button type="button" class="btn-mini" data-action="copy">复制</button>
           <button type="button" class="btn-mini" data-action="locate">定位</button>
           <button type="button" class="btn-mini" data-action="delete">删除</button>
         </div>`;
@@ -683,7 +739,9 @@
       if (selectedPickIds.length === 1) {
         const p = drawnPicks.find((item) => item.id === selectedPickIds[0]);
         if (p) {
-          setToolPickResultText(`已选 1/2 点\n起点: ${p.label}\n请再选择一个点计算航向`);
+          setToolPickResultText(
+            `${p.label}\n${formatAnnotationCoordPlainBlock(p.x, p.y, 3)}\n\n已选 1/2 点，再选一个点可计算航向`
+          );
           return;
         }
       }
@@ -753,10 +811,14 @@
     const item = btn ? btn.closest(".tool-record-item") : e.target.closest(".tool-record-item");
     if (!item || !item.dataset.id) return;
     if (!btn) {
+      if (isUserSelectingText()) return;
       togglePickSelection(item.dataset.id);
       return;
     }
-    if (btn.dataset.action === "locate") locateDrawnPick(item.dataset.id);
+    if (btn.dataset.action === "copy") {
+      const record = drawnPicks.find((p) => p.id === item.dataset.id);
+      copyPickCoordRecord(record);
+    } else if (btn.dataset.action === "locate") locateDrawnPick(item.dataset.id);
     else if (btn.dataset.action === "delete") {
       const idx = drawnPicks.findIndex((p) => p.id === item.dataset.id);
       if (idx < 0) return;
@@ -821,6 +883,10 @@
   function setToolPickResultText(text) {
     const resultEl = document.getElementById("tool-pick-result");
     if (resultEl) resultEl.textContent = text;
+    if (btnCopyPickResult) {
+      const t = (text || "").trim();
+      btnCopyPickResult.disabled = !t || t === "暂无记录";
+    }
   }
 
   function drawPointFromInputs() {

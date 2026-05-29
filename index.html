@@ -115,7 +115,13 @@
           <div class="tool-panel-section" id="tool-panel-pick">
             <div class="tool-panel-title">点击显示坐标</div>
             <p class="tool-hint">在地图上左键点击拾取坐标；在列表中点选两个点可计算航向角（弧度）</p>
-            <pre id="tool-pick-result" class="tool-pick-result">暂无记录</pre>
+            <div class="tool-pick-result-wrap">
+              <div class="tool-pick-result-header">
+                <span>坐标 / 航向结果</span>
+                <button type="button" class="btn-mini" id="btn-copy-pick-result" disabled>复制</button>
+              </div>
+              <pre id="tool-pick-result" class="tool-pick-result">暂无记录</pre>
+            </div>
             <div class="tool-record-block">
               <div class="tool-record-block-header">
                 <span>已拾取</span>

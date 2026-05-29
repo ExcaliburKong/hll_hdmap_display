@@ -428,6 +428,8 @@ body {
   color: #8ec8ff;
   line-height: 1.4;
   word-break: break-all;
+  user-select: text;
+  cursor: text;
 }
 
 .tool-record-actions {
@@ -443,6 +445,21 @@ body {
   text-align: center;
 }
 
+.tool-pick-result-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tool-pick-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #9a9aa8;
+}
+
 .tool-pick-result {
   margin: 0;
   padding: 10px;
@@ -456,6 +473,8 @@ body {
   border-radius: 6px;
   color: #8ec8ff;
   min-height: 72px;
+  user-select: text;
+  cursor: text;
 }
 
 #map-container.tool-pick-mode {

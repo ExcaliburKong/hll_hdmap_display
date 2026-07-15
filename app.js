@@ -1626,7 +1626,16 @@
     clearHighlight();
     const el = laneElements.get(laneId);
     if (el) el.classList.add("state-selected");
-    highlightLaneSet(lane.same_road_lane_ids, "state-same-road");
+    // 前驱/后继车道的颜色优先级高于同道路车道，
+    // 因此同道路车道上色时排除掉已经是前驱或后继的车道，避免颜色被覆盖。
+    const priorityIds = new Set([
+      ...(lane.predecessor_ids || []),
+      ...(lane.successor_ids || []),
+    ]);
+    const sameRoadOnlyIds = (lane.same_road_lane_ids || []).filter(
+      (id) => !priorityIds.has(id)
+    );
+    highlightLaneSet(sameRoadOnlyIds, "state-same-road");
     highlightLaneSet(lane.predecessor_ids, "state-predecessor");
     highlightLaneSet(lane.successor_ids, "state-successor");
     renderSelectedCenterline(lane);

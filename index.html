@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
   <div id="app">
@@ -26,6 +26,7 @@
         <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
           <g id="viewport">
             <g id="lanes-layer"></g>
+            <g id="junctions-layer"></g>
             <g id="centerline-layer"></g>
             <g id="annotations-layer"></g>
           </g>
@@ -135,30 +136,46 @@
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-resizer" id="sidebar-resizer" title="拖拽调整侧栏宽度" role="separator" aria-orientation="vertical" aria-label="调整侧栏宽度"></div>
         <div class="sidebar-header">
-          <span class="sidebar-header-title">车道信息</span>
-          <div class="sidebar-header-actions">
+          <div class="sidebar-main-tabs">
+            <button type="button" class="sidebar-main-tab-btn active" id="btn-main-tab-lane">车道信息</button>
+            <button type="button" class="sidebar-main-tab-btn" id="btn-main-tab-junction">路口信息</button>
+          </div>
+          <div class="sidebar-header-actions" id="lane-header-actions">
             <button type="button" class="btn-mini" id="btn-clear-all" disabled>Clear all</button>
             <button type="button" class="btn-mini" id="btn-hide-all" disabled>Hide all</button>
             <button type="button" class="btn-mini" id="btn-show-all" disabled>Show all</button>
           </div>
         </div>
-        <div class="lane-tabs">
-          <button type="button" class="lane-tab-btn active" id="btn-lane-tab-attributes">车道属性</button>
-          <button type="button" class="lane-tab-btn" id="btn-lane-tab-centerline">中心线</button>
-          <button type="button" class="lane-tab-btn" id="btn-lane-tab-width">车道宽度</button>
-          <button type="button" class="lane-tab-btn" id="btn-lane-tab-road-width">道路宽度</button>
-        </div>
-        <input type="text" id="lane-search" placeholder="输入车道 ID 搜索并定位…" disabled />
-        <pre id="lane-info">未选择车道
+        <div class="sidebar-panel" id="lane-panel">
+          <div class="lane-tabs">
+            <button type="button" class="lane-tab-btn active" id="btn-lane-tab-attributes">车道属性</button>
+            <button type="button" class="lane-tab-btn" id="btn-lane-tab-centerline">中心线</button>
+            <button type="button" class="lane-tab-btn" id="btn-lane-tab-width">车道宽度</button>
+            <button type="button" class="lane-tab-btn" id="btn-lane-tab-road-width">道路宽度</button>
+          </div>
+          <input type="text" id="lane-search" placeholder="输入车道 ID 搜索并定位…" disabled />
+          <pre id="lane-info">未选择车道
 
 导入地图后，点击任意车道查看 ID、前后继、限速、类型等信息。
 前驱车道显示为橙色，后继车道显示为绿色。</pre>
-        <div class="legend">
-          <div class="legend-item"><span class="legend-swatch default"></span> 默认车道</div>
-          <div class="legend-item"><span class="legend-swatch selected"></span> 当前选中（蓝）</div>
-          <div class="legend-item"><span class="legend-swatch same-road"></span> 同道路车道（淡蓝）</div>
-          <div class="legend-item"><span class="legend-swatch predecessor"></span> 前驱车道（橙）</div>
-          <div class="legend-item"><span class="legend-swatch successor"></span> 后继车道（绿）</div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-swatch default"></span> 默认车道</div>
+            <div class="legend-item"><span class="legend-swatch selected"></span> 当前选中（蓝）</div>
+            <div class="legend-item"><span class="legend-swatch same-road"></span> 同道路车道（淡蓝）</div>
+            <div class="legend-item"><span class="legend-swatch predecessor"></span> 前驱车道（橙）</div>
+            <div class="legend-item"><span class="legend-swatch successor"></span> 后继车道（绿）</div>
+            <div class="legend-item"><span class="legend-swatch junction"></span> 路口 Polygon（青）</div>
+          </div>
+        </div>
+        <div class="sidebar-panel is-hidden" id="junction-panel">
+          <div class="lane-tabs">
+            <button type="button" class="lane-tab-btn" id="btn-junction-draw-all">绘制所有路口</button>
+            <button type="button" class="lane-tab-btn" id="btn-junction-highlight">高亮目标路口</button>
+          </div>
+          <input type="text" id="junction-search" placeholder="输入路口 ID 搜索并定位…" disabled />
+          <pre id="junction-info">未选择路口
+
+导入地图后，输入路口 ID（如 junction_9816）并回车，查看路口 ID、类型及 Polygon 点集，并在视图中高亮绘制。</pre>
         </div>
       </aside>
     </div>
@@ -166,7 +183,7 @@
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
   <script src="coord_transform.js"></script>
-  <script src="map_parser.js?v=3"></script>
-  <script src="app.js?v=21"></script>
+  <script src="map_parser.js?v=4"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>

@@ -29,6 +29,14 @@
     2: "BACKWARD",
     3: "BIDIRECTION",
   };
+  const JUNCTION_TYPE_NAMES = {
+    0: "UNKNOWN",
+    1: "IN_ROAD",
+    2: "CROSS_ROAD",
+    3: "FORK_ROAD",
+    4: "MAIN_SIDE",
+    5: "DEAD_END",
+  };
   const LANE_BOUNDARY_TYPE_NAMES = {
     0: "UNKNOWN",
     1: "DOTTED_YELLOW",
@@ -286,6 +294,7 @@
     }
 
     const lanesOut = [];
+    const junctionsOut = [];
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -394,6 +403,39 @@
       });
     }
 
+    for (const junction of hdMap.junction || []) {
+      const jid = junction.id && junction.id.id ? junction.id.id : "";
+      if (!jid) continue;
+
+      const rawPoints = [];
+      if (junction.polygon && junction.polygon.point) {
+        for (const pt of junction.polygon.point) {
+          rawPoints.push([Number(pt.x), Number(pt.y)]);
+        }
+      }
+      const polygonFlat = rawPoints.length >= 3 ? polygonToFlat(rawPoints) : null;
+
+      if (polygonFlat) {
+        const xs = [];
+        const ys = [];
+        for (let i = 0; i < polygonFlat.length; i += 2) {
+          xs.push(polygonFlat[i]);
+          ys.push(polygonFlat[i + 1]);
+        }
+        updateBounds(xs, ys);
+      }
+
+      const junctionType = junction.type != null ? Number(junction.type) : 0;
+
+      junctionsOut.push({
+        id: jid,
+        polygon: polygonFlat,
+        type: enumName(JUNCTION_TYPE_NAMES, junctionType),
+        type_code: junctionType,
+        overlap_ids: idList(junction.overlapId),
+      });
+    }
+
     let bounds;
     if (!Number.isFinite(minX)) {
       bounds = { min_x: 0, min_y: 0, max_x: 1, max_y: 1 };
@@ -421,12 +463,14 @@
     return {
       meta: {
         lane_count: lanesOut.length,
+        junction_count: junctionsOut.length,
         date: mapDate,
         projection,
         utm_zone: utmZone,
         bounds,
       },
       lanes: lanesOut,
+      junctions: junctionsOut,
     };
   }
 

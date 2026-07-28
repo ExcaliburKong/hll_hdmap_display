@@ -17,9 +17,19 @@
   const mapSvg = document.getElementById("map-svg");
   const viewport = document.getElementById("viewport");
   const lanesLayer = document.getElementById("lanes-layer");
+  const junctionsLayer = document.getElementById("junctions-layer");
   const centerlineLayer = document.getElementById("centerline-layer");
   const laneInfo = document.getElementById("lane-info");
   const laneSearch = document.getElementById("lane-search");
+  const junctionInfo = document.getElementById("junction-info");
+  const junctionSearch = document.getElementById("junction-search");
+  const btnMainTabLane = document.getElementById("btn-main-tab-lane");
+  const btnMainTabJunction = document.getElementById("btn-main-tab-junction");
+  const lanePanel = document.getElementById("lane-panel");
+  const junctionPanel = document.getElementById("junction-panel");
+  const laneHeaderActions = document.getElementById("lane-header-actions");
+  const btnJunctionDrawAll = document.getElementById("btn-junction-draw-all");
+  const btnJunctionHighlight = document.getElementById("btn-junction-highlight");
   const emptyHint = document.getElementById("empty-hint");
   const btnLaneTabAttributes = document.getElementById("btn-lane-tab-attributes");
   const btnLaneTabCenterline = document.getElementById("btn-lane-tab-centerline");
@@ -64,7 +74,7 @@
   const toolPickList = document.getElementById("tool-pick-list");
   const toolPanel = document.getElementById("tool-panel");
 
-  const SIDEBAR_WIDTH_DEFAULT = 360;
+  const SIDEBAR_WIDTH_DEFAULT = 440;
   const VEHICLE_PRESETS = {
     sanfang: { width: 1.3, front: 2.37, rear: 0.59 },
     liufang: { width: 1.4, front: 2.95, rear: 0.65 },
@@ -88,6 +98,13 @@
   let laneElements = new Map();
   let hiddenLaneIds = new Set();
   let selectedLaneId = null;
+  let junctionById = new Map();
+  let junctionElements = new Map();
+  let junctionLabelElements = new Map();
+  let selectedJunctionId = null;
+  let showAllJunctions = false;
+  const DEFAULT_JUNCTION_INFO =
+    "未选择路口\n\n导入地图后，输入路口 ID（如 junction_9816）并回车，查看路口 ID、类型及 Polygon 点集，并在视图中高亮绘制。";
   let contextMenuLaneId = null;
   /** 地图中心（UTM），SVG 使用局部坐标避免大数值缩放时精度丢失 */
   let mapOrigin = { x: 0, y: 0 };
@@ -102,6 +119,8 @@
     roadWidth: "roadWidth",
   };
   let activeLaneInfoTab = LANE_INFO_TABS.attributes;
+  const SIDEBAR_PANELS = { lane: "lane", junction: "junction" };
+  let activeSidebarPanel = SIDEBAR_PANELS.lane;
   const DEFAULT_LANE_INFO =
     "未选择车道\n\n点击地图上的车道后，可切换查看“车道属性”。\n同道路车道显示为淡蓝色，前驱车道为橙色，后继车道为绿色。";
 
@@ -132,6 +151,23 @@
   laneSearch.addEventListener("keydown", (e) => {
     if (e.key === "Enter") searchAndSelectLane(laneSearch.value.trim());
   });
+  if (junctionSearch) {
+    junctionSearch.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchAndSelectJunction(junctionSearch.value.trim());
+    });
+  }
+  if (btnMainTabLane) {
+    btnMainTabLane.addEventListener("click", () => setActiveSidebarPanel(SIDEBAR_PANELS.lane));
+  }
+  if (btnMainTabJunction) {
+    btnMainTabJunction.addEventListener("click", () => setActiveSidebarPanel(SIDEBAR_PANELS.junction));
+  }
+  if (btnJunctionDrawAll) {
+    btnJunctionDrawAll.addEventListener("click", toggleDrawAllJunctions);
+  }
+  if (btnJunctionHighlight) {
+    btnJunctionHighlight.addEventListener("click", toggleHighlightJunction);
+  }
   btnLaneTabAttributes.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.attributes));
   btnLaneTabCenterline.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.centerline));
   btnLaneTabWidth.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.width));
@@ -946,8 +982,14 @@
 
   function clearAllAnnotations() {
     const hadAny = drawnPoints.length > 0 || drawnBoxes.length > 0 || drawnPicks.length > 0;
+    const hadJunction = !!selectedJunctionId;
     clearAnnotations();
-    setStatus(hadAny ? "已清空全部标注（点、框、坐标）" : "当前无标注可清空");
+    clearJunctionSelection();
+    if (hadJunction) {
+      setStatus("已清空全部标注并取消路口高亮");
+    } else {
+      setStatus(hadAny ? "已清空全部标注（点、框、坐标）" : "当前无标注可清空");
+    }
   }
 
   function updateMapMetaPanel(meta) {
@@ -1289,6 +1331,81 @@
     return null;
   }
 
+  function createJunctionElement(junction) {
+    if (!junction.polygon || junction.polygon.length < 6) return null;
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", flatToSvgPoints(junction.polygon));
+    poly.classList.add("junction-shape", "junction-hidden");
+    poly.dataset.junctionId = junction.id;
+    return poly;
+  }
+
+  function junctionCentroidLocal(junction) {
+    const flat = junction.polygon;
+    if (!flat || flat.length < 2) return null;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i + 1 < flat.length; i += 2) {
+      const x = flat[i];
+      const y = flat[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    if (!Number.isFinite(minX)) return null;
+    return {
+      x: (minX + maxX) / 2 - mapOrigin.x,
+      y: (minY + maxY) / 2 - mapOrigin.y,
+    };
+  }
+
+  function createJunctionLabel(junction) {
+    const c = junctionCentroidLocal(junction);
+    if (!c) return null;
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("dominant-baseline", "central");
+    label.setAttribute("transform", `translate(${c.x}, ${c.y}) scale(1, -1)`);
+    label.classList.add("junction-label", "junction-hidden");
+    label.dataset.junctionId = junction.id;
+    label.textContent = junction.id;
+    label.addEventListener("mousedown", (e) => e.stopPropagation());
+    label.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectJunction(junction.id);
+    });
+    return label;
+  }
+
+  function applyJunctionVisibility() {
+    for (const [jid, el] of junctionElements) {
+      const visible = showAllJunctions || jid === selectedJunctionId;
+      el.classList.toggle("junction-hidden", !visible);
+    }
+    for (const [jid, el] of junctionLabelElements) {
+      const visible = showAllJunctions || jid === selectedJunctionId;
+      el.classList.toggle("junction-hidden", !visible);
+    }
+  }
+
+  function toggleDrawAllJunctions() {
+    if (!junctionById.size) {
+      setStatus("请先导入地图");
+      return;
+    }
+    showAllJunctions = !showAllJunctions;
+    if (btnJunctionDrawAll) btnJunctionDrawAll.classList.toggle("active", showAllJunctions);
+    applyJunctionVisibility();
+    setStatus(
+      showAllJunctions
+        ? `已绘制全部 ${junctionById.size} 个路口 Polygon`
+        : "已隐藏全部路口 Polygon"
+    );
+  }
+
   function setLaneVisibility(laneId, hidden) {
     const el = laneElements.get(laneId);
     if (el) el.classList.toggle("lane-hidden", hidden);
@@ -1312,7 +1429,11 @@
     for (const laneId of laneById.keys()) hiddenLaneIds.add(laneId);
     applyAllLaneVisibility();
     clearLaneSelection();
-    setStatus(`已隐藏全部 ${hiddenLaneIds.size} 条车道`);
+    showAllJunctions = false;
+    if (btnJunctionDrawAll) btnJunctionDrawAll.classList.remove("active");
+    clearJunctionSelection();
+    applyJunctionVisibility();
+    setStatus(`已隐藏全部 ${hiddenLaneIds.size} 条车道及所有路口 Polygon`);
   }
 
   function showAllLanes() {
@@ -1344,12 +1465,20 @@
     updateMapMetaPanel(data.meta);
 
     lanesLayer.innerHTML = "";
+    if (junctionsLayer) junctionsLayer.innerHTML = "";
     clearSelectedCenterline();
     clearAnnotations();
     laneById.clear();
     laneElements.clear();
     hiddenLaneIds.clear();
     selectedLaneId = null;
+    junctionById.clear();
+    junctionElements.clear();
+    junctionLabelElements.clear();
+    selectedJunctionId = null;
+    showAllJunctions = false;
+    if (btnJunctionDrawAll) btnJunctionDrawAll.classList.remove("active");
+    if (btnJunctionHighlight) btnJunctionHighlight.classList.remove("active");
     hideLaneContextMenu();
 
     const b = data.meta.bounds;
@@ -1369,14 +1498,34 @@
     }
     lanesLayer.appendChild(frag);
 
+    if (junctionsLayer) {
+      const junctionFrag = document.createDocumentFragment();
+      for (const junction of data.junctions || []) {
+        junctionById.set(junction.id, junction);
+        const el = createJunctionElement(junction);
+        if (el) {
+          junctionFrag.appendChild(el);
+          junctionElements.set(junction.id, el);
+        }
+        const labelEl = createJunctionLabel(junction);
+        if (labelEl) {
+          junctionFrag.appendChild(labelEl);
+          junctionLabelElements.set(junction.id, labelEl);
+        }
+      }
+      junctionsLayer.appendChild(junctionFrag);
+    }
+
     fitViewToBounds(data.meta.bounds);
     emptyHint.style.display = "none";
     btnResetView.disabled = false;
     laneSearch.disabled = false;
+    if (junctionSearch) junctionSearch.disabled = false;
     btnClearAll.disabled = false;
     btnHideAll.disabled = false;
     btnShowAll.disabled = false;
     renderActiveLaneInfo();
+    renderActiveJunctionInfo();
     syncLaneTabButtons();
   }
 
@@ -1606,6 +1755,16 @@
     renderActiveLaneInfo();
   }
 
+  function setActiveSidebarPanel(panelKey) {
+    if (!panelKey) return;
+    activeSidebarPanel = panelKey;
+    const isLane = panelKey === SIDEBAR_PANELS.lane;
+    if (btnMainTabLane) btnMainTabLane.classList.toggle("active", isLane);
+    if (btnMainTabJunction) btnMainTabJunction.classList.toggle("active", !isLane);
+    if (lanePanel) lanePanel.classList.toggle("is-hidden", !isLane);
+    if (junctionPanel) junctionPanel.classList.toggle("is-hidden", isLane);
+  }
+
   function clearLaneSelection() {
     if (!selectedLaneId) return;
     selectedLaneId = null;
@@ -1695,6 +1854,126 @@
     setStatus(`未找到车道: ${id}`);
   }
 
+  function formatJunctionInfo(junction) {
+    const points = [];
+    if (junction.polygon && junction.polygon.length >= 2) {
+      for (let i = 0; i + 1 < junction.polygon.length; i += 2) {
+        points.push({ x: junction.polygon[i], y: junction.polygon[i + 1] });
+      }
+    }
+    const lines = [
+      `路口信息`,
+      `路口 ID: ${junction.id}`,
+      `路口类型: ${junction.type} (${junction.type_code})`,
+      `Polygon 点集 (${points.length}):`,
+    ];
+    if (!points.length) {
+      lines.push("  —");
+    } else {
+      points.forEach((pt, idx) => {
+        lines.push(`  ${idx + 1}. ${pt.x.toFixed(3)}, ${pt.y.toFixed(3)}`);
+      });
+    }
+    return lines.join("\n");
+  }
+
+  function renderActiveJunctionInfo() {
+    if (!junctionInfo) return;
+    if (!selectedJunctionId || !junctionById.has(selectedJunctionId)) {
+      junctionInfo.textContent = DEFAULT_JUNCTION_INFO;
+      return;
+    }
+    junctionInfo.textContent = formatJunctionInfo(junctionById.get(selectedJunctionId));
+  }
+
+  function clearJunctionHighlight() {
+    for (const el of junctionElements.values()) {
+      el.classList.remove("state-selected");
+    }
+    for (const el of junctionLabelElements.values()) {
+      el.classList.remove("state-selected");
+    }
+  }
+
+  function clearJunctionSelection() {
+    if (!selectedJunctionId) return;
+    selectedJunctionId = null;
+    clearJunctionHighlight();
+    applyJunctionVisibility();
+    if (btnJunctionHighlight) btnJunctionHighlight.classList.remove("active");
+    renderActiveJunctionInfo();
+  }
+
+  function selectJunction(junctionId) {
+    if (!junctionId || !junctionById.has(junctionId)) return;
+    selectedJunctionId = junctionId;
+    clearJunctionHighlight();
+    applyJunctionVisibility();
+    const el = junctionElements.get(junctionId);
+    if (el) el.classList.add("state-selected");
+    const labelEl = junctionLabelElements.get(junctionId);
+    if (labelEl) labelEl.classList.add("state-selected");
+    if (btnJunctionHighlight) btnJunctionHighlight.classList.add("active");
+    renderActiveJunctionInfo();
+    if (junctionSearch) junctionSearch.value = junctionId;
+    setStatus(`已选中路口: ${junctionId}`);
+  }
+
+  function getJunctionFocus(junction) {
+    if (!junction?.polygon || junction.polygon.length < 2) return null;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i + 1 < junction.polygon.length; i += 2) {
+      const x = junction.polygon[i];
+      const y = junction.polygon[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    if (!Number.isFinite(minX)) return null;
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const span = Math.max(30, maxX - minX, maxY - minY) * 1.6;
+    return { x: centerX, y: centerY, span };
+  }
+
+  function locateJunctionInView(junctionId) {
+    const junction = junctionById.get(junctionId);
+    if (!junction) return false;
+    const focus = getJunctionFocus(junction);
+    if (!focus) return false;
+    locateOnUtm(focus.x, focus.y, focus.span);
+    return true;
+  }
+
+  function searchAndSelectJunction(id) {
+    if (!id) return;
+    if (junctionById.has(id)) {
+      selectJunction(id);
+      locateJunctionInView(id);
+      return;
+    }
+    setStatus(`未找到路口: ${id}`);
+  }
+
+  function toggleHighlightJunction() {
+    const id = junctionSearch ? junctionSearch.value.trim() : "";
+    // 已有高亮，且未输入新的其它 ID：再次点击取消高亮
+    if (selectedJunctionId && (!id || id === selectedJunctionId)) {
+      clearJunctionSelection();
+      setStatus("已取消路口高亮");
+      return;
+    }
+    if (!id) {
+      setStatus("请先输入路口 ID");
+      return;
+    }
+    searchAndSelectJunction(id);
+  }
+
   function onFileSelected() {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
@@ -1717,7 +1996,9 @@
         body.meta.filename = file.name;
         mapData = body;
         renderMap(mapData);
-        setStatus(`${file.name} · ${body.meta.lane_count} 条车道`);
+        setStatus(
+          `${file.name} · ${body.meta.lane_count} 条车道 · ${body.meta.junction_count || 0} 个路口`
+        );
       } catch (err) {
         setStatus(`错误: ${err.message}`);
         laneInfo.textContent = `加载失败:\n${err.message}`;

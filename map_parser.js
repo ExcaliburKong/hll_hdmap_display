@@ -56,6 +56,40 @@
     7: "ARROW_RIGHT_AND_FORWARD",
     8: "ARROW_U_TURN",
   };
+  const OBJECT_TYPE_NAMES = {
+    1: "UNKNOWN",
+    2: "FENCE",
+    3: "LAMPPOSTS",
+    4: "ROADSIGNAL",
+    5: "BARRIERGATE",
+  };
+  const OBJECT_ROAD_SIGNAL_TYPE_NAMES = {
+    1: "ROAD_SIGNAL_UNKNOWN",
+    2: "THROUGH",
+    3: "THROUGH_AND_LEFT",
+    4: "LEFT",
+    5: "THROUGH_AND_RIGHT",
+    6: "RIGHT",
+    7: "UTURN",
+    8: "THROUGH_AND_UTURN",
+    9: "LEFT_AND_UTURN",
+    10: "LEFT_AND_RIGHT",
+    11: "MERGE_LEFT",
+    12: "MERGE_RIGHT",
+  };
+  const SIGNAL_TYPE_NAMES = {
+    1: "UNKNOWN",
+    2: "MIX_2_HORIZONTAL",
+    3: "MIX_2_VERTICAL",
+    4: "MIX_3_HORIZONTAL",
+    5: "MIX_3_VERTICAL",
+    6: "SINGLE",
+  };
+  const SIGN_INFO_TYPE_NAMES = {
+    0: "None",
+    1: "NO_RIGHT_TURN_ON_RED",
+    2: "NO_LEFT_TURN_ENTER_WAITING",
+  };
 
   const COORD_DECIMALS = 3;
   const SIMPLIFY_RING_MIN_POINTS = 120;
@@ -295,6 +329,10 @@
 
     const lanesOut = [];
     const junctionsOut = [];
+    const crosswalksOut = [];
+    const objectsOut = [];
+    const trafficIslandsOut = [];
+    const signalsOut = [];
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -436,6 +474,97 @@
       });
     }
 
+    function polygonMessageToFlat(polygon) {
+      if (!polygon || !polygon.point) return null;
+      const rawPoints = [];
+      for (const pt of polygon.point) {
+        rawPoints.push([Number(pt.x), Number(pt.y)]);
+      }
+      const flat = rawPoints.length >= 3 ? polygonToFlat(rawPoints) : null;
+      if (flat) {
+        const xs = [];
+        const ys = [];
+        for (let i = 0; i < flat.length; i += 2) {
+          xs.push(flat[i]);
+          ys.push(flat[i + 1]);
+        }
+        updateBounds(xs, ys);
+      }
+      return flat;
+    }
+
+    for (const crosswalk of hdMap.crosswalk || []) {
+      const cid = crosswalk.id && crosswalk.id.id ? crosswalk.id.id : "";
+      if (!cid) continue;
+      const polygonFlat = polygonMessageToFlat(crosswalk.polygon);
+      crosswalksOut.push({
+        id: cid,
+        polygon: polygonFlat,
+        overlap_ids: idList(crosswalk.overlapId),
+      });
+    }
+
+    for (const object of hdMap.object || []) {
+      const oid = object.id && object.id.id ? object.id.id : "";
+      if (!oid) continue;
+      const polygonFlat = polygonMessageToFlat(object.boundary);
+      const objectType = object.type != null ? Number(object.type) : 0;
+      const hasSubtype = Object.prototype.hasOwnProperty.call(object, "subtype") && object.subtype != null;
+      const objectSubtype = hasSubtype ? Number(object.subtype) : 0;
+      objectsOut.push({
+        id: oid,
+        polygon: polygonFlat,
+        type: enumName(OBJECT_TYPE_NAMES, objectType),
+        type_code: objectType,
+        subtype: hasSubtype ? enumName(OBJECT_ROAD_SIGNAL_TYPE_NAMES, objectSubtype) : null,
+        subtype_code: hasSubtype ? objectSubtype : null,
+        overlap_ids: idList(object.overlapId),
+      });
+    }
+
+    for (const island of hdMap.trafficIsland || []) {
+      const tid = island.id && island.id.id ? island.id.id : "";
+      if (!tid) continue;
+      const polygonFlat = polygonMessageToFlat(island.polygon);
+      trafficIslandsOut.push({
+        id: tid,
+        polygon: polygonFlat,
+      });
+    }
+
+    for (const signal of hdMap.signal || []) {
+      const sid = signal.id && signal.id.id ? signal.id.id : "";
+      if (!sid) continue;
+      const polygonFlat = polygonMessageToFlat(signal.boundary);
+      const signalType = signal.type != null ? Number(signal.type) : 0;
+      const subsignals = (signal.subsignal || []).map((sub) => {
+        const t = sub && sub.type != null ? Number(sub.type) : 0;
+        return {
+          id: sub && sub.id && sub.id.id ? sub.id.id : "",
+          type: enumName(SUBSIGNAL_TYPE_NAMES, t),
+          type_code: t,
+        };
+      });
+      const signInfos = (signal.signInfo || []).map((si) => {
+        const t = si && si.type != null ? Number(si.type) : 0;
+        return {
+          type: enumName(SIGN_INFO_TYPE_NAMES, t),
+          type_code: t,
+        };
+      });
+      signalsOut.push({
+        id: sid,
+        polygon: polygonFlat,
+        type: enumName(SIGNAL_TYPE_NAMES, signalType),
+        type_code: signalType,
+        subsignals,
+        sign_infos: signInfos,
+        relative_signal_ids: idList(signal.relativeSignalId),
+        stop_line_count: (signal.stopLine || []).length,
+        overlap_ids: idList(signal.overlapId),
+      });
+    }
+
     let bounds;
     if (!Number.isFinite(minX)) {
       bounds = { min_x: 0, min_y: 0, max_x: 1, max_y: 1 };
@@ -464,6 +593,10 @@
       meta: {
         lane_count: lanesOut.length,
         junction_count: junctionsOut.length,
+        crosswalk_count: crosswalksOut.length,
+        object_count: objectsOut.length,
+        traffic_island_count: trafficIslandsOut.length,
+        signal_count: signalsOut.length,
         date: mapDate,
         projection,
         utm_zone: utmZone,
@@ -471,6 +604,10 @@
       },
       lanes: lanesOut,
       junctions: junctionsOut,
+      crosswalks: crosswalksOut,
+      objects: objectsOut,
+      traffic_islands: trafficIslandsOut,
+      signals: signalsOut,
     };
   }
 

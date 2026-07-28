@@ -232,6 +232,115 @@ body {
   display: none;
 }
 
+.element-shape {
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.element-shape.element-crosswalk {
+  fill: rgba(255, 206, 0, 0.14);
+  stroke: #ffce00;
+}
+
+.element-shape.element-object {
+  fill: rgba(179, 102, 255, 0.14);
+  stroke: #b366ff;
+}
+
+.element-shape.element-traffic_island {
+  fill: rgba(0, 230, 118, 0.14);
+  stroke: #00e676;
+}
+
+.element-shape.element-signal {
+  fill: rgba(255, 82, 82, 0.14);
+  stroke: #ff5252;
+}
+
+.element-shape.state-selected {
+  stroke-width: 2.5;
+}
+
+.element-shape.element-crosswalk.state-selected {
+  fill: rgba(255, 206, 0, 0.34);
+  stroke: #ffe45c;
+}
+
+.element-shape.element-object.state-selected {
+  fill: rgba(179, 102, 255, 0.34);
+  stroke: #d1a3ff;
+}
+
+.element-shape.element-traffic_island.state-selected {
+  fill: rgba(0, 230, 118, 0.34);
+  stroke: #69ffa8;
+}
+
+.element-shape.element-signal.state-selected {
+  fill: rgba(255, 82, 82, 0.34);
+  stroke: #ff8a80;
+}
+
+.element-shape.element-hidden {
+  display: none;
+}
+
+.element-label {
+  stroke: rgba(0, 0, 0, 0.8);
+  stroke-width: 0.18;
+  paint-order: stroke fill;
+  font-size: 1.6px;
+  font-family: "Consolas", "Menlo", monospace;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  direction: ltr;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.element-label-crosswalk {
+  fill: #ffe066;
+}
+
+.element-label-object {
+  fill: #d1a3ff;
+}
+
+.element-label-traffic_island {
+  fill: #69ffa8;
+}
+
+.element-label-signal {
+  fill: #ff8a80;
+}
+
+/* object / signal 元素通常较小，缩小标签字号避免遮挡 polygon */
+.element-label-object,
+.element-label-signal {
+  font-size: 0.85px;
+  stroke-width: 0.1;
+}
+
+.element-label-object.state-selected,
+.element-label-signal.state-selected {
+  font-size: 1.05px;
+}
+
+.element-label:hover {
+  fill: #ffffff;
+}
+
+.element-label.state-selected {
+  fill: #ffffff;
+  font-size: 1.9px;
+}
+
+.element-label.element-hidden {
+  display: none;
+}
+
 .lane-shape.lane-hidden {
   display: none;
   pointer-events: none;
@@ -717,7 +826,8 @@ body.sidebar-resizing #map-container {
 }
 
 #lane-search,
-#junction-search {
+#junction-search,
+#element-search {
   margin: 10px 14px 0;
   padding: 8px 10px;
   width: calc(100% - 28px);
@@ -729,7 +839,8 @@ body.sidebar-resizing #map-container {
 }
 
 #lane-info,
-#junction-info {
+#junction-info,
+#element-info {
   flex: 1;
   margin: 10px 14px 14px;
   padding: 12px;
@@ -748,7 +859,7 @@ body.sidebar-resizing #map-container {
 .sidebar-main-tabs {
   display: flex;
   gap: 6px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .sidebar-main-tab-btn {
@@ -831,6 +942,22 @@ body.sidebar-resizing #map-container {
 
 .legend-swatch.junction {
   background: #00c8c8;
+}
+
+.legend-swatch.crosswalk {
+  background: #ffce00;
+}
+
+.legend-swatch.object {
+  background: #b366ff;
+}
+
+.legend-swatch.traffic-island {
+  background: #00e676;
+}
+
+.legend-swatch.signal {
+  background: #ff5252;
 }
 
 .map-meta-panel {

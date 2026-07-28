@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=17" />
 </head>
 <body>
   <div id="app">
@@ -27,6 +27,7 @@
           <g id="viewport">
             <g id="lanes-layer"></g>
             <g id="junctions-layer"></g>
+            <g id="elements-layer"></g>
             <g id="centerline-layer"></g>
             <g id="annotations-layer"></g>
           </g>
@@ -139,6 +140,7 @@
           <div class="sidebar-main-tabs">
             <button type="button" class="sidebar-main-tab-btn active" id="btn-main-tab-lane">车道信息</button>
             <button type="button" class="sidebar-main-tab-btn" id="btn-main-tab-junction">路口信息</button>
+            <button type="button" class="sidebar-main-tab-btn" id="btn-main-tab-element">元素信息</button>
           </div>
           <div class="sidebar-header-actions" id="lane-header-actions">
             <button type="button" class="btn-mini" id="btn-clear-all" disabled>Clear all</button>
@@ -177,13 +179,31 @@
 
 导入地图后，输入路口 ID（如 junction_9816）并回车，查看路口 ID、类型及 Polygon 点集，并在视图中高亮绘制。</pre>
         </div>
+        <div class="sidebar-panel is-hidden" id="element-panel">
+          <div class="lane-tabs">
+            <button type="button" class="lane-tab-btn" id="btn-element-draw-all">绘制所有元素</button>
+            <button type="button" class="lane-tab-btn" id="btn-element-highlight">高亮目标元素</button>
+          </div>
+          <input type="text" id="element-search" placeholder="输入元素 ID 搜索并定位…" disabled />
+          <pre id="element-info">未选择元素
+
+元素包含人行横道(crosswalk)、地图对象(object)、交通岛(traffic_island)与信号灯(signal)。
+点击「绘制所有元素」以 Polygon 形式绘制全部元素，元素旁会标注其 ID。
+点击 ID 或在此输入元素 ID 并回车，即可查看该元素的详细内容并在视图中高亮。</pre>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-swatch crosswalk"></span> 人行横道 crosswalk（黄）</div>
+            <div class="legend-item"><span class="legend-swatch object"></span> 地图对象 object（紫）</div>
+            <div class="legend-item"><span class="legend-swatch traffic-island"></span> 交通岛 traffic_island（绿）</div>
+            <div class="legend-item"><span class="legend-swatch signal"></span> 信号灯 signal（红）</div>
+          </div>
+        </div>
       </aside>
     </div>
   </div>
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
   <script src="coord_transform.js"></script>
-  <script src="map_parser.js?v=4"></script>
-  <script src="app.js?v=27"></script>
+  <script src="map_parser.js?v=6"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>

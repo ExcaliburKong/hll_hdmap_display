@@ -18,18 +18,25 @@
   const viewport = document.getElementById("viewport");
   const lanesLayer = document.getElementById("lanes-layer");
   const junctionsLayer = document.getElementById("junctions-layer");
+  const elementsLayer = document.getElementById("elements-layer");
   const centerlineLayer = document.getElementById("centerline-layer");
   const laneInfo = document.getElementById("lane-info");
   const laneSearch = document.getElementById("lane-search");
   const junctionInfo = document.getElementById("junction-info");
   const junctionSearch = document.getElementById("junction-search");
+  const elementInfo = document.getElementById("element-info");
+  const elementSearch = document.getElementById("element-search");
   const btnMainTabLane = document.getElementById("btn-main-tab-lane");
   const btnMainTabJunction = document.getElementById("btn-main-tab-junction");
+  const btnMainTabElement = document.getElementById("btn-main-tab-element");
   const lanePanel = document.getElementById("lane-panel");
   const junctionPanel = document.getElementById("junction-panel");
+  const elementPanel = document.getElementById("element-panel");
   const laneHeaderActions = document.getElementById("lane-header-actions");
   const btnJunctionDrawAll = document.getElementById("btn-junction-draw-all");
   const btnJunctionHighlight = document.getElementById("btn-junction-highlight");
+  const btnElementDrawAll = document.getElementById("btn-element-draw-all");
+  const btnElementHighlight = document.getElementById("btn-element-highlight");
   const emptyHint = document.getElementById("empty-hint");
   const btnLaneTabAttributes = document.getElementById("btn-lane-tab-attributes");
   const btnLaneTabCenterline = document.getElementById("btn-lane-tab-centerline");
@@ -105,6 +112,20 @@
   let showAllJunctions = false;
   const DEFAULT_JUNCTION_INFO =
     "未选择路口\n\n导入地图后，输入路口 ID（如 junction_9816）并回车，查看路口 ID、类型及 Polygon 点集，并在视图中高亮绘制。";
+  /** key = `${kind}:${id}` -> { id, kind, polygon, ... } */
+  let elementByKey = new Map();
+  let elementElements = new Map();
+  let elementLabelElements = new Map();
+  let selectedElementKey = null;
+  let showAllElements = false;
+  const DEFAULT_ELEMENT_INFO =
+    "未选择元素\n\n元素包含人行横道(crosswalk)、地图对象(object)、交通岛(traffic_island)与信号灯(signal)。\n点击「绘制所有元素」以 Polygon 形式绘制全部元素，元素旁会标注其 ID。\n点击 ID 或在此输入元素 ID 并回车，即可查看该元素的详细内容并在视图中高亮。";
+  const ELEMENT_KIND_NAMES = {
+    crosswalk: "人行横道 (crosswalk)",
+    object: "地图对象 (object)",
+    traffic_island: "交通岛 (traffic_island)",
+    signal: "信号灯 (signal)",
+  };
   let contextMenuLaneId = null;
   /** 地图中心（UTM），SVG 使用局部坐标避免大数值缩放时精度丢失 */
   let mapOrigin = { x: 0, y: 0 };
@@ -119,7 +140,7 @@
     roadWidth: "roadWidth",
   };
   let activeLaneInfoTab = LANE_INFO_TABS.attributes;
-  const SIDEBAR_PANELS = { lane: "lane", junction: "junction" };
+  const SIDEBAR_PANELS = { lane: "lane", junction: "junction", element: "element" };
   let activeSidebarPanel = SIDEBAR_PANELS.lane;
   const DEFAULT_LANE_INFO =
     "未选择车道\n\n点击地图上的车道后，可切换查看“车道属性”。\n同道路车道显示为淡蓝色，前驱车道为橙色，后继车道为绿色。";
@@ -162,11 +183,25 @@
   if (btnMainTabJunction) {
     btnMainTabJunction.addEventListener("click", () => setActiveSidebarPanel(SIDEBAR_PANELS.junction));
   }
+  if (btnMainTabElement) {
+    btnMainTabElement.addEventListener("click", () => setActiveSidebarPanel(SIDEBAR_PANELS.element));
+  }
   if (btnJunctionDrawAll) {
     btnJunctionDrawAll.addEventListener("click", toggleDrawAllJunctions);
   }
   if (btnJunctionHighlight) {
     btnJunctionHighlight.addEventListener("click", toggleHighlightJunction);
+  }
+  if (btnElementDrawAll) {
+    btnElementDrawAll.addEventListener("click", toggleDrawAllElements);
+  }
+  if (btnElementHighlight) {
+    btnElementHighlight.addEventListener("click", toggleHighlightElement);
+  }
+  if (elementSearch) {
+    elementSearch.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchAndSelectElement(elementSearch.value.trim());
+    });
   }
   btnLaneTabAttributes.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.attributes));
   btnLaneTabCenterline.addEventListener("click", () => setActiveLaneInfoTab(LANE_INFO_TABS.centerline));
@@ -1433,7 +1468,11 @@
     if (btnJunctionDrawAll) btnJunctionDrawAll.classList.remove("active");
     clearJunctionSelection();
     applyJunctionVisibility();
-    setStatus(`已隐藏全部 ${hiddenLaneIds.size} 条车道及所有路口 Polygon`);
+    showAllElements = false;
+    if (btnElementDrawAll) btnElementDrawAll.classList.remove("active");
+    clearElementSelection();
+    applyElementVisibility();
+    setStatus(`已隐藏全部 ${hiddenLaneIds.size} 条车道及所有路口/元素 Polygon`);
   }
 
   function showAllLanes() {
@@ -1466,6 +1505,7 @@
 
     lanesLayer.innerHTML = "";
     if (junctionsLayer) junctionsLayer.innerHTML = "";
+    if (elementsLayer) elementsLayer.innerHTML = "";
     clearSelectedCenterline();
     clearAnnotations();
     laneById.clear();
@@ -1479,6 +1519,13 @@
     showAllJunctions = false;
     if (btnJunctionDrawAll) btnJunctionDrawAll.classList.remove("active");
     if (btnJunctionHighlight) btnJunctionHighlight.classList.remove("active");
+    elementByKey.clear();
+    elementElements.clear();
+    elementLabelElements.clear();
+    selectedElementKey = null;
+    showAllElements = false;
+    if (btnElementDrawAll) btnElementDrawAll.classList.remove("active");
+    if (btnElementHighlight) btnElementHighlight.classList.remove("active");
     hideLaneContextMenu();
 
     const b = data.meta.bounds;
@@ -1516,16 +1563,45 @@
       junctionsLayer.appendChild(junctionFrag);
     }
 
+    if (elementsLayer) {
+      const elementFrag = document.createDocumentFragment();
+      const elementSources = [
+        { kind: "crosswalk", list: data.crosswalks || [] },
+        { kind: "object", list: data.objects || [] },
+        { kind: "traffic_island", list: data.traffic_islands || [] },
+        { kind: "signal", list: data.signals || [] },
+      ];
+      for (const { kind, list } of elementSources) {
+        for (const item of list) {
+          const key = elementKeyOf(kind, item.id);
+          elementByKey.set(key, { ...item, kind });
+          const el = createElementShape(kind, item.id, item.polygon);
+          if (el) {
+            elementFrag.appendChild(el);
+            elementElements.set(key, el);
+          }
+          const labelEl = createElementLabel(kind, item.id, item.polygon);
+          if (labelEl) {
+            elementFrag.appendChild(labelEl);
+            elementLabelElements.set(key, labelEl);
+          }
+        }
+      }
+      elementsLayer.appendChild(elementFrag);
+    }
+
     fitViewToBounds(data.meta.bounds);
     emptyHint.style.display = "none";
     btnResetView.disabled = false;
     laneSearch.disabled = false;
     if (junctionSearch) junctionSearch.disabled = false;
+    if (elementSearch) elementSearch.disabled = false;
     btnClearAll.disabled = false;
     btnHideAll.disabled = false;
     btnShowAll.disabled = false;
     renderActiveLaneInfo();
     renderActiveJunctionInfo();
+    renderActiveElementInfo();
     syncLaneTabButtons();
   }
 
@@ -1759,10 +1835,14 @@
     if (!panelKey) return;
     activeSidebarPanel = panelKey;
     const isLane = panelKey === SIDEBAR_PANELS.lane;
+    const isJunction = panelKey === SIDEBAR_PANELS.junction;
+    const isElement = panelKey === SIDEBAR_PANELS.element;
     if (btnMainTabLane) btnMainTabLane.classList.toggle("active", isLane);
-    if (btnMainTabJunction) btnMainTabJunction.classList.toggle("active", !isLane);
+    if (btnMainTabJunction) btnMainTabJunction.classList.toggle("active", isJunction);
+    if (btnMainTabElement) btnMainTabElement.classList.toggle("active", isElement);
     if (lanePanel) lanePanel.classList.toggle("is-hidden", !isLane);
-    if (junctionPanel) junctionPanel.classList.toggle("is-hidden", isLane);
+    if (junctionPanel) junctionPanel.classList.toggle("is-hidden", !isJunction);
+    if (elementPanel) elementPanel.classList.toggle("is-hidden", !isElement);
   }
 
   function clearLaneSelection() {
@@ -1972,6 +2052,250 @@
       return;
     }
     searchAndSelectJunction(id);
+  }
+
+  function elementKeyOf(kind, id) {
+    return `${kind}:${id}`;
+  }
+
+  function createElementShape(kind, id, polygon) {
+    if (!polygon || polygon.length < 6) return null;
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", flatToSvgPoints(polygon));
+    poly.classList.add("element-shape", `element-${kind}`, "element-hidden");
+    poly.dataset.elementKey = elementKeyOf(kind, id);
+    return poly;
+  }
+
+  function elementCentroidLocal(polygon) {
+    if (!polygon || polygon.length < 2) return null;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i + 1 < polygon.length; i += 2) {
+      const x = polygon[i];
+      const y = polygon[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    if (!Number.isFinite(minX)) return null;
+    return {
+      x: (minX + maxX) / 2 - mapOrigin.x,
+      y: (minY + maxY) / 2 - mapOrigin.y,
+    };
+  }
+
+  function createElementLabel(kind, id, polygon) {
+    const c = elementCentroidLocal(polygon);
+    if (!c) return null;
+    const key = elementKeyOf(kind, id);
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("dominant-baseline", "central");
+    label.setAttribute("transform", `translate(${c.x}, ${c.y}) scale(1, -1)`);
+    label.classList.add("element-label", `element-label-${kind}`, "element-hidden");
+    label.dataset.elementKey = key;
+    label.textContent = id;
+    label.addEventListener("mousedown", (e) => e.stopPropagation());
+    label.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectElement(key);
+    });
+    return label;
+  }
+
+  function applyElementVisibility() {
+    for (const [key, el] of elementElements) {
+      const visible = showAllElements || key === selectedElementKey;
+      el.classList.toggle("element-hidden", !visible);
+    }
+    for (const [key, el] of elementLabelElements) {
+      const visible = showAllElements || key === selectedElementKey;
+      el.classList.toggle("element-hidden", !visible);
+    }
+  }
+
+  function toggleDrawAllElements() {
+    if (!elementByKey.size) {
+      setStatus("请先导入地图");
+      return;
+    }
+    showAllElements = !showAllElements;
+    if (btnElementDrawAll) btnElementDrawAll.classList.toggle("active", showAllElements);
+    applyElementVisibility();
+    setStatus(
+      showAllElements
+        ? `已绘制全部 ${elementElements.size} 个元素 Polygon`
+        : "已隐藏全部元素 Polygon"
+    );
+  }
+
+  function formatElementInfo(element) {
+    const points = [];
+    if (element.polygon && element.polygon.length >= 2) {
+      for (let i = 0; i + 1 < element.polygon.length; i += 2) {
+        points.push({ x: element.polygon[i], y: element.polygon[i + 1] });
+      }
+    }
+    const lines = [
+      `元素信息`,
+      `元素类别: ${ELEMENT_KIND_NAMES[element.kind] || element.kind}`,
+      `元素 ID: ${element.id}`,
+    ];
+
+    // 每个 repeated 列表逐项换行展示，避免拥挤在一行
+    const pushList = (title, items, formatItem) => {
+      const list = items || [];
+      lines.push(`${title} (${list.length}):`);
+      if (!list.length) {
+        lines.push("  —");
+      } else {
+        list.forEach((item, idx) => {
+          lines.push(`  ${idx + 1}. ${formatItem(item)}`);
+        });
+      }
+    };
+
+    if (element.kind === "object") {
+      lines.push(`对象类型: ${element.type} (${element.type_code})`);
+      if (element.subtype != null) {
+        lines.push(`路面标志子类型: ${element.subtype} (${element.subtype_code})`);
+      }
+    }
+
+    if (element.kind === "signal") {
+      lines.push(`信号灯类型: ${element.type} (${element.type_code})`);
+      pushList("子信号灯", element.subsignals, (s) =>
+        `${s.id ? s.id + " · " : ""}${s.type} (${s.type_code})`
+      );
+      if (element.sign_infos && element.sign_infos.length) {
+        pushList("标志信息", element.sign_infos, (si) => `${si.type} (${si.type_code})`);
+      }
+      if (element.relative_signal_ids && element.relative_signal_ids.length) {
+        pushList("关联信号灯", element.relative_signal_ids, (id) => id);
+      }
+      lines.push(`停止线数量: ${element.stop_line_count || 0}`);
+    }
+
+    if (element.overlap_ids && element.overlap_ids.length) {
+      pushList("Overlap IDs", element.overlap_ids, (id) => id);
+    }
+
+    pushList("Polygon 点集", points, (pt) => `${pt.x.toFixed(3)}, ${pt.y.toFixed(3)}`);
+    return lines.join("\n");
+  }
+
+  function renderActiveElementInfo() {
+    if (!elementInfo) return;
+    if (!selectedElementKey || !elementByKey.has(selectedElementKey)) {
+      elementInfo.textContent = DEFAULT_ELEMENT_INFO;
+      return;
+    }
+    elementInfo.textContent = formatElementInfo(elementByKey.get(selectedElementKey));
+  }
+
+  function clearElementHighlight() {
+    for (const el of elementElements.values()) {
+      el.classList.remove("state-selected");
+    }
+    for (const el of elementLabelElements.values()) {
+      el.classList.remove("state-selected");
+    }
+  }
+
+  function clearElementSelection() {
+    if (!selectedElementKey) return;
+    selectedElementKey = null;
+    clearElementHighlight();
+    applyElementVisibility();
+    if (btnElementHighlight) btnElementHighlight.classList.remove("active");
+    renderActiveElementInfo();
+  }
+
+  function selectElement(key) {
+    if (!key || !elementByKey.has(key)) return;
+    selectedElementKey = key;
+    clearElementHighlight();
+    applyElementVisibility();
+    const el = elementElements.get(key);
+    if (el) el.classList.add("state-selected");
+    const labelEl = elementLabelElements.get(key);
+    if (labelEl) labelEl.classList.add("state-selected");
+    if (btnElementHighlight) btnElementHighlight.classList.add("active");
+    renderActiveElementInfo();
+    const element = elementByKey.get(key);
+    if (elementSearch) elementSearch.value = element ? element.id : "";
+    setStatus(`已选中元素: ${element ? element.id : key}`);
+  }
+
+  function getElementFocus(element) {
+    if (!element?.polygon || element.polygon.length < 2) return null;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i + 1 < element.polygon.length; i += 2) {
+      const x = element.polygon[i];
+      const y = element.polygon[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    if (!Number.isFinite(minX)) return null;
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const span = Math.max(30, maxX - minX, maxY - minY) * 1.6;
+    return { x: centerX, y: centerY, span };
+  }
+
+  function locateElementInView(key) {
+    const element = elementByKey.get(key);
+    if (!element) return false;
+    const focus = getElementFocus(element);
+    if (!focus) return false;
+    locateOnUtm(focus.x, focus.y, focus.span);
+    return true;
+  }
+
+  /** 支持通过完整 key（kind:id）或裸 id 查找元素 */
+  function findElementKeyById(idOrKey) {
+    if (!idOrKey) return null;
+    if (elementByKey.has(idOrKey)) return idOrKey;
+    for (const [key, element] of elementByKey) {
+      if (element.id === idOrKey) return key;
+    }
+    return null;
+  }
+
+  function searchAndSelectElement(idOrKey) {
+    if (!idOrKey) return;
+    const key = findElementKeyById(idOrKey);
+    if (key) {
+      selectElement(key);
+      locateElementInView(key);
+      return;
+    }
+    setStatus(`未找到元素: ${idOrKey}`);
+  }
+
+  function toggleHighlightElement() {
+    const raw = elementSearch ? elementSearch.value.trim() : "";
+    const key = raw ? findElementKeyById(raw) : null;
+    // 已有高亮，且未输入新的其它元素：再次点击取消高亮
+    if (selectedElementKey && (!raw || key === selectedElementKey)) {
+      clearElementSelection();
+      setStatus("已取消元素高亮");
+      return;
+    }
+    if (!raw) {
+      setStatus("请先输入元素 ID");
+      return;
+    }
+    searchAndSelectElement(raw);
   }
 
   function onFileSelected() {

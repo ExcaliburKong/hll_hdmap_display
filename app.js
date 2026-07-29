@@ -81,8 +81,11 @@
   const toolPickList = document.getElementById("tool-pick-list");
   const toolPanel = document.getElementById("tool-panel");
   const basemapContainer = document.getElementById("basemap-container");
-  const btnBasemapAmap = document.getElementById("btn-basemap-amap");
+  const basemapAttribution = document.getElementById("basemap-attribution");
+  const btnBasemapVector = document.getElementById("btn-basemap-vector");
   const btnBasemapSatellite = document.getElementById("btn-basemap-satellite");
+  const btnBasemapSrcAmap = document.getElementById("btn-basemap-src-amap");
+  const btnBasemapSrcGoogle = document.getElementById("btn-basemap-src-google");
   const btnLaneFade = document.getElementById("btn-lane-fade");
   const mapBoundsOutline = document.getElementById("map-bounds-outline");
 
@@ -138,31 +141,77 @@
   let view = { scale: 1, tx: 0, ty: 0, rotation: 0 };
   let baseView = null;
 
-  // ---- 底图（高德瓦片 / 卫星瓦片）状态：自绘瓦片，无需 Key ----
-  const BASEMAP_MODES = { none: "none", amap: "amap", satellite: "satellite" };
+  // ---- 底图状态：自绘瓦片，无需 Key ----
+  // 两个维度：底图类型（矢量 vector / 卫星 satellite）× 数据源（高德 amap / 谷歌 google）
+  const BASEMAP_MODES = { none: "none", vector: "vector", satellite: "satellite" };
+  const BASEMAP_PROVIDERS = { amap: "amap", google: "google" };
   const TILE_SIZE = 256;
+  // BASEMAP_SOURCES[类型][数据源]
+  // 注意：高德为 GCJ02 坐标（需 WGS84→GCJ02 转换）；谷歌为 WGS84 坐标（不做偏移）。
+  // 谷歌服务在部分网络环境下需代理才能访问。
   const BASEMAP_SOURCES = {
-    // 高德路网瓦片：GCJ02 坐标，需要将 WGS84 转换为 GCJ02
-    amap: {
-      gcj: true,
-      maxZoom: 18,
-      urls: [
-        "https://wprd01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
-        "https://wprd02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
-        "https://wprd03.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
-        "https://wprd04.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
-      ],
+    vector: {
+      amap: {
+        label: "高德矢量",
+        gcj: true,
+        maxZoom: 18,
+        urls: [
+          "https://wprd01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+          "https://wprd02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+          "https://wprd03.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+          "https://wprd04.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+        ],
+      },
+      google: {
+        // 谷歌中国区路网瓦片为 GCJ02 坐标（与高德一致，有偏移），需 WGS84→GCJ02 转换；
+        // 注意其卫星影像（lyrs=s）反而是 WGS84 无偏移，故二者 gcj 设置不同
+        label: "谷歌矢量",
+        gcj: true,
+        maxZoom: 20,
+        urls: [
+          "https://mt0.google.com/vt/lyrs=m&hl=zh-CN&x={x}&y={y}&z={z}",
+          "https://mt1.google.com/vt/lyrs=m&hl=zh-CN&x={x}&y={y}&z={z}",
+          "https://mt2.google.com/vt/lyrs=m&hl=zh-CN&x={x}&y={y}&z={z}",
+          "https://mt3.google.com/vt/lyrs=m&hl=zh-CN&x={x}&y={y}&z={z}",
+        ],
+      },
     },
-    // Esri 全球卫星影像：WGS84 坐标，不做偏移
     satellite: {
-      gcj: false,
-      maxZoom: 19,
-      urls: [
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      ],
+      amap: {
+        label: "高德卫星",
+        gcj: true,
+        maxZoom: 18,
+        urls: [
+          "https://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+          "https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+          "https://webst03.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+          "https://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+        ],
+      },
+      google: {
+        label: "谷歌卫星",
+        gcj: false,
+        maxZoom: 21,
+        urls: [
+          "https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+          "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+          "https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+          "https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+        ],
+      },
     },
   };
   let basemapMode = BASEMAP_MODES.none;
+  // 数据源默认高德（国内可直连；谷歌可能需代理）
+  let basemapProvider = BASEMAP_PROVIDERS.amap;
+  // 返回当前生效的底图源（类型 × 数据源），无底图时返回 null
+  function getActiveBasemapSource() {
+    if (basemapMode === BASEMAP_MODES.none) return null;
+    const byMode = BASEMAP_SOURCES[basemapMode];
+    return (byMode && byMode[basemapProvider]) || null;
+  }
+  // 底图瓦片加载统计（用于角标提示当前来源与加载状态）
+  const basemapStat = { ok: 0, err: 0 };
   let basemapCanvas = null;
   let basemapCtx = null;
   let basemapOffCanvas = null;
@@ -272,10 +321,14 @@
   btnClearAllBoxes.addEventListener("click", clearAllDrawnBoxes);
   btnClearAllPicks.addEventListener("click", clearAllDrawnPicks);
   if (btnCopyPickResult) btnCopyPickResult.addEventListener("click", copyPickResultPanel);
-  if (btnBasemapAmap)
-    btnBasemapAmap.addEventListener("click", () => setBaseMapMode(BASEMAP_MODES.amap));
+  if (btnBasemapVector)
+    btnBasemapVector.addEventListener("click", () => setBaseMapMode(BASEMAP_MODES.vector));
   if (btnBasemapSatellite)
     btnBasemapSatellite.addEventListener("click", () => setBaseMapMode(BASEMAP_MODES.satellite));
+  if (btnBasemapSrcAmap)
+    btnBasemapSrcAmap.addEventListener("click", () => setBaseMapProvider(BASEMAP_PROVIDERS.amap));
+  if (btnBasemapSrcGoogle)
+    btnBasemapSrcGoogle.addEventListener("click", () => setBaseMapProvider(BASEMAP_PROVIDERS.google));
   if (btnLaneFade)
     btnLaneFade.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.fade));
   toolPointList.addEventListener("click", onPointListClick);
@@ -1209,10 +1262,18 @@
     img._loaded = false;
     img.onload = () => {
       img._loaded = true;
+      if (source === getActiveBasemapSource()) {
+        basemapStat.ok += 1;
+        updateBasemapAttribution();
+      }
       scheduleBaseMapRedraw();
     };
     img.onerror = () => {
       img._error = true;
+      if (source === getActiveBasemapSource()) {
+        basemapStat.err += 1;
+        updateBasemapAttribution();
+      }
     };
     img.src = url;
     tileImageCache.set(url, img);
@@ -1236,6 +1297,7 @@
         basemapCtx.clearRect(0, 0, basemapCanvas.width, basemapCanvas.height);
       }
       syncBaseMapButtons();
+      updateBasemapAttribution();
       return;
     }
 
@@ -1250,17 +1312,64 @@
 
     ensureBasemapCanvas();
     basemapMode = mode;
+    basemapStat.ok = 0;
+    basemapStat.err = 0;
     basemapContainer.classList.add("is-active");
     syncBaseMapButtons();
+    updateBasemapAttribution();
     redrawBaseMap();
   }
 
+  /** 切换数据源（高德 / 谷歌）。若已叠加底图则立即重绘 */
+  function setBaseMapProvider(provider) {
+    if (!BASEMAP_PROVIDERS[provider] || basemapProvider === provider) return;
+    basemapProvider = provider;
+    basemapStat.ok = 0;
+    basemapStat.err = 0;
+    syncBaseMapButtons();
+    if (basemapMode !== BASEMAP_MODES.none) {
+      updateBasemapAttribution();
+      redrawBaseMap();
+    }
+  }
+
+  /** 更新底图来源角标：显示当前来源名，并反映加载状态（加载中/正常/失败） */
+  function updateBasemapAttribution() {
+    if (!basemapAttribution) return;
+    if (basemapMode === BASEMAP_MODES.none) {
+      basemapAttribution.classList.add("is-hidden");
+      basemapAttribution.classList.remove("is-error");
+      return;
+    }
+    const source = getActiveBasemapSource();
+    const name = (source && source.label) || basemapMode;
+    let statusText = "";
+    let isError = false;
+    if (basemapStat.ok > 0) {
+      statusText = "";
+    } else if (basemapStat.err > 0) {
+      statusText = "（加载失败，可能被墙）";
+      isError = true;
+    } else {
+      statusText = "（加载中…）";
+    }
+    basemapAttribution.textContent = "底图：" + name + statusText;
+    basemapAttribution.classList.remove("is-hidden");
+    basemapAttribution.classList.toggle("is-error", isError);
+  }
+
   function syncBaseMapButtons() {
-    if (btnBasemapAmap) {
-      btnBasemapAmap.classList.toggle("active", basemapMode === BASEMAP_MODES.amap);
+    if (btnBasemapVector) {
+      btnBasemapVector.classList.toggle("active", basemapMode === BASEMAP_MODES.vector);
     }
     if (btnBasemapSatellite) {
       btnBasemapSatellite.classList.toggle("active", basemapMode === BASEMAP_MODES.satellite);
+    }
+    if (btnBasemapSrcAmap) {
+      btnBasemapSrcAmap.classList.toggle("active", basemapProvider === BASEMAP_PROVIDERS.amap);
+    }
+    if (btnBasemapSrcGoogle) {
+      btnBasemapSrcGoogle.classList.toggle("active", basemapProvider === BASEMAP_PROVIDERS.google);
     }
   }
 
@@ -1306,7 +1415,7 @@
   function redrawBaseMap() {
     if (basemapMode === BASEMAP_MODES.none || !basemapCtx) return;
     if (!Number.isFinite(view.scale) || view.scale <= 0) return;
-    const source = BASEMAP_SOURCES[basemapMode];
+    const source = getActiveBasemapSource();
     if (!source) return;
 
     const rect = mapContainer.getBoundingClientRect();
@@ -1959,8 +2068,11 @@
     btnClearAll.disabled = false;
     btnHideAll.disabled = false;
     btnShowAll.disabled = false;
-    if (btnBasemapAmap) btnBasemapAmap.disabled = false;
+    if (btnBasemapVector) btnBasemapVector.disabled = false;
     if (btnBasemapSatellite) btnBasemapSatellite.disabled = false;
+    if (btnBasemapSrcAmap) btnBasemapSrcAmap.disabled = false;
+    if (btnBasemapSrcGoogle) btnBasemapSrcGoogle.disabled = false;
+    syncBaseMapButtons();
     renderActiveLaneInfo();
     renderActiveJunctionInfo();
     renderActiveElementInfo();

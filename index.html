@@ -20,6 +20,7 @@
     <div class="main">
       <div id="map-container">
         <div id="basemap-container"></div>
+        <div id="basemap-attribution" class="basemap-attribution is-hidden" aria-live="polite"></div>
         <div class="empty-hint" id="empty-hint">点击「导入地图」加载 bin 文件</div>
         <div id="lane-context-menu" class="lane-context-menu" hidden>
           <button type="button" id="ctx-hide-lane">Hide</button>
@@ -153,8 +154,13 @@
           </div>
         </div>
         <div class="sidebar-basemap-tabs" id="sidebar-basemap-tabs">
-          <button type="button" class="sidebar-basemap-btn" id="btn-basemap-amap" disabled>高德底图</button>
+          <button type="button" class="sidebar-basemap-btn" id="btn-basemap-vector" disabled>矢量底图</button>
           <button type="button" class="sidebar-basemap-btn" id="btn-basemap-satellite" disabled>卫星底图</button>
+        </div>
+        <div class="sidebar-basemap-source" id="sidebar-basemap-source">
+          <span class="sidebar-basemap-source-label">数据源</span>
+          <button type="button" class="sidebar-basemap-src-btn" id="btn-basemap-src-amap" disabled>高德</button>
+          <button type="button" class="sidebar-basemap-src-btn" id="btn-basemap-src-google" disabled>谷歌</button>
         </div>
         <div class="sidebar-panel" id="lane-panel">
           <div class="lane-tabs">

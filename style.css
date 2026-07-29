@@ -124,6 +124,33 @@ body {
   display: block;
 }
 
+.basemap-attribution {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 100;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #f0f0f0;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.basemap-attribution.is-error {
+  color: #ffd0d0;
+  background: rgba(120, 20, 20, 0.7);
+  border-color: rgba(255, 120, 120, 0.4);
+}
+
+.basemap-attribution.is-hidden {
+  display: none;
+}
+
 #basemap-canvas {
   width: 100%;
   height: 100%;
@@ -939,8 +966,49 @@ body.sidebar-resizing #map-container {
 .sidebar-basemap-tabs {
   display: flex;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 10px 14px 8px;
+}
+
+.sidebar-basemap-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 10px;
   border-bottom: 1px solid #3a3a44;
+}
+
+.sidebar-basemap-source-label {
+  font-size: 12px;
+  color: #8a8f9c;
+  margin-right: 2px;
+}
+
+.sidebar-basemap-src-btn {
+  flex: 1 1 auto;
+  padding: 5px 8px;
+  border: 1px solid #4a4a58;
+  border-radius: 6px;
+  background: #1f1f25;
+  color: #c8d0dc;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sidebar-basemap-src-btn:hover:not(:disabled) {
+  background: #2a2a33;
+  border-color: #3d7aed;
+}
+
+.sidebar-basemap-src-btn.active {
+  border-color: #3d7aed;
+  background: #2b3f69;
+  color: #ffffff;
+}
+
+.sidebar-basemap-src-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .sidebar-basemap-btn {

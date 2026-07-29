@@ -103,10 +103,31 @@ body {
 }
 
 #map-svg {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   display: block;
   shape-rendering: geometricPrecision;
+  background: transparent;
+}
+
+#basemap-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: none;
+  background: #e8e8e8;
+}
+
+#basemap-container.is-active {
+  display: block;
+}
+
+#basemap-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .lane-shape {
@@ -426,6 +447,37 @@ body {
   color: #fff;
 }
 
+.tool-bar-divider {
+  height: 1px;
+  margin: 4px 2px;
+  background: #3a3a44;
+}
+
+/* 虚化：车道填充透明、边框黑色，便于看清底图标识同时保留车道轮廓 */
+#map-svg.lane-fade .lane-shape {
+  fill: transparent !important;
+  stroke: #000000 !important;
+  opacity: 1 !important;
+}
+#map-svg.lane-fade .lane-shape.central-only polyline,
+#map-svg.lane-fade .lane-selected-centerline {
+  stroke: #000000 !important;
+}
+
+/* 高精地图范围框：不随缩放变细，缩得很远时也能定位高精地图所在区域 */
+.map-bounds-outline {
+  display: none;
+  fill: none;
+  stroke: #ff3b30;
+  stroke-width: 2;
+  stroke-dasharray: 8 5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+#map-svg.lane-fade .map-bounds-outline {
+  display: block;
+}
+
 .tool-panel {
   display: none;
   width: 0;
@@ -702,7 +754,7 @@ body {
 }
 
 .sidebar {
-  --sidebar-width: 440px;
+  --sidebar-width: 480px;
   width: var(--sidebar-width);
   flex-shrink: 0;
   position: relative;
@@ -859,7 +911,7 @@ body.sidebar-resizing #map-container {
 .sidebar-main-tabs {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .sidebar-main-tab-btn {
@@ -882,6 +934,41 @@ body.sidebar-resizing #map-container {
   border-color: #3d7aed;
   background: #2b3f69;
   color: #ffffff;
+}
+
+.sidebar-basemap-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #3a3a44;
+}
+
+.sidebar-basemap-btn {
+  flex: 1 1 50%;
+  padding: 7px 8px;
+  border: 1px solid #4a4a58;
+  border-radius: 6px;
+  background: #1f1f25;
+  color: #c8d0dc;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sidebar-basemap-btn:hover:not(:disabled) {
+  background: #2a2a33;
+  border-color: #3d7aed;
+}
+
+.sidebar-basemap-btn.active {
+  border-color: #3d7aed;
+  background: #2b3f69;
+  color: #ffffff;
+}
+
+.sidebar-basemap-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .sidebar-panel {

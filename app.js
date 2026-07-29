@@ -80,8 +80,13 @@
   const toolBoxList = document.getElementById("tool-box-list");
   const toolPickList = document.getElementById("tool-pick-list");
   const toolPanel = document.getElementById("tool-panel");
+  const basemapContainer = document.getElementById("basemap-container");
+  const btnBasemapAmap = document.getElementById("btn-basemap-amap");
+  const btnBasemapSatellite = document.getElementById("btn-basemap-satellite");
+  const btnLaneFade = document.getElementById("btn-lane-fade");
+  const mapBoundsOutline = document.getElementById("map-bounds-outline");
 
-  const SIDEBAR_WIDTH_DEFAULT = 440;
+  const SIDEBAR_WIDTH_DEFAULT = 480;
   const VEHICLE_PRESETS = {
     sanfang: { width: 1.3, front: 2.37, rear: 0.59 },
     liufang: { width: 1.4, front: 2.95, rear: 0.65 },
@@ -132,6 +137,40 @@
 
   let view = { scale: 1, tx: 0, ty: 0, rotation: 0 };
   let baseView = null;
+
+  // ---- 底图（高德瓦片 / 卫星瓦片）状态：自绘瓦片，无需 Key ----
+  const BASEMAP_MODES = { none: "none", amap: "amap", satellite: "satellite" };
+  const TILE_SIZE = 256;
+  const BASEMAP_SOURCES = {
+    // 高德路网瓦片：GCJ02 坐标，需要将 WGS84 转换为 GCJ02
+    amap: {
+      gcj: true,
+      maxZoom: 18,
+      urls: [
+        "https://wprd01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+        "https://wprd02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+        "https://wprd03.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+        "https://wprd04.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scl=1&style=7",
+      ],
+    },
+    // Esri 全球卫星影像：WGS84 坐标，不做偏移
+    satellite: {
+      gcj: false,
+      maxZoom: 19,
+      urls: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ],
+    },
+  };
+  let basemapMode = BASEMAP_MODES.none;
+  let basemapCanvas = null;
+  let basemapCtx = null;
+  let basemapOffCanvas = null;
+  // 车道渲染样式：normal（默认灰）/ fade（透明）
+  const LANE_RENDER_MODES = { normal: "normal", fade: "fade" };
+  let laneRenderMode = LANE_RENDER_MODES.normal;
+  let basemapRedrawScheduled = false;
+  const tileImageCache = new Map();
   const DRAG_THRESHOLD_PX = 5;
   const LANE_INFO_TABS = {
     attributes: "attributes",
@@ -233,6 +272,12 @@
   btnClearAllBoxes.addEventListener("click", clearAllDrawnBoxes);
   btnClearAllPicks.addEventListener("click", clearAllDrawnPicks);
   if (btnCopyPickResult) btnCopyPickResult.addEventListener("click", copyPickResultPanel);
+  if (btnBasemapAmap)
+    btnBasemapAmap.addEventListener("click", () => setBaseMapMode(BASEMAP_MODES.amap));
+  if (btnBasemapSatellite)
+    btnBasemapSatellite.addEventListener("click", () => setBaseMapMode(BASEMAP_MODES.satellite));
+  if (btnLaneFade)
+    btnLaneFade.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.fade));
   toolPointList.addEventListener("click", onPointListClick);
   toolBoxList.addEventListener("click", onBoxListClick);
   toolPickList.addEventListener("click", onPickListClick);
@@ -1103,6 +1148,320 @@
       "transform",
       `translate(${view.tx}, ${view.ty}) rotate(${rotDeg}) scale(${view.scale}, ${-view.scale})`
     );
+    scheduleBaseMapRedraw();
+  }
+
+  // ==================== 底图（高德瓦片 / Esri 卫星），自绘、无需 Key ====================
+
+  /** 经纬度 → Web 墨卡托像素坐标（给定缩放级别 z，瓦片 256px） */
+  function lngLatToMercatorPixel(lng, lat, z) {
+    const n = Math.pow(2, z);
+    const x = ((lng + 180) / 360) * n * TILE_SIZE;
+    const clampedLat = Math.max(-85.05112878, Math.min(85.05112878, lat));
+    const latRad = (clampedLat * Math.PI) / 180;
+    const y =
+      ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n * TILE_SIZE;
+    return { x, y };
+  }
+
+  /** UTM → 底图所用经纬度（高德瓦片需 GCJ02，卫星用 WGS84） */
+  let warnedMissingGcj = false;
+  function utmToBasemapLngLat(utmX, utmY, useGcj) {
+    const wgs = utmToWgs84ForDisplay(utmX, utmY);
+    if (!wgs) return null;
+    if (useGcj) {
+      if (typeof CoordTransform !== "undefined" && CoordTransform.wgs84ToGcj02) {
+        return CoordTransform.wgs84ToGcj02(wgs.lon, wgs.lat);
+      }
+      if (!warnedMissingGcj) {
+        warnedMissingGcj = true;
+        console.warn(
+          "缺少 CoordTransform.wgs84ToGcj02，高德底图将按 WGS84 定位并产生偏移。请强制刷新页面清除 coord_transform.js 缓存。"
+        );
+        setStatus("高德底图偏移：coord_transform.js 为旧缓存，请强制刷新(Ctrl+F5)");
+      }
+    }
+    return { lng: wgs.lon, lat: wgs.lat };
+  }
+
+  function ensureBasemapCanvas() {
+    if (basemapCanvas) return;
+    basemapCanvas = document.createElement("canvas");
+    basemapCanvas.id = "basemap-canvas";
+    basemapCanvas.style.width = "100%";
+    basemapCanvas.style.height = "100%";
+    basemapCanvas.style.display = "block";
+    basemapContainer.appendChild(basemapCanvas);
+    basemapCtx = basemapCanvas.getContext("2d");
+  }
+
+  function tileUrl(source, x, y, z) {
+    const urls = source.urls;
+    const tmpl = urls[(x + y) % urls.length];
+    return tmpl.replace("{x}", x).replace("{y}", y).replace("{z}", z);
+  }
+
+  function getTileImage(source, x, y, z) {
+    const url = tileUrl(source, x, y, z);
+    let img = tileImageCache.get(url);
+    if (img) return img;
+    img = new Image();
+    img._loaded = false;
+    img.onload = () => {
+      img._loaded = true;
+      scheduleBaseMapRedraw();
+    };
+    img.onerror = () => {
+      img._error = true;
+    };
+    img.src = url;
+    tileImageCache.set(url, img);
+    return img;
+  }
+
+  /** 仅从缓存取已加载的瓦片，不发起新请求（用于父级回退填充） */
+  function getCachedLoadedTile(source, x, y, z) {
+    const img = tileImageCache.get(tileUrl(source, x, y, z));
+    return img && img._loaded ? img : null;
+  }
+
+  function setBaseMapMode(mode) {
+    if (basemapMode === mode) mode = BASEMAP_MODES.none;
+
+    if (mode === BASEMAP_MODES.none) {
+      basemapMode = BASEMAP_MODES.none;
+      if (basemapContainer) basemapContainer.classList.remove("is-active");
+      if (basemapCtx && basemapCanvas) {
+        basemapCtx.setTransform(1, 0, 0, 1, 0, 0);
+        basemapCtx.clearRect(0, 0, basemapCanvas.width, basemapCanvas.height);
+      }
+      syncBaseMapButtons();
+      return;
+    }
+
+    if (!mapData) {
+      setStatus("请先导入地图，再叠加底图");
+      return;
+    }
+    if (!getMapUtmContext()) {
+      setStatus("地图缺少 UTM 带号，无法叠加底图");
+      return;
+    }
+
+    ensureBasemapCanvas();
+    basemapMode = mode;
+    basemapContainer.classList.add("is-active");
+    syncBaseMapButtons();
+    redrawBaseMap();
+  }
+
+  function syncBaseMapButtons() {
+    if (btnBasemapAmap) {
+      btnBasemapAmap.classList.toggle("active", basemapMode === BASEMAP_MODES.amap);
+    }
+    if (btnBasemapSatellite) {
+      btnBasemapSatellite.classList.toggle("active", basemapMode === BASEMAP_MODES.satellite);
+    }
+  }
+
+  /** 用地图 bounds（UTM）更新范围框（转为 SVG 局部坐标，减去 mapOrigin） */
+  function updateMapBoundsOutline(bounds) {
+    if (!mapBoundsOutline || !bounds) return;
+    const x = bounds.min_x - mapOrigin.x;
+    const y = bounds.min_y - mapOrigin.y;
+    const w = bounds.max_x - bounds.min_x;
+    const h = bounds.max_y - bounds.min_y;
+    mapBoundsOutline.setAttribute("x", String(x));
+    mapBoundsOutline.setAttribute("y", String(y));
+    mapBoundsOutline.setAttribute("width", String(Math.max(0, w)));
+    mapBoundsOutline.setAttribute("height", String(Math.max(0, h)));
+  }
+
+  /** 切换车道渲染样式：虚化（透明），再次点击恢复默认 */
+  function setLaneRenderMode(mode) {
+    laneRenderMode = laneRenderMode === mode ? LANE_RENDER_MODES.normal : mode;
+    if (mapSvg) {
+      mapSvg.classList.toggle("lane-fade", laneRenderMode === LANE_RENDER_MODES.fade);
+    }
+    if (btnLaneFade) {
+      btnLaneFade.classList.toggle("active", laneRenderMode === LANE_RENDER_MODES.fade);
+    }
+  }
+
+  function scheduleBaseMapRedraw() {
+    if (basemapMode === BASEMAP_MODES.none) return;
+    if (basemapRedrawScheduled) return;
+    basemapRedrawScheduled = true;
+    requestAnimationFrame(() => {
+      basemapRedrawScheduled = false;
+      redrawBaseMap();
+    });
+  }
+
+  /**
+   * 将当前视图对应的底图瓦片绘制到 canvas。
+   * 通过 3 个参考点（UTM→屏幕、UTM→墨卡托像素）拟合仿射变换，
+   * 自动吻合平移/缩放/旋转，以及 GCJ02 与 UTM 的局部差异。
+   */
+  function redrawBaseMap() {
+    if (basemapMode === BASEMAP_MODES.none || !basemapCtx) return;
+    if (!Number.isFinite(view.scale) || view.scale <= 0) return;
+    const source = BASEMAP_SOURCES[basemapMode];
+    if (!source) return;
+
+    const rect = mapContainer.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width));
+    const h = Math.max(1, Math.round(rect.height));
+    const dpr = window.devicePixelRatio || 1;
+    if (basemapCanvas.width !== w * dpr || basemapCanvas.height !== h * dpr) {
+      basemapCanvas.width = w * dpr;
+      basemapCanvas.height = h * dpr;
+    }
+
+    // 选取缩放级别：让 1 瓦片像素 ≈ 1 设备物理像素（考虑 devicePixelRatio），
+    // 这样瓦片主要是等比或轻微降采样，最清晰
+    const centerUtm = screenToMap(w / 2, h / 2);
+    const centerLngLat = utmToBasemapLngLat(centerUtm.x, centerUtm.y, source.gcj);
+    if (!centerLngLat) return;
+    const latRad = (centerLngLat.lat * Math.PI) / 180;
+    const rawZoom =
+      Math.log2(156543.03392804097 * Math.cos(latRad) * view.scale) + Math.log2(dpr);
+    // 略微上偏，优先降采样（比放大更清晰），保证文字锐利
+    const z = Math.max(3, Math.min(source.maxZoom, Math.round(rawZoom + 0.35)));
+
+    // 三个参考点取自屏幕视口（中心 + 右 + 下，跨度为视口的 1/4），
+    // 使仿射在整个可见区域内吻合，避免大范围缩放时边缘漂移
+    const cx = w / 2;
+    const cy = h / 2;
+    const spanX = Math.max(80, w / 4);
+    const spanY = Math.max(80, h / 4);
+    const screenPts = [
+      { x: cx, y: cy },
+      { x: cx + spanX, y: cy },
+      { x: cx, y: cy + spanY },
+    ];
+    const mercPts = [];
+    for (const s of screenPts) {
+      const utm = screenToMap(s.x, s.y);
+      const ll = utmToBasemapLngLat(utm.x, utm.y, source.gcj);
+      if (!ll) return;
+      mercPts.push(lngLatToMercatorPixel(ll.lng, ll.lat, z));
+    }
+
+    // 由三点求仿射：screen = M * merc + t（列向量法）
+    const dm1x = mercPts[1].x - mercPts[0].x;
+    const dm1y = mercPts[1].y - mercPts[0].y;
+    const dm2x = mercPts[2].x - mercPts[0].x;
+    const dm2y = mercPts[2].y - mercPts[0].y;
+    const ds1x = screenPts[1].x - screenPts[0].x;
+    const ds1y = screenPts[1].y - screenPts[0].y;
+    const ds2x = screenPts[2].x - screenPts[0].x;
+    const ds2y = screenPts[2].y - screenPts[0].y;
+    const det = dm1x * dm2y - dm2x * dm1y;
+    if (!det) return;
+
+    // canvas setTransform(a,b,c,d,e,f): sx = a*mx + c*my + e, sy = b*mx + d*my + f
+    const a = (ds1x * dm2y - ds2x * dm1y) / det;
+    const c = (-ds1x * dm2x + ds2x * dm1x) / det;
+    const b = (ds1y * dm2y - ds2y * dm1y) / det;
+    const dd = (-ds1y * dm2x + ds2y * dm1x) / det;
+    const e = screenPts[0].x - (a * mercPts[0].x + c * mercPts[0].y);
+    const f = screenPts[0].y - (b * mercPts[0].x + dd * mercPts[0].y);
+
+    // 反变换：屏幕四角 → 墨卡托像素，求可见瓦片范围
+    const invDet = a * dd - b * c;
+    if (!invDet) return;
+    const screenToMerc = (sx, sy) => ({
+      x: (dd * (sx - e) - c * (sy - f)) / invDet,
+      y: (-b * (sx - e) + a * (sy - f)) / invDet,
+    });
+    const corners = [screenToMerc(0, 0), screenToMerc(w, 0), screenToMerc(0, h), screenToMerc(w, h)];
+    let minMx = Infinity;
+    let minMy = Infinity;
+    let maxMx = -Infinity;
+    let maxMy = -Infinity;
+    for (const cpt of corners) {
+      if (cpt.x < minMx) minMx = cpt.x;
+      if (cpt.y < minMy) minMy = cpt.y;
+      if (cpt.x > maxMx) maxMx = cpt.x;
+      if (cpt.y > maxMy) maxMy = cpt.y;
+    }
+    const nTiles = Math.pow(2, z);
+    const minTx = Math.floor(minMx / TILE_SIZE);
+    const maxTx = Math.floor(maxMx / TILE_SIZE);
+    const minTy = Math.floor(minMy / TILE_SIZE);
+    const maxTy = Math.floor(maxMy / TILE_SIZE);
+
+    // 设备像素级仿射系数：screen(设备) = A*mx + C*my + E, sy = B*mx + D*my + F
+    const A = a * dpr;
+    const B = b * dpr;
+    const C = c * dpr;
+    const D = dd * dpr;
+    const E = e * dpr;
+    const F = f * dpr;
+
+    /** 找到可用于回退填充的父级瓦片（返回 {img, factor, px, py} 或 null） */
+    const findParent = (wrappedX, ty) => {
+      for (let k = 1; k <= 6; k++) {
+        const pz = z - k;
+        if (pz < 3) return null;
+        const factor = Math.pow(2, k);
+        const px = Math.floor(wrappedX / factor);
+        const py = Math.floor(ty / factor);
+        const parent = getCachedLoadedTile(source, px, py, pz);
+        if (parent) return { img: parent, factor, px, py };
+      }
+      return null;
+    };
+
+    // 因子午线收敛，墨卡托→屏幕通常带有轻微旋转，逐块绘制的矩形边缘会抗锯齿露底形成缝。
+    // 解决：先把所有瓦片按整数位置无缝拼到离屏画布（墨卡托像素空间），再整张仿射贴到主画布，
+    // 内部接缝彻底消失（只有整块外边缘有一圈抗锯齿）。
+    const nTx = maxTx - minTx + 1;
+    const nTy = maxTy - minTy + 1;
+    if (nTx <= 0 || nTy <= 0 || nTx * nTy > 900) return;
+    const originX = minTx * TILE_SIZE;
+    const originY = minTy * TILE_SIZE;
+    const offW = nTx * TILE_SIZE;
+    const offH = nTy * TILE_SIZE;
+
+    if (!basemapOffCanvas) basemapOffCanvas = document.createElement("canvas");
+    if (basemapOffCanvas.width !== offW) basemapOffCanvas.width = offW;
+    if (basemapOffCanvas.height !== offH) basemapOffCanvas.height = offH;
+    const offctx = basemapOffCanvas.getContext("2d");
+    offctx.setTransform(1, 0, 0, 1, 0, 0);
+    offctx.clearRect(0, 0, offW, offH);
+    offctx.imageSmoothingEnabled = true;
+    offctx.imageSmoothingQuality = "high";
+
+    for (let tx = minTx; tx <= maxTx; tx++) {
+      for (let ty = minTy; ty <= maxTy; ty++) {
+        if (ty < 0 || ty >= nTiles) continue;
+        const wrappedX = ((tx % nTiles) + nTiles) % nTiles;
+        const dx = tx * TILE_SIZE - originX;
+        const dy = ty * TILE_SIZE - originY;
+        const img = getTileImage(source, wrappedX, ty, z);
+        if (img && img._loaded) {
+          offctx.drawImage(img, dx, dy, TILE_SIZE, TILE_SIZE);
+        } else {
+          const p = findParent(wrappedX, ty);
+          if (p) {
+            const sub = TILE_SIZE / p.factor;
+            const sxp = (wrappedX - p.px * p.factor) * sub;
+            const syp = (ty - p.py * p.factor) * sub;
+            offctx.drawImage(p.img, sxp, syp, sub, sub, dx, dy, TILE_SIZE, TILE_SIZE);
+          }
+        }
+      }
+    }
+
+    // 将整张离屏拼图用仿射变换一次性贴到主画布（墨卡托像素 → 设备像素）
+    basemapCtx.setTransform(1, 0, 0, 1, 0, 0);
+    basemapCtx.clearRect(0, 0, basemapCanvas.width, basemapCanvas.height);
+    basemapCtx.imageSmoothingEnabled = true;
+    basemapCtx.imageSmoothingQuality = "high";
+    basemapCtx.setTransform(A, B, C, D, E, F);
+    basemapCtx.drawImage(basemapOffCanvas, 0, 0, offW, offH, originX, originY, offW, offH);
   }
 
   function utmToLocal(mx, my) {
@@ -1591,6 +1950,7 @@
     }
 
     fitViewToBounds(data.meta.bounds);
+    updateMapBoundsOutline(data.meta.bounds);
     emptyHint.style.display = "none";
     btnResetView.disabled = false;
     laneSearch.disabled = false;
@@ -1599,6 +1959,8 @@
     btnClearAll.disabled = false;
     btnHideAll.disabled = false;
     btnShowAll.disabled = false;
+    if (btnBasemapAmap) btnBasemapAmap.disabled = false;
+    if (btnBasemapSatellite) btnBasemapSatellite.disabled = false;
     renderActiveLaneInfo();
     renderActiveJunctionInfo();
     renderActiveElementInfo();

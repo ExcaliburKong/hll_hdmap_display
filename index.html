@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=17" />
+  <link rel="stylesheet" href="style.css?v=23" />
 </head>
 <body>
   <div id="app">
@@ -19,6 +19,7 @@
     </header>
     <div class="main">
       <div id="map-container">
+        <div id="basemap-container"></div>
         <div class="empty-hint" id="empty-hint">点击「导入地图」加载 bin 文件</div>
         <div id="lane-context-menu" class="lane-context-menu" hidden>
           <button type="button" id="ctx-hide-lane">Hide</button>
@@ -30,6 +31,7 @@
             <g id="elements-layer"></g>
             <g id="centerline-layer"></g>
             <g id="annotations-layer"></g>
+            <rect id="map-bounds-outline" class="map-bounds-outline" />
           </g>
         </svg>
         <div id="map-meta-panel" class="map-meta-panel is-hidden" aria-live="polite">
@@ -52,6 +54,8 @@
           <button type="button" class="tool-bar-btn" id="btn-tool-point" title="画点">画点</button>
           <button type="button" class="tool-bar-btn" id="btn-tool-box" title="画框">画框</button>
           <button type="button" class="tool-bar-btn" id="btn-tool-pick" title="点击显示坐标">坐标</button>
+          <div class="tool-bar-divider"></div>
+          <button type="button" class="tool-bar-btn" id="btn-lane-fade" title="车道变透明，便于查看底图标识">虚化</button>
         </div>
         <div class="tool-panel" id="tool-panel">
           <div class="tool-panel-section" id="tool-panel-point">
@@ -148,6 +152,10 @@
             <button type="button" class="btn-mini" id="btn-show-all" disabled>Show all</button>
           </div>
         </div>
+        <div class="sidebar-basemap-tabs" id="sidebar-basemap-tabs">
+          <button type="button" class="sidebar-basemap-btn" id="btn-basemap-amap" disabled>高德底图</button>
+          <button type="button" class="sidebar-basemap-btn" id="btn-basemap-satellite" disabled>卫星底图</button>
+        </div>
         <div class="sidebar-panel" id="lane-panel">
           <div class="lane-tabs">
             <button type="button" class="lane-tab-btn active" id="btn-lane-tab-attributes">车道属性</button>
@@ -202,8 +210,8 @@
   </div>
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
-  <script src="coord_transform.js"></script>
+  <script src="coord_transform.js?v=2"></script>
   <script src="map_parser.js?v=6"></script>
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=42"></script>
 </body>
 </html>

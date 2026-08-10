@@ -62,8 +62,18 @@
   const toolPanelPick = document.getElementById("tool-panel-pick");
   const toolPointX = document.getElementById("tool-point-x");
   const toolPointY = document.getElementById("tool-point-y");
+  const toolPointXLabel = document.getElementById("tool-point-x-label");
+  const toolPointYLabel = document.getElementById("tool-point-y-label");
+  const toolPointHint = document.getElementById("tool-point-hint");
+  const btnPointCrsWgs84 = document.getElementById("btn-point-crs-wgs84");
+  const btnPointCrsGcj02 = document.getElementById("btn-point-crs-gcj02");
   const toolBoxX = document.getElementById("tool-box-x");
   const toolBoxY = document.getElementById("tool-box-y");
+  const toolBoxXLabel = document.getElementById("tool-box-x-label");
+  const toolBoxYLabel = document.getElementById("tool-box-y-label");
+  const toolBoxHint = document.getElementById("tool-box-hint");
+  const btnBoxCrsWgs84 = document.getElementById("btn-box-crs-wgs84");
+  const btnBoxCrsGcj02 = document.getElementById("btn-box-crs-gcj02");
   const toolBoxHeading = document.getElementById("tool-box-heading");
   const toolBoxWidth = document.getElementById("tool-box-width");
   const toolBoxFront = document.getElementById("tool-box-front");
@@ -104,6 +114,10 @@
     point: "point",
     box: "box",
     pick: "pick",
+  };
+  const POINT_CRS = {
+    wgs84: "wgs84",
+    gcj02: "gcj02",
   };
   const SIDEBAR_WIDTH_MIN = 260;
   const SIDEBAR_WIDTH_MAX = 900;
@@ -244,6 +258,8 @@
 
   let protoReady = false;
   let activeTool = null;
+  let pointInputCrs = POINT_CRS.wgs84;
+  let boxInputCrs = POINT_CRS.wgs84;
   let pointLabelCounter = 0;
   let boxLabelCounter = 0;
   let pickLabelCounter = 0;
@@ -311,6 +327,18 @@
   btnToolPick.addEventListener("click", () => toggleTool(TOOL_MODES.pick));
   btnDrawPoint.addEventListener("click", drawPointFromInputs);
   btnDrawBox.addEventListener("click", drawBoxFromInputs);
+  if (btnPointCrsWgs84) {
+    btnPointCrsWgs84.addEventListener("click", () => setPointInputCrs(POINT_CRS.wgs84));
+  }
+  if (btnPointCrsGcj02) {
+    btnPointCrsGcj02.addEventListener("click", () => setPointInputCrs(POINT_CRS.gcj02));
+  }
+  if (btnBoxCrsWgs84) {
+    btnBoxCrsWgs84.addEventListener("click", () => setBoxInputCrs(POINT_CRS.wgs84));
+  }
+  if (btnBoxCrsGcj02) {
+    btnBoxCrsGcj02.addEventListener("click", () => setBoxInputCrs(POINT_CRS.gcj02));
+  }
   if (btnVehicleSanfang) {
     btnVehicleSanfang.addEventListener("click", () => setVehiclePreset("sanfang"));
   }
@@ -389,16 +417,7 @@
     return true;
   }
 
-  function resolveToolInputToUtm(rawX, rawY) {
-    if (typeof CoordTransform === "undefined") {
-      throw new Error("未加载 coord_transform.js");
-    }
-    if (CoordTransform.isUtmToolInput(rawX, rawY)) {
-      return { x: rawX, y: rawY, coordKind: "utm" };
-    }
-
-    const lon = rawX;
-    const lat = rawY;
+  function resolveLonLatToUtm(lon, lat, coordKind) {
     if (lat < -90 || lat > 90) throw new Error("纬度应在 -90～90 之间");
     if (lon < -180 || lon > 180) throw new Error("经度应在 -180～180 之间");
 
@@ -416,11 +435,95 @@
     return {
       x: easting,
       y: northing,
-      coordKind: "wgs84",
+      coordKind,
       lon,
       lat,
       zone,
     };
+  }
+
+  function resolveToolInputToUtm(rawX, rawY, inputCrs) {
+    if (typeof CoordTransform === "undefined") {
+      throw new Error("未加载 coord_transform.js");
+    }
+
+    const crs = inputCrs || POINT_CRS.wgs84;
+    if (crs === POINT_CRS.gcj02) {
+      if (!CoordTransform.gcj02ToWgs84) {
+        throw new Error("缺少 CoordTransform.gcj02ToWgs84，请强制刷新页面清除缓存");
+      }
+      const wgs = CoordTransform.gcj02ToWgs84(rawX, rawY);
+      return resolveLonLatToUtm(wgs.lng, wgs.lat, POINT_CRS.gcj02);
+    }
+
+    if (CoordTransform.isUtmToolInput(rawX, rawY)) {
+      return { x: rawX, y: rawY, coordKind: "utm" };
+    }
+
+    return resolveLonLatToUtm(rawX, rawY, POINT_CRS.wgs84);
+  }
+
+  function syncToolInputCrsUi(crs, ui) {
+    if (crs !== POINT_CRS.wgs84 && crs !== POINT_CRS.gcj02) return false;
+    const isGcj = crs === POINT_CRS.gcj02;
+    if (ui.btnWgs84) ui.btnWgs84.classList.toggle("active", !isGcj);
+    if (ui.btnGcj02) ui.btnGcj02.classList.toggle("active", isGcj);
+    if (ui.xLabel) ui.xLabel.textContent = isGcj ? "X（GCJ02）" : "X（WGS84）";
+    if (ui.yLabel) ui.yLabel.textContent = isGcj ? "Y（GCJ02）" : "Y（WGS84）";
+    if (ui.xInput) ui.xInput.placeholder = isGcj ? ui.gcjXPlaceholder : ui.wgsXPlaceholder;
+    if (ui.yInput) ui.yInput.placeholder = isGcj ? ui.gcjYPlaceholder : ui.wgsYPlaceholder;
+    if (ui.hint) ui.hint.textContent = isGcj ? ui.gcjHint : ui.wgsHint;
+    return true;
+  }
+
+  function setPointInputCrs(crs) {
+    if (
+      !syncToolInputCrsUi(crs, {
+        btnWgs84: btnPointCrsWgs84,
+        btnGcj02: btnPointCrsGcj02,
+        xLabel: toolPointXLabel,
+        yLabel: toolPointYLabel,
+        xInput: toolPointX,
+        yInput: toolPointY,
+        hint: toolPointHint,
+        wgsXPlaceholder: "UTM 东向 或 经度",
+        wgsYPlaceholder: "UTM 北向 或 纬度",
+        gcjXPlaceholder: "经度",
+        gcjYPlaceholder: "纬度",
+        wgsHint:
+          "X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度），按地图 header.proj 的 zone 转换",
+        gcjHint:
+          "输入 GCJ02 经纬度（X=经度，Y=纬度），将先转为 WGS84 再按地图 header.proj 的 zone 转换到 UTM",
+      })
+    ) {
+      return;
+    }
+    pointInputCrs = crs;
+  }
+
+  function setBoxInputCrs(crs) {
+    if (
+      !syncToolInputCrsUi(crs, {
+        btnWgs84: btnBoxCrsWgs84,
+        btnGcj02: btnBoxCrsGcj02,
+        xLabel: toolBoxXLabel,
+        yLabel: toolBoxYLabel,
+        xInput: toolBoxX,
+        yInput: toolBoxY,
+        hint: toolBoxHint,
+        wgsXPlaceholder: "后轴 UTM 东向 或 经度",
+        wgsYPlaceholder: "后轴 UTM 北向 或 纬度",
+        gcjXPlaceholder: "后轴经度",
+        gcjYPlaceholder: "后轴纬度",
+        wgsHint:
+          "参考点为后轴中心，沿航向前/后轴距离画框；X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度）",
+        gcjHint:
+          "参考点为后轴中心；输入 GCJ02 经纬度（X=经度，Y=纬度），将先转为 WGS84 再按地图 zone 转换到 UTM",
+      })
+    ) {
+      return;
+    }
+    boxInputCrs = crs;
   }
 
   function getMapUtmContext() {
@@ -445,6 +548,24 @@
     } catch (_) {
       return null;
     }
+  }
+
+  function utmToGcj02ForDisplay(utmX, utmY) {
+    const wgs = utmToWgs84ForDisplay(utmX, utmY);
+    if (!wgs || typeof CoordTransform === "undefined" || !CoordTransform.wgs84ToGcj02) {
+      return null;
+    }
+    try {
+      return CoordTransform.wgs84ToGcj02(wgs.lon, wgs.lat);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function formatAnnotationListName(record) {
+    const gcj = utmToGcj02ForDisplay(record.x, record.y);
+    if (!gcj) return record.label;
+    return `${record.label} <span class="tool-record-coord-inline">(${gcj.lng.toFixed(6)}, ${gcj.lat.toFixed(6)})</span>`;
   }
 
   function formatAnnotationCoordX(utmX, utmY, decimals) {
@@ -529,7 +650,7 @@
   }
 
   function formatToolUtmStatus(resolved) {
-    if (resolved.coordKind === "wgs84") {
+    if (resolved.coordKind === POINT_CRS.wgs84 || resolved.coordKind === POINT_CRS.gcj02) {
       return formatAnnotationCoordInline(resolved.x, resolved.y, 2, {
         lon: resolved.lon,
         lat: resolved.lat,
@@ -835,7 +956,7 @@
       li.className = "tool-record-item";
       li.dataset.id = record.id;
       li.innerHTML = `
-        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-name">${formatAnnotationListName(record)}</div>
         <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}</div>
         <div class="tool-record-actions">
           <button type="button" class="btn-mini" data-action="locate">定位</button>
@@ -860,7 +981,7 @@
       li.className = "tool-record-item";
       li.dataset.id = record.id;
       li.innerHTML = `
-        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-name">${formatAnnotationListName(record)}</div>
         <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}<br>航向: ${record.heading.toFixed(3)} rad<br>宽 ${record.width.toFixed(2)} · 前 ${record.front.toFixed(2)} · 后 ${record.rear.toFixed(2)}</div>
         <div class="tool-record-actions">
           <button type="button" class="btn-mini" data-action="locate">定位</button>
@@ -886,7 +1007,7 @@
       if (selectedPickIds.includes(record.id)) li.classList.add("is-selected");
       li.dataset.id = record.id;
       li.innerHTML = `
-        <div class="tool-record-name">${record.label}</div>
+        <div class="tool-record-name">${formatAnnotationListName(record)}</div>
         <div class="tool-record-coord">${formatAnnotationCoordBlock(record.x, record.y)}</div>
         <div class="tool-record-actions">
           <button type="button" class="btn-mini" data-action="copy">复制</button>
@@ -1063,7 +1184,7 @@
     try {
       const rawX = parseToolNumber(toolPointX, "X 坐标");
       const rawY = parseToolNumber(toolPointY, "Y 坐标");
-      const resolved = resolveToolInputToUtm(rawX, rawY);
+      const resolved = resolveToolInputToUtm(rawX, rawY, pointInputCrs);
       const record = addDrawnPoint(resolved.x, resolved.y);
       if (toolPointX) toolPointX.value = "";
       if (toolPointY) toolPointY.value = "";
@@ -1078,7 +1199,7 @@
     try {
       const rawX = parseToolNumber(toolBoxX, "X 坐标");
       const rawY = parseToolNumber(toolBoxY, "Y 坐标");
-      const resolved = resolveToolInputToUtm(rawX, rawY);
+      const resolved = resolveToolInputToUtm(rawX, rawY, boxInputCrs);
       const heading = parseToolNumber(toolBoxHeading, "航向角");
       const dims = parseVehicleDimsFromInputs();
       const record = addDrawnBox(resolved.x, resolved.y, heading, dims);

@@ -195,6 +195,19 @@
     return { lng: lng + dLng, lat: lat + dLat };
   }
 
+  /** GCJ02 经纬度 → WGS84 经纬度（迭代反算） */
+  function gcj02ToWgs84(lng, lat) {
+    if (outOfChina(lng, lat)) return { lng, lat };
+    let wgsLng = lng;
+    let wgsLat = lat;
+    for (let i = 0; i < 6; i++) {
+      const gcj = wgs84ToGcj02(wgsLng, wgsLat);
+      wgsLng += lng - gcj.lng;
+      wgsLat += lat - gcj.lat;
+    }
+    return { lng: wgsLng, lat: wgsLat };
+  }
+
   global.CoordTransform = {
     parseUtmZoneFromProjection,
     parseUtmNorthernFromProjection,
@@ -203,5 +216,6 @@
     utmToWgs84,
     isUtmToolInput,
     wgs84ToGcj02,
+    gcj02ToWgs84,
   };
 })(typeof window !== "undefined" ? window : globalThis);

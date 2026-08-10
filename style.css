@@ -537,6 +537,46 @@ body {
   margin-bottom: 2px;
 }
 
+.tool-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.tool-panel-title-row .tool-panel-title {
+  margin-bottom: 0;
+}
+
+.tool-crs-toggle {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-crs-toggle {
+  padding: 3px 6px;
+  border: 1px solid #4a4a58;
+  border-radius: 4px;
+  background: #1f1f25;
+  color: #c8d0dc;
+  font-size: 10px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.btn-crs-toggle:hover {
+  background: #2a2a33;
+  border-color: #5a5a68;
+}
+
+.btn-crs-toggle.active {
+  border-color: #3d7aed;
+  background: #2b3f69;
+  color: #ffffff;
+}
+
 .tool-field {
   display: flex;
   flex-direction: column;
@@ -655,6 +695,16 @@ body {
   font-size: 12px;
   font-weight: 600;
   color: #e8e8ec;
+}
+
+.tool-record-coord-inline {
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: #8ec8ff;
+  word-break: break-all;
+  user-select: text;
+  cursor: text;
 }
 
 .tool-record-coord {

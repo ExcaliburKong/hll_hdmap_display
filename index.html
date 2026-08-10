@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=23" />
+  <link rel="stylesheet" href="style.css?v=25" />
 </head>
 <body>
   <div id="app">
@@ -60,16 +60,22 @@
         </div>
         <div class="tool-panel" id="tool-panel">
           <div class="tool-panel-section" id="tool-panel-point">
-            <div class="tool-panel-title">画点</div>
+            <div class="tool-panel-title-row">
+              <div class="tool-panel-title">画点</div>
+              <div class="tool-crs-toggle" role="group" aria-label="输入坐标系">
+                <button type="button" class="btn-crs-toggle active" id="btn-point-crs-wgs84" title="WGS84">WGS84</button>
+                <button type="button" class="btn-crs-toggle" id="btn-point-crs-gcj02" title="GCJ02">GCJ02</button>
+              </div>
+            </div>
             <label class="tool-field">
-              <span>X (UTM / 经度)</span>
+              <span id="tool-point-x-label">X（WGS84）</span>
               <input type="number" id="tool-point-x" step="any" placeholder="UTM 东向 或 经度" />
             </label>
             <label class="tool-field">
-              <span>Y (UTM / 纬度)</span>
+              <span id="tool-point-y-label">Y（WGS84）</span>
               <input type="number" id="tool-point-y" step="any" placeholder="UTM 北向 或 纬度" />
             </label>
-            <p class="tool-hint">X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度），按地图 header.proj 的 zone 转换</p>
+            <p class="tool-hint" id="tool-point-hint">X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度），按地图 header.proj 的 zone 转换</p>
             <button type="button" class="btn btn-tool-draw" id="btn-draw-point">绘制</button>
             <div class="tool-record-block">
               <div class="tool-record-block-header">
@@ -80,13 +86,19 @@
             </div>
           </div>
           <div class="tool-panel-section" id="tool-panel-box">
-            <div class="tool-panel-title">画框</div>
+            <div class="tool-panel-title-row">
+              <div class="tool-panel-title">画框</div>
+              <div class="tool-crs-toggle" role="group" aria-label="输入坐标系">
+                <button type="button" class="btn-crs-toggle active" id="btn-box-crs-wgs84" title="WGS84">WGS84</button>
+                <button type="button" class="btn-crs-toggle" id="btn-box-crs-gcj02" title="GCJ02">GCJ02</button>
+              </div>
+            </div>
             <label class="tool-field">
-              <span>X (UTM / 经度)</span>
+              <span id="tool-box-x-label">X（WGS84）</span>
               <input type="number" id="tool-box-x" step="any" placeholder="后轴 UTM 东向 或 经度" />
             </label>
             <label class="tool-field">
-              <span>Y (UTM / 纬度)</span>
+              <span id="tool-box-y-label">Y（WGS84）</span>
               <input type="number" id="tool-box-y" step="any" placeholder="后轴 UTM 北向 或 纬度" />
             </label>
             <label class="tool-field">
@@ -109,7 +121,7 @@
               <span>后轴 (m)</span>
               <input type="number" id="tool-box-rear" step="any" value="0.65" />
             </label>
-            <p class="tool-hint">参考点为后轴中心，沿航向前/后轴距离画框；坐标规则同画点（UTM 或 WGS84 自动识别）</p>
+            <p class="tool-hint" id="tool-box-hint">参考点为后轴中心，沿航向前/后轴距离画框；X、Y 均大于 100 视为 UTM；否则视为 WGS84（X=经度，Y=纬度）</p>
             <button type="button" class="btn btn-tool-draw" id="btn-draw-box">绘制</button>
             <div class="tool-record-block">
               <div class="tool-record-block-header">
@@ -216,8 +228,8 @@
   </div>
   <script src="protobuf.min.js"></script>
   <script src="map_proto_loader.js"></script>
-  <script src="coord_transform.js?v=2"></script>
+  <script src="coord_transform.js?v=3"></script>
   <script src="map_parser.js?v=6"></script>
-  <script src="app.js?v=42"></script>
+  <script src="app.js?v=47"></script>
 </body>
 </html>

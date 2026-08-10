@@ -491,6 +491,110 @@ body {
   stroke: #000000 !important;
 }
 
+/* 着色：按车道类型上色（NONE 保持默认） */
+#map-svg.lane-color .lane-shape[data-lane-type="CITY_DRIVING"] {
+  fill: #ff9800;
+  stroke: #ffe0b2;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="CITY_DRIVING"] {
+  fill: none;
+  stroke: #ff9800;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="BIKING"] {
+  fill: #43a047;
+  stroke: #c8e6c9;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="BIKING"] {
+  fill: none;
+  stroke: #43a047;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="PARKING"] {
+  fill: #e53935;
+  stroke: #ffcdd2;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="PARKING"] {
+  fill: none;
+  stroke: #e53935;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="SHOULDER"] {
+  fill: #795548;
+  stroke: #d7ccc8;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="SHOULDER"] {
+  fill: none;
+  stroke: #795548;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="DIVISIONZONE"] {
+  fill: #f8bbd0;
+  stroke: #fce4ec;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="DIVISIONZONE"] {
+  fill: none;
+  stroke: #f8bbd0;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="SIDEWALK"] {
+  fill: #64b5f6;
+  stroke: #e3f2fd;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="SIDEWALK"] {
+  fill: none;
+  stroke: #64b5f6;
+}
+#map-svg.lane-color .lane-shape[data-lane-type="ENTRANCE_WAY"] {
+  fill: #a5d6a7;
+  stroke: #e8f5e9;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="ENTRANCE_WAY"] {
+  fill: none;
+  stroke: #a5d6a7;
+}
+/* 着色模式下仍保留选中/前后继等高亮 */
+#map-svg.lane-color .lane-shape.state-selected {
+  fill: #2196f3;
+  stroke: #ffffff;
+  opacity: 0.85;
+}
+#map-svg.lane-color .lane-shape.central-only.state-selected {
+  fill: none;
+  stroke: #2196f3;
+  opacity: 1;
+}
+#map-svg.lane-color .lane-shape.state-predecessor {
+  fill: #ff9800;
+  stroke: #ffffff;
+  opacity: 0.8;
+}
+#map-svg.lane-color .lane-shape.central-only.state-predecessor {
+  fill: none;
+  stroke: #ff9800;
+}
+#map-svg.lane-color .lane-shape.state-successor {
+  fill: #43a047;
+  stroke: #ffffff;
+  opacity: 0.85;
+}
+#map-svg.lane-color .lane-shape.central-only.state-successor {
+  fill: none;
+  stroke: #43a047;
+}
+#map-svg.lane-color .lane-shape.state-same-road {
+  fill: #90caf9;
+  stroke: #ffffff;
+  opacity: 0.75;
+}
+#map-svg.lane-color .lane-shape.central-only.state-same-road {
+  fill: none;
+  stroke: #90caf9;
+  opacity: 0.9;
+}
+
 /* 高精地图范围框：不随缩放变细，缩得很远时也能定位高精地图所在区域 */
 .map-bounds-outline {
   display: none;
@@ -1163,6 +1267,53 @@ body.sidebar-resizing #map-container {
 
 .legend-swatch.signal {
   background: #ff5252;
+}
+
+.lane-color-legend {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 100;
+  min-width: 160px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(30, 30, 36, 0.92);
+  border: 1px solid #3a3a44;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  line-height: 1.45;
+  color: #e8e8ec;
+  pointer-events: none;
+}
+
+.lane-color-legend.is-hidden {
+  display: none !important;
+}
+
+.lane-color-legend-title {
+  margin-bottom: 6px;
+  color: #9a9aa8;
+  font-size: 11px;
+}
+
+.lane-color-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.lane-color-legend-swatch {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.lane-color-legend-swatch-default {
+  background: #9a9aa8;
+  border-color: #f0f0f4;
 }
 
 .map-meta-panel {

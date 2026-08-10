@@ -97,6 +97,8 @@
   const btnBasemapSrcAmap = document.getElementById("btn-basemap-src-amap");
   const btnBasemapSrcGoogle = document.getElementById("btn-basemap-src-google");
   const btnLaneFade = document.getElementById("btn-lane-fade");
+  const btnLaneColor = document.getElementById("btn-lane-color");
+  const laneColorLegend = document.getElementById("lane-color-legend");
   const mapBoundsOutline = document.getElementById("map-bounds-outline");
 
   const SIDEBAR_WIDTH_DEFAULT = 480;
@@ -229,8 +231,8 @@
   let basemapCanvas = null;
   let basemapCtx = null;
   let basemapOffCanvas = null;
-  // 车道渲染样式：normal（默认灰）/ fade（透明）
-  const LANE_RENDER_MODES = { normal: "normal", fade: "fade" };
+  // 车道渲染样式：normal（默认灰）/ fade（透明）/ color（按类型着色）
+  const LANE_RENDER_MODES = { normal: "normal", fade: "fade", color: "color" };
   let laneRenderMode = LANE_RENDER_MODES.normal;
   let basemapRedrawScheduled = false;
   const tileImageCache = new Map();
@@ -359,6 +361,8 @@
     btnBasemapSrcGoogle.addEventListener("click", () => setBaseMapProvider(BASEMAP_PROVIDERS.google));
   if (btnLaneFade)
     btnLaneFade.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.fade));
+  if (btnLaneColor)
+    btnLaneColor.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.color));
   toolPointList.addEventListener("click", onPointListClick);
   toolBoxList.addEventListener("click", onBoxListClick);
   toolPickList.addEventListener("click", onPickListClick);
@@ -1507,14 +1511,21 @@
     mapBoundsOutline.setAttribute("height", String(Math.max(0, h)));
   }
 
-  /** 切换车道渲染样式：虚化（透明），再次点击恢复默认 */
+  /** 切换车道渲染样式：虚化 / 着色，再次点击同一模式恢复默认 */
   function setLaneRenderMode(mode) {
     laneRenderMode = laneRenderMode === mode ? LANE_RENDER_MODES.normal : mode;
     if (mapSvg) {
       mapSvg.classList.toggle("lane-fade", laneRenderMode === LANE_RENDER_MODES.fade);
+      mapSvg.classList.toggle("lane-color", laneRenderMode === LANE_RENDER_MODES.color);
     }
     if (btnLaneFade) {
       btnLaneFade.classList.toggle("active", laneRenderMode === LANE_RENDER_MODES.fade);
+    }
+    if (btnLaneColor) {
+      btnLaneColor.classList.toggle("active", laneRenderMode === LANE_RENDER_MODES.color);
+    }
+    if (laneColorLegend) {
+      laneColorLegend.classList.toggle("is-hidden", laneRenderMode !== LANE_RENDER_MODES.color);
     }
   }
 
@@ -1937,12 +1948,14 @@
       poly.setAttribute("points", flatToSvgPoints(lane.polygon));
       poly.classList.add("lane-shape");
       poly.dataset.laneId = lane.id;
+      if (lane.type) poly.dataset.laneType = lane.type;
       return poly;
     }
     if (lane.central_segments && lane.central_segments.length > 0) {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.classList.add("lane-shape", "central-only");
       g.dataset.laneId = lane.id;
+      if (lane.type) g.dataset.laneType = lane.type;
       for (const seg of lane.central_segments) {
         if (seg.length < 4) continue;
         const pl = document.createElementNS("http://www.w3.org/2000/svg", "polyline");

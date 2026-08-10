@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=26" />
+  <link rel="stylesheet" href="style.css?v=28" />
 </head>
 <body>
   <div id="app">
@@ -32,6 +32,7 @@
             <g id="elements-layer"></g>
             <g id="centerline-layer"></g>
             <g id="annotations-layer"></g>
+            <g id="ops-buffer-layer"></g>
             <rect id="map-bounds-outline" class="map-bounds-outline" />
           </g>
         </svg>
@@ -93,6 +94,7 @@
           <div class="tool-bar-divider"></div>
           <button type="button" class="tool-bar-btn" id="btn-lane-fade" title="车道变透明，便于查看底图标识">虚化</button>
           <button type="button" class="tool-bar-btn" id="btn-lane-color" title="按车道类型着色">着色</button>
+          <button type="button" class="tool-bar-btn" id="btn-tool-ops" title="按指定距离绘制运营外扩圈">运营</button>
         </div>
         <div class="tool-panel" id="tool-panel">
           <div class="tool-panel-section" id="tool-panel-point">
@@ -185,6 +187,16 @@
               <ul id="tool-pick-list" class="tool-record-list"></ul>
             </div>
           </div>
+          <div class="tool-panel-section" id="tool-panel-ops">
+            <div class="tool-panel-title">运营外扩圈</div>
+            <label class="tool-field">
+              <span>距离 (m)</span>
+              <input type="number" id="tool-ops-distance" step="any" min="0" placeholder="例如 1000" />
+            </label>
+            <p class="tool-hint">按车道中心线外扩指定距离，绘制红色等距边界（与任务下发工具一致）</p>
+            <button type="button" class="btn btn-tool-draw" id="btn-draw-ops">绘制</button>
+            <button type="button" class="btn-mini" id="btn-clear-ops" style="align-self:flex-start">清除外扩圈</button>
+          </div>
         </div>
       </aside>
       <aside class="sidebar" id="sidebar">
@@ -266,6 +278,7 @@
   <script src="map_proto_loader.js"></script>
   <script src="coord_transform.js?v=3"></script>
   <script src="map_parser.js?v=6"></script>
-  <script src="app.js?v=47"></script>
+  <script src="ops_buffer.js?v=1"></script>
+  <script src="app.js?v=48"></script>
 </body>
 </html>

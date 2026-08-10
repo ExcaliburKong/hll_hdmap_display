@@ -54,12 +54,15 @@
   const mapMetaDate = document.getElementById("map-meta-date");
   const mapMetaUtm = document.getElementById("map-meta-utm");
   const annotationsLayer = document.getElementById("annotations-layer");
+  const opsBufferLayer = document.getElementById("ops-buffer-layer");
   const btnToolPoint = document.getElementById("btn-tool-point");
   const btnToolBox = document.getElementById("btn-tool-box");
   const btnToolPick = document.getElementById("btn-tool-pick");
+  const btnToolOps = document.getElementById("btn-tool-ops");
   const toolPanelPoint = document.getElementById("tool-panel-point");
   const toolPanelBox = document.getElementById("tool-panel-box");
   const toolPanelPick = document.getElementById("tool-panel-pick");
+  const toolPanelOps = document.getElementById("tool-panel-ops");
   const toolPointX = document.getElementById("tool-point-x");
   const toolPointY = document.getElementById("tool-point-y");
   const toolPointXLabel = document.getElementById("tool-point-x-label");
@@ -82,6 +85,9 @@
   const btnVehicleLiufang = document.getElementById("btn-vehicle-liufang");
   const btnDrawPoint = document.getElementById("btn-draw-point");
   const btnDrawBox = document.getElementById("btn-draw-box");
+  const toolOpsDistance = document.getElementById("tool-ops-distance");
+  const btnDrawOps = document.getElementById("btn-draw-ops");
+  const btnClearOps = document.getElementById("btn-clear-ops");
   const btnClearAllPoints = document.getElementById("btn-clear-all-points");
   const btnClearAllBoxes = document.getElementById("btn-clear-all-boxes");
   const btnClearAllPicks = document.getElementById("btn-clear-all-picks");
@@ -116,6 +122,7 @@
     point: "point",
     box: "box",
     pick: "pick",
+    ops: "ops",
   };
   const POINT_CRS = {
     wgs84: "wgs84",
@@ -327,8 +334,11 @@
   btnToolPoint.addEventListener("click", () => toggleTool(TOOL_MODES.point));
   btnToolBox.addEventListener("click", () => toggleTool(TOOL_MODES.box));
   btnToolPick.addEventListener("click", () => toggleTool(TOOL_MODES.pick));
+  if (btnToolOps) btnToolOps.addEventListener("click", () => toggleTool(TOOL_MODES.ops));
   btnDrawPoint.addEventListener("click", drawPointFromInputs);
   btnDrawBox.addEventListener("click", drawBoxFromInputs);
+  if (btnDrawOps) btnDrawOps.addEventListener("click", drawOpsBufferFromInputs);
+  if (btnClearOps) btnClearOps.addEventListener("click", () => clearOpsBuffer(false));
   if (btnPointCrsWgs84) {
     btnPointCrsWgs84.addEventListener("click", () => setPointInputCrs(POINT_CRS.wgs84));
   }
@@ -392,13 +402,16 @@
     const isPoint = activeTool === TOOL_MODES.point;
     const isBox = activeTool === TOOL_MODES.box;
     const isPick = activeTool === TOOL_MODES.pick;
+    const isOps = activeTool === TOOL_MODES.ops;
     btnToolPoint.classList.toggle("active", isPoint);
     btnToolBox.classList.toggle("active", isBox);
     btnToolPick.classList.toggle("active", isPick);
+    if (btnToolOps) btnToolOps.classList.toggle("active", isOps);
     if (toolPanel) toolPanel.classList.toggle("is-open", !!activeTool);
     if (toolPanelPoint) toolPanelPoint.classList.toggle("is-active", isPoint);
     if (toolPanelBox) toolPanelBox.classList.toggle("is-active", isBox);
     if (toolPanelPick) toolPanelPick.classList.toggle("is-active", isPick);
+    if (toolPanelOps) toolPanelOps.classList.toggle("is-active", isOps);
     mapContainer.classList.toggle("tool-pick-mode", isPick);
     if (activeTool) {
       requestAnimationFrame(() => syncMapSvgViewport());
@@ -1233,9 +1246,72 @@
     clearAllDrawnPoints(true);
     clearAllDrawnBoxes(true);
     clearAllDrawnPicks(true);
+    clearOpsBuffer(true);
     selectedPickIds.length = 0;
     annotationSeq = 0;
     setToolPickResultText("暂无记录");
+  }
+
+  function clearOpsBuffer(silent) {
+    if (opsBufferLayer) opsBufferLayer.innerHTML = "";
+    if (!silent) setStatus("已清除运营外扩圈");
+  }
+
+  function ringToSvgPoints(ring) {
+    const ox = mapOrigin.x;
+    const oy = mapOrigin.y;
+    const parts = [];
+    for (const p of ring) {
+      parts.push(`${p[0] - ox},${p[1] - oy}`);
+    }
+    return parts.join(" ");
+  }
+
+  function drawOpsBufferFromInputs() {
+    if (!requireMapForTool()) return;
+    if (!window.OpsBuffer || typeof window.OpsBuffer.buildOpsBufferRings !== "function") {
+      setStatus("运营外扩模块未加载");
+      return;
+    }
+    let distance;
+    try {
+      distance = parseToolNumber(toolOpsDistance, "距离");
+    } catch (err) {
+      setStatus(err.message || "请填写有效距离");
+      return;
+    }
+    if (!(distance > 0)) {
+      setStatus("距离必须大于 0");
+      return;
+    }
+
+    setStatus("正在计算运营外扩圈…");
+    requestAnimationFrame(() => {
+      try {
+        const rings = window.OpsBuffer.buildOpsBufferRings(mapData.lanes || [], distance);
+        if (!opsBufferLayer) {
+          setStatus("运营图层不可用");
+          return;
+        }
+        opsBufferLayer.innerHTML = "";
+        if (!rings.length) {
+          setStatus("未能生成外扩圈");
+          return;
+        }
+        const frag = document.createDocumentFragment();
+        for (const ring of rings) {
+          if (!ring || ring.length < 2) continue;
+          const pl = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+          pl.setAttribute("points", ringToSvgPoints(ring));
+          pl.classList.add("ops-buffer-ring");
+          frag.appendChild(pl);
+        }
+        opsBufferLayer.appendChild(frag);
+        setStatus(`已绘制运营外扩圈（${distance} m）`);
+      } catch (err) {
+        setStatus(err.message || "绘制运营外扩圈失败");
+      }
+    });
   }
 
   function clearAllAnnotations() {

@@ -605,9 +605,6 @@ body {
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
-#map-svg.lane-fade .map-bounds-outline {
-  display: block;
-}
 
 .tool-panel {
   display: none;
@@ -930,6 +927,14 @@ body {
   fill: #ffc107;
   stroke: #ffffff;
   stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.ops-buffer-ring {
+  fill: none;
+  stroke: #ff0000;
+  stroke-width: 2;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }

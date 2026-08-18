@@ -78,6 +78,7 @@ message Lane {
     SHOULDER = 6;
     DIVISIONZONE = 7;
     ENTRANCE_WAY = 8;
+    BRANCH = 9;
   };
   optional LaneType type = 12;
 

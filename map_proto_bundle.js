@@ -6172,6 +6172,7 @@
                         case 6:
                         case 7:
                         case 8:
+                        case 9:
                             break;
                         }
                     if (message.turn != null && message.hasOwnProperty("turn"))
@@ -6394,6 +6395,10 @@
                     case "ENTRANCE_WAY":
                     case 8:
                         message.type = 8;
+                        break;
+                    case "BRANCH":
+                    case 9:
+                        message.type = 9;
                         break;
                     }
                     switch (object.turn) {
@@ -6689,6 +6694,7 @@
                  * @property {number} SHOULDER=6 SHOULDER value
                  * @property {number} DIVISIONZONE=7 DIVISIONZONE value
                  * @property {number} ENTRANCE_WAY=8 ENTRANCE_WAY value
+                 * @property {number} BRANCH=9 BRANCH value
                  */
                 Lane.LaneType = (function() {
                     var valuesById = {}, values = MapObject.create(valuesById);
@@ -6700,6 +6706,7 @@
                     values[valuesById[6] = "SHOULDER"] = 6;
                     values[valuesById[7] = "DIVISIONZONE"] = 7;
                     values[valuesById[8] = "ENTRANCE_WAY"] = 8;
+                    values[valuesById[9] = "BRANCH"] = 9;
                     return values;
                 })();
     

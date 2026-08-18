@@ -555,6 +555,15 @@ body {
   fill: none;
   stroke: #a5d6a7;
 }
+#map-svg.lane-color .lane-shape[data-lane-type="BRANCH"] {
+  fill: #9c27b0;
+  stroke: #e1bee7;
+  opacity: 0.9;
+}
+#map-svg.lane-color .lane-shape.central-only[data-lane-type="BRANCH"] {
+  fill: none;
+  stroke: #9c27b0;
+}
 /* 着色模式下仍保留选中/前后继等高亮 */
 #map-svg.lane-color .lane-shape.state-selected {
   fill: #2196f3;

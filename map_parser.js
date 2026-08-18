@@ -13,6 +13,7 @@
     6: "SHOULDER",
     7: "DIVISIONZONE",
     8: "ENTRANCE_WAY",
+    9: "BRANCH",
   };
 
   const LANE_TURN_NAMES = {

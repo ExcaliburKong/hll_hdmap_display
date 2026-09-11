@@ -2354,6 +2354,16 @@
     return `${label}:\n  ${ids.join("\n  ")}`;
   }
 
+  function formatOverlapRange(detail) {
+    if (!detail) return "";
+    const start = detail.start_s;
+    const end = detail.end_s;
+    if (start == null && end == null) return "";
+    const startText = start != null && Number.isFinite(start) ? start.toFixed(2) : "?";
+    const endText = end != null && Number.isFinite(end) ? end.toFixed(2) : "?";
+    return `${startText} ~ ${endText}`;
+  }
+
   function formatOverlapListBlock(label, overlapIds, overlapSignalDetails) {
     if (!overlapIds || !overlapIds.length) return `${label}:\n  —`;
     const detailsMap = new Map();
@@ -2367,13 +2377,17 @@
     }
     const rows = overlapIds.map((id) => {
       const detail = detailsMap.get(id);
-      if (!detail || !detail.signals || detail.signals.length === 0) return id;
-      const signal = detail.signals[0];
-      const signalName = simplifySignalLikeId(signal.id || id);
-      const oneType = signal.subsignal_types && signal.subsignal_types.length
-        ? signal.subsignal_types[0].type
-        : "UNKNOWN";
-      return `${signalName}（${oneType}）`;
+      let text = id;
+      if (detail && detail.signals && detail.signals.length) {
+        const signal = detail.signals[0];
+        const signalName = simplifySignalLikeId(signal.id || id);
+        const oneType = signal.subsignal_types && signal.subsignal_types.length
+          ? signal.subsignal_types[0].type
+          : "UNKNOWN";
+        text = `${signalName}（${oneType}）`;
+      }
+      const rangeText = formatOverlapRange(detail);
+      return rangeText ? `${text} [${rangeText}]` : text;
     });
     return `${label}:\n  ${rows.join("\n  ")}`;
   }

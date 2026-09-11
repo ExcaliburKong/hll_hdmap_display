@@ -276,6 +276,7 @@
     const hdMap = MapType.decode(bytes);
     const signalInfoById = new Map();
     const overlapToSignalIds = new Map();
+    const overlapLaneRanges = new Map();
 
     for (const signal of hdMap.signal || []) {
       const sid = signal && signal.id && signal.id.id ? signal.id.id : "";
@@ -301,13 +302,28 @@
       const oid = overlap && overlap.id && overlap.id.id ? overlap.id.id : "";
       if (!oid) continue;
       const signalIds = new Set(overlapToSignalIds.get(oid) || []);
+      const laneRanges = overlapLaneRanges.get(oid) || new Map();
       for (const obj of overlap.object || []) {
-        if (detectOverlapObjectKind(obj) !== "signal") continue;
-        const signalId = obj && obj.id && obj.id.id ? obj.id.id : "";
-        if (signalId) signalIds.add(signalId);
+        const kind = detectOverlapObjectKind(obj);
+        const objId = obj && obj.id && obj.id.id ? obj.id.id : "";
+        if (kind === "signal") {
+          if (objId) signalIds.add(objId);
+          continue;
+        }
+        if (kind !== "lane" || !objId || !obj.laneOverlapInfo) continue;
+        const info = obj.laneOverlapInfo;
+        const startS = info.startS != null ? info.startS : info.start_s;
+        const endS = info.endS != null ? info.endS : info.end_s;
+        laneRanges.set(objId, {
+          start_s: startS != null ? Number(startS) : null,
+          end_s: endS != null ? Number(endS) : null,
+        });
       }
       if (signalIds.size > 0) {
         overlapToSignalIds.set(oid, signalIds);
+      }
+      if (laneRanges.size > 0) {
+        overlapLaneRanges.set(oid, laneRanges);
       }
     }
 
@@ -433,9 +449,12 @@
               id: sig.id,
               subsignal_types: sig.subsignal_types,
             }));
+          const range = (overlapLaneRanges.get(overlapId) || new Map()).get(lid);
           return {
             overlap_id: overlapId,
             signals,
+            start_s: range && Number.isFinite(range.start_s) ? range.start_s : null,
+            end_s: range && Number.isFinite(range.end_s) ? range.end_s : null,
           };
         }),
         same_road_lane_ids: (laneToRoadLaneIds.get(lid) || []).filter((id) => id !== lid),

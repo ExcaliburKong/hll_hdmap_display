@@ -11,6 +11,20 @@
 
   const fileInput = document.getElementById("file-input");
   const btnImport = document.getElementById("btn-import");
+  const stopFileInput = document.getElementById("stop-file-input");
+  const btnImportStops = document.getElementById("btn-import-stops");
+  const stopsLayer = document.getElementById("stops-layer");
+  const restrictedAreaFileInput = document.getElementById("restricted-area-file-input");
+  const btnImportRestrictedAreas = document.getElementById("btn-import-restricted-areas");
+  const restrictedAreasLayer = document.getElementById("restricted-areas-layer");
+  const restrictedDrawLayer = document.getElementById("restricted-draw-layer");
+  const stopsPanel = document.getElementById("stops-panel");
+  const stopsPanelTitle = document.getElementById("stops-panel-title");
+  const stopsFilter = document.getElementById("stops-filter");
+  const stopsDetail = document.getElementById("stops-detail");
+  const stopsList = document.getElementById("stops-list");
+  const btnStopsFit = document.getElementById("btn-stops-fit");
+  const btnStopsClear = document.getElementById("btn-stops-clear");
   const btnResetView = document.getElementById("btn-reset-view");
   const statusEl = document.getElementById("status");
   const mapContainer = document.getElementById("map-container");
@@ -57,12 +71,34 @@
   const opsBufferLayer = document.getElementById("ops-buffer-layer");
   const btnToolPoint = document.getElementById("btn-tool-point");
   const btnToolBox = document.getElementById("btn-tool-box");
+  const btnToolRestrict = document.getElementById("btn-tool-restrict");
   const btnToolPick = document.getElementById("btn-tool-pick");
   const btnToolOps = document.getElementById("btn-tool-ops");
   const toolPanelPoint = document.getElementById("tool-panel-point");
   const toolPanelBox = document.getElementById("tool-panel-box");
+  const toolPanelRestrict = document.getElementById("tool-panel-restrict");
   const toolPanelPick = document.getElementById("tool-panel-pick");
   const toolPanelOps = document.getElementById("tool-panel-ops");
+  const restrictAreaName = document.getElementById("restrict-area-name");
+  const restrictAreaId = document.getElementById("restrict-area-id");
+  const restrictCityCode = document.getElementById("restrict-city-code");
+  const restrictRegionPath = document.getElementById("restrict-region-path");
+  const restrictTypeInput = document.getElementById("restrict-type");
+  const restrictStatusInput = document.getElementById("restrict-status");
+  const restrictTimeModeInput = document.getElementById("restrict-time-mode");
+  const restrictUpdatedAt = document.getElementById("restrict-updated-at");
+  const restrictRemark = document.getElementById("restrict-remark");
+  const btnRestrictStart = document.getElementById("btn-restrict-start");
+  const btnRestrictEnd = document.getElementById("btn-restrict-end");
+  const btnRestrictUndo = document.getElementById("btn-restrict-undo");
+  const btnRestrictClear = document.getElementById("btn-restrict-clear");
+  const btnRestrictAddPoint = document.getElementById("btn-restrict-add-point");
+  const btnRestrictCopy = document.getElementById("btn-restrict-copy");
+  const btnRestrictDownload = document.getElementById("btn-restrict-download");
+  const restrictPointList = document.getElementById("restrict-point-list");
+  const restrictPointTitle = document.getElementById("restrict-point-title");
+  const restrictAddLon = document.getElementById("restrict-add-lon");
+  const restrictAddLat = document.getElementById("restrict-add-lat");
   const toolPointX = document.getElementById("tool-point-x");
   const toolPointY = document.getElementById("tool-point-y");
   const toolPointXLabel = document.getElementById("tool-point-x-label");
@@ -121,6 +157,7 @@
   const TOOL_MODES = {
     point: "point",
     box: "box",
+    restrict: "restrict",
     pick: "pick",
     ops: "ops",
   };
@@ -278,9 +315,38 @@
   const drawnPicks = [];
   const selectedPickIds = [];
   let pickHeadingLinkLayer = null;
+  /** 已导入的临停点（经纬度保留原值，UTM 按当前地图 zone 重算） */
+  let stopRecords = [];
+  let selectedStopId = null;
+  /** 已导入的禁行区（原始点为 GCJ02，经 WGS84 转换后投影到当前地图 zone） */
+  let restrictedAreaRecords = [];
+  /** 当前正在绘制或刚闭合的禁行区。点位始终保存为 GCJ02。 */
+  let restrictSession = null;
+  let restrictIdSeed = 1;
+  let lastRestrictPick = { t: 0, x: 0, y: 0 };
 
   btnImport.addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", onFileSelected);
+  if (btnImportStops && stopFileInput) {
+    btnImportStops.addEventListener("click", () => {
+      if (!requireMapForTool()) return;
+      stopFileInput.click();
+    });
+    stopFileInput.addEventListener("change", onStopFileSelected);
+  }
+  if (btnStopsFit) btnStopsFit.addEventListener("click", locateAllStops);
+  if (btnStopsClear) btnStopsClear.addEventListener("click", () => clearStops(false));
+  if (btnImportRestrictedAreas && restrictedAreaFileInput) {
+    btnImportRestrictedAreas.addEventListener("click", () => {
+      if (!requireMapForTool()) return;
+      restrictedAreaFileInput.click();
+    });
+    restrictedAreaFileInput.addEventListener("change", onRestrictedAreaFileSelected);
+  }
+  if (stopsFilter) {
+    stopsFilter.addEventListener("input", () => renderStopsPanel());
+  }
+  if (stopsList) stopsList.addEventListener("click", onStopsListClick);
   btnResetView.addEventListener("click", resetView);
   laneSearch.addEventListener("keydown", (e) => {
     if (e.key === "Enter") searchAndSelectLane(laneSearch.value.trim());
@@ -333,6 +399,7 @@
 
   btnToolPoint.addEventListener("click", () => toggleTool(TOOL_MODES.point));
   btnToolBox.addEventListener("click", () => toggleTool(TOOL_MODES.box));
+  if (btnToolRestrict) btnToolRestrict.addEventListener("click", () => toggleTool(TOOL_MODES.restrict));
   btnToolPick.addEventListener("click", () => toggleTool(TOOL_MODES.pick));
   if (btnToolOps) btnToolOps.addEventListener("click", () => toggleTool(TOOL_MODES.ops));
   btnDrawPoint.addEventListener("click", drawPointFromInputs);
@@ -373,6 +440,25 @@
     btnLaneFade.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.fade));
   if (btnLaneColor)
     btnLaneColor.addEventListener("click", () => setLaneRenderMode(LANE_RENDER_MODES.color));
+  if (btnRestrictStart) btnRestrictStart.addEventListener("click", startRestrictDraw);
+  if (btnRestrictEnd) btnRestrictEnd.addEventListener("click", endRestrictDraw);
+  if (btnRestrictUndo) btnRestrictUndo.addEventListener("click", undoRestrictPoint);
+  if (btnRestrictClear) btnRestrictClear.addEventListener("click", clearCurrentRestrict);
+  if (btnRestrictAddPoint) btnRestrictAddPoint.addEventListener("click", addRestrictPointFromInputs);
+  if (btnRestrictCopy) btnRestrictCopy.addEventListener("click", copyCurrentRestrictJson);
+  if (btnRestrictDownload) btnRestrictDownload.addEventListener("click", downloadCurrentRestrictJson);
+  if (restrictPointList) {
+    restrictPointList.addEventListener("change", onRestrictPointCommitDisplay);
+    restrictPointList.addEventListener("click", onRestrictPointListClick);
+  }
+  [restrictAreaName, restrictAreaId, restrictCityCode, restrictRegionPath, restrictTypeInput, restrictStatusInput, restrictTimeModeInput, restrictUpdatedAt, restrictRemark].forEach((input) => {
+    if (input) input.addEventListener("input", onRestrictMetaInput);
+  });
+  if (restrictAddLon) restrictAddLon.addEventListener("keydown", onRestrictAddKeydown);
+  if (restrictAddLat) restrictAddLat.addEventListener("keydown", onRestrictAddKeydown);
+  renderRestrictPointList();
+  updateRestrictButtons();
+
   toolPointList.addEventListener("click", onPointListClick);
   toolBoxList.addEventListener("click", onBoxListClick);
   toolPickList.addEventListener("click", onPickListClick);
@@ -401,18 +487,25 @@
   function syncToolUi() {
     const isPoint = activeTool === TOOL_MODES.point;
     const isBox = activeTool === TOOL_MODES.box;
+    const isRestrict = activeTool === TOOL_MODES.restrict;
     const isPick = activeTool === TOOL_MODES.pick;
     const isOps = activeTool === TOOL_MODES.ops;
     btnToolPoint.classList.toggle("active", isPoint);
     btnToolBox.classList.toggle("active", isBox);
+    if (btnToolRestrict) btnToolRestrict.classList.toggle("active", isRestrict);
     btnToolPick.classList.toggle("active", isPick);
     if (btnToolOps) btnToolOps.classList.toggle("active", isOps);
-    if (toolPanel) toolPanel.classList.toggle("is-open", !!activeTool);
+    if (toolPanel) {
+      toolPanel.classList.toggle("is-open", !!activeTool);
+      toolPanel.classList.toggle("is-wide", isRestrict);
+    }
     if (toolPanelPoint) toolPanelPoint.classList.toggle("is-active", isPoint);
     if (toolPanelBox) toolPanelBox.classList.toggle("is-active", isBox);
+    if (toolPanelRestrict) toolPanelRestrict.classList.toggle("is-active", isRestrict);
     if (toolPanelPick) toolPanelPick.classList.toggle("is-active", isPick);
     if (toolPanelOps) toolPanelOps.classList.toggle("is-active", isOps);
     mapContainer.classList.toggle("tool-pick-mode", isPick);
+    mapContainer.classList.toggle("tool-restrict-draw", isRestrictDrawing());
     if (activeTool) {
       requestAnimationFrame(() => syncMapSvgViewport());
     }
@@ -1402,6 +1495,8 @@
       "transform",
       `translate(${view.tx}, ${view.ty}) rotate(${rotDeg}) scale(${view.scale}, ${-view.scale})`
     );
+    syncStopMarkerTransforms();
+    syncRestrictVertexScale();
     scheduleBaseMapRedraw();
   }
 
@@ -1859,7 +1954,7 @@
   }
 
   function onMapDoubleClick(e) {
-    if (!mapData || isPanning) return;
+    if (!mapData || isPanning || isRestrictDrawing()) return;
     const shape = e.target.closest(".lane-shape");
     if (!shape || !shape.dataset.laneId || hiddenLaneIds.has(shape.dataset.laneId)) return;
     e.preventDefault();
@@ -1959,6 +2054,8 @@
         isPanning = false;
         panStart = null;
         mapContainer.classList.remove("panning");
+      } else if (pointerDown && isRestrictDrawing() && mapData && !isMapChromeTarget(e.target)) {
+        addRestrictPointFromClient(pointerDown.x, pointerDown.y);
       } else if (pointerDown && activeTool === TOOL_MODES.pick && mapData) {
         showPickedCoordinates(pointerDown.x, pointerDown.y);
       } else if (pointerDown && pointerDown.laneId) {
@@ -2287,6 +2384,10 @@
     renderActiveJunctionInfo();
     renderActiveElementInfo();
     syncLaneTabButtons();
+    if (btnImportStops) btnImportStops.disabled = false;
+    if (btnImportRestrictedAreas) btnImportRestrictedAreas.disabled = false;
+    redrawRestrictedAreas();
+    redrawStops();
   }
 
   function clearSelectedCenterline() {
@@ -2994,6 +3095,1101 @@
       return;
     }
     searchAndSelectElement(raw);
+  }
+
+  // ==================== 临停点 CSV ====================
+
+  /** Excel 列 P/Q/R（1-based 16/17/18）→ 0-based 下标 */
+  const STOP_LON_COL = 15;
+  const STOP_LAT_COL = 16;
+  const STOP_CRS_COL = 17;
+
+  function parseCsvRows(text) {
+    const rows = [];
+    let row = [];
+    let cell = "";
+    let inQuotes = false;
+    const src = text && text.charCodeAt(0) === 0xfeff ? text.slice(1) : text || "";
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (src[i + 1] === '"') {
+            cell += '"';
+            i += 1;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cell += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        row.push(cell);
+        cell = "";
+      } else if (ch === "\n") {
+        row.push(cell);
+        rows.push(row);
+        row = [];
+        cell = "";
+      } else if (ch !== "\r") {
+        cell += ch;
+      }
+    }
+    if (cell.length || row.length) {
+      row.push(cell);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function cleanStopCell(value) {
+    return String(value == null ? "" : value).replace(/\s+/g, " ").trim();
+  }
+
+  function normalizeStopCrs(value) {
+    const token = cleanStopCell(value).toLowerCase().replace(/-/g, "");
+    if (token === "wgs84" || token === "gcj02") return token;
+    return null;
+  }
+
+  function parseStopNumber(value) {
+    const n = Number(cleanStopCell(value));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  /**
+   * 优先取 P/Q/R 列。若 POINT 字段里多了一个未加引号的逗号导致列错位，
+   * 则在整行中查找坐标类型，并取其前两列作为经度、纬度。
+   */
+  function extractStopFromRow(cells) {
+    if (!cells || !cells.length) return null;
+
+    let lon = parseStopNumber(cells[STOP_LON_COL]);
+    let lat = parseStopNumber(cells[STOP_LAT_COL]);
+    let crs = normalizeStopCrs(cells[STOP_CRS_COL]);
+    let crsIndex = STOP_CRS_COL;
+
+    const directOk =
+      crs &&
+      lon != null &&
+      lat != null &&
+      lon >= -180 &&
+      lon <= 180 &&
+      lat >= -90 &&
+      lat <= 90;
+    if (!directOk) {
+      lon = null;
+      lat = null;
+      crs = null;
+      crsIndex = -1;
+      for (let i = 2; i < cells.length; i++) {
+        const kind = normalizeStopCrs(cells[i]);
+        if (!kind) continue;
+        const tryLon = parseStopNumber(cells[i - 2]);
+        const tryLat = parseStopNumber(cells[i - 1]);
+        if (
+          tryLon == null ||
+          tryLat == null ||
+          tryLon < -180 ||
+          tryLon > 180 ||
+          tryLat < -90 ||
+          tryLat > 90
+        ) {
+          continue;
+        }
+        lon = tryLon;
+        lat = tryLat;
+        crs = kind;
+        crsIndex = i;
+        break;
+      }
+    }
+    if (!crs || lon == null || lat == null) return null;
+
+    const offset = crsIndex - STOP_CRS_COL;
+    const at = (index) => cleanStopCell(cells[index + offset]);
+    const name = cleanStopCell(cells[crsIndex + 1]);
+    return {
+      city: cleanStopCell(cells[0]),
+      district: cleanStopCell(cells[1]),
+      poi: at(3),
+      address: at(4),
+      grid: at(8),
+      planned: at(10),
+      capacity: at(11),
+      lon,
+      lat,
+      crs,
+      name,
+    };
+  }
+
+  function decodeCsvBuffer(buffer) {
+    const bytes = new Uint8Array(buffer);
+    if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+    try {
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    } catch (_) {
+      return new TextDecoder("gb18030").decode(bytes);
+    }
+  }
+
+  function roundCoord(n) {
+    return Math.round(n * 1e6) / 1e6;
+  }
+
+  function isValidLonLat(lon, lat) {
+    return (
+      Number.isFinite(lon) &&
+      Number.isFinite(lat) &&
+      lon >= -180 &&
+      lon <= 180 &&
+      lat >= -90 &&
+      lat <= 90
+    );
+  }
+
+  function formatTimestamp(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  function readTrim(input) {
+    return input ? String(input.value).trim() : "";
+  }
+
+  function readIntField(input, fallback) {
+    const raw = readTrim(input);
+    if (!raw) return fallback;
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.trunc(n) : fallback;
+  }
+
+  function isRestrictDrawing() {
+    return !!(restrictSession && restrictSession.drawing && activeTool === TOOL_MODES.restrict);
+  }
+
+  function isMapChromeTarget(target) {
+    if (!target || !target.closest) return false;
+    return !!target.closest(
+      "#stops-panel, #map-meta-panel, #lane-color-legend, #lane-context-menu, #basemap-attribution, button, input, textarea, a, label"
+    );
+  }
+
+  function applyFormToSession(session) {
+    if (!session) return;
+    session.areaName = readTrim(restrictAreaName);
+    session.cityCode = readTrim(restrictCityCode);
+    session.regionPath = readTrim(restrictRegionPath);
+    session.remark = readTrim(restrictRemark);
+    session.restrictType = readIntField(restrictTypeInput, 1);
+    session.status = readIntField(restrictStatusInput, 1);
+    session.timeMode = readIntField(restrictTimeModeInput, 1);
+    session.updatedAt = readTrim(restrictUpdatedAt);
+    const idRaw = readTrim(restrictAreaId);
+    if (idRaw) {
+      const idNum = Number(idRaw);
+      if (Number.isFinite(idNum)) session.id = idNum;
+    }
+  }
+
+  function allocateRestrictId() {
+    const used = new Set(
+      restrictedAreaRecords
+        .map((record) => Number(record.id))
+        .filter((id) => Number.isFinite(id))
+    );
+    const typed = Number(readTrim(restrictAreaId));
+    if (Number.isFinite(typed) && !used.has(typed)) return typed;
+    let id = Math.max(1, restrictIdSeed);
+    while (used.has(id)) id += 1;
+    return id;
+  }
+
+  function createRestrictSession() {
+    const id = allocateRestrictId();
+    restrictIdSeed = Math.max(restrictIdSeed, id + 1);
+    const session = {
+      key: `draw-${Date.now()}`,
+      drawing: true,
+      closed: false,
+      id,
+      areaName: "",
+      cityCode: "",
+      regionPath: "",
+      remark: "",
+      restrictType: 1,
+      status: 1,
+      timeMode: 1,
+      updatedAt: "",
+      points: [],
+    };
+    applyFormToSession(session);
+    session.id = id;
+    session.points = [];
+    session.closed = false;
+    session.drawing = true;
+    return session;
+  }
+
+  function updateRestrictButtons() {
+    const drawing = !!(restrictSession && restrictSession.drawing);
+    const count = restrictSession ? restrictSession.points.length : 0;
+    if (btnRestrictStart) btnRestrictStart.disabled = drawing;
+    if (btnRestrictEnd) btnRestrictEnd.disabled = !drawing || count < 3;
+    if (btnRestrictUndo) btnRestrictUndo.disabled = !drawing || count < 1;
+  }
+
+  function renderRestrictPointList() {
+    if (!restrictPointList) return;
+    const points = restrictSession ? restrictSession.points : [];
+    if (restrictPointTitle) {
+      restrictPointTitle.textContent = `顶点（GCJ02）${points.length ? " · " + points.length : ""}`;
+    }
+    restrictPointList.innerHTML = "";
+    if (!points.length) {
+      const empty = document.createElement("li");
+      empty.className = "tool-record-empty";
+      empty.textContent = "暂无顶点";
+      restrictPointList.appendChild(empty);
+      return;
+    }
+    points.forEach((point, index) => {
+      const li = document.createElement("li");
+      li.className = "restrict-point-row";
+      li.dataset.index = String(index);
+      const indexEl = document.createElement("span");
+      indexEl.className = "restrict-point-index";
+      indexEl.textContent = String(index + 1);
+      const lonInput = document.createElement("input");
+      lonInput.type = "text";
+      lonInput.inputMode = "decimal";
+      lonInput.dataset.k = "lon";
+      lonInput.value = Number(point.lon).toFixed(6);
+      lonInput.title = "经度 lon";
+      const latInput = document.createElement("input");
+      latInput.type = "text";
+      latInput.inputMode = "decimal";
+      latInput.dataset.k = "lat";
+      latInput.value = Number(point.lat).toFixed(6);
+      latInput.title = "纬度 lat";
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "restrict-point-remove";
+      removeBtn.dataset.action = "remove";
+      removeBtn.title = "删除该点";
+      removeBtn.textContent = "×";
+      li.append(indexEl, lonInput, latInput, removeBtn);
+      restrictPointList.appendChild(li);
+    });
+  }
+
+  function restrictPointToUtm(point) {
+    if (typeof CoordTransform === "undefined" || !CoordTransform.gcj02ToWgs84) {
+      throw new Error("缺少 GCJ02 转换，请强制刷新页面");
+    }
+    const wgs = CoordTransform.gcj02ToWgs84(point.lon, point.lat);
+    return resolveLonLatToUtm(wgs.lng, wgs.lat, POINT_CRS.gcj02);
+  }
+
+  function findRestrictShape(sessionKey) {
+    if (!restrictedAreasLayer || !sessionKey) return null;
+    const nodes = restrictedAreasLayer.querySelectorAll("[data-session-key]");
+    for (const node of nodes) {
+      if (node.dataset.sessionKey === sessionKey) return node;
+    }
+    return null;
+  }
+
+  function sessionToRecord(session) {
+    return {
+      sessionKey: session.key,
+      drawn: true,
+      id: session.id,
+      name: session.areaName || "未命名禁行区",
+      areaName: session.areaName,
+      cityCode: session.cityCode,
+      regionPath: session.regionPath,
+      remark: session.remark,
+      restrictType: session.restrictType,
+      status: session.status,
+      timeMode: session.timeMode,
+      updatedAt: session.updatedAt,
+      points: session.points.map((point) => ({ lon: point.lon, lat: point.lat })),
+      utmPoints: [],
+    };
+  }
+
+  function renderRestrictDrawOverlay() {
+    if (!restrictedDrawLayer) return;
+    restrictedDrawLayer.innerHTML = "";
+    if (!restrictSession || !mapData || !restrictSession.points.length) return;
+    let utmPoints;
+    try {
+      utmPoints = restrictSession.points.map((point) => restrictPointToUtm(point));
+    } catch (_) {
+      return;
+    }
+    if (!restrictSession.closed) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      line.setAttribute("class", "restricted-draw-line");
+      line.setAttribute(
+        "points",
+        utmPoints
+          .map((point) => {
+            const local = utmToLocal(point.x, point.y);
+            return `${local.x},${local.y}`;
+          })
+          .join(" ")
+      );
+      restrictedDrawLayer.appendChild(line);
+      if (utmPoints.length >= 3) {
+        const close = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const last = utmToLocal(utmPoints[utmPoints.length - 1].x, utmPoints[utmPoints.length - 1].y);
+        const first = utmToLocal(utmPoints[0].x, utmPoints[0].y);
+        close.setAttribute("class", "restricted-draw-close");
+        close.setAttribute("x1", String(last.x));
+        close.setAttribute("y1", String(last.y));
+        close.setAttribute("x2", String(first.x));
+        close.setAttribute("y2", String(first.y));
+        restrictedDrawLayer.appendChild(close);
+      }
+    }
+    const inv = Number.isFinite(view.scale) && view.scale > 0 ? 1 / view.scale : 1;
+    utmPoints.forEach((point, index) => {
+      const local = utmToLocal(point.x, point.y);
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "restricted-draw-vertex");
+      group.dataset.lx = String(local.x);
+      group.dataset.ly = String(local.y);
+      group.setAttribute("transform", `translate(${local.x},${local.y}) scale(${inv},${-inv})`);
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      circle.setAttribute("r", "8");
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("class", "restricted-draw-index");
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("dominant-baseline", "central");
+      text.textContent = String(index + 1);
+      group.append(circle, text);
+      restrictedDrawLayer.appendChild(group);
+    });
+  }
+
+  function syncRestrictVertexScale() {
+    if (!restrictedDrawLayer) return;
+    if (!Number.isFinite(view.scale) || view.scale <= 0) return;
+    const inv = 1 / view.scale;
+    restrictedDrawLayer.querySelectorAll(".restricted-draw-vertex").forEach((node) => {
+      const x = node.dataset.lx;
+      const y = node.dataset.ly;
+      if (x == null || y == null) return;
+      node.setAttribute("transform", `translate(${x},${y}) scale(${inv},${-inv})`);
+    });
+  }
+
+  function refreshCurrentRestrictShape() {
+    renderRestrictDrawOverlay();
+    if (!restrictSession || !restrictedAreasLayer) return;
+    const key = restrictSession.key;
+    restrictedAreaRecords = restrictedAreaRecords.filter((record) => record.sessionKey !== key);
+    const existing = findRestrictShape(key);
+    if (existing) existing.remove();
+    if (!(restrictSession.closed && restrictSession.points.length >= 3)) return;
+    const record = sessionToRecord(restrictSession);
+    try {
+      projectRestrictedArea(record);
+    } catch (err) {
+      setStatus(err.message || "禁行区投影失败");
+      return;
+    }
+    restrictedAreaRecords.push(record);
+    mountRestrictedArea(record);
+  }
+
+  function pushRestrictPoint(lon, lat) {
+    if (!restrictSession) return;
+    const point = { lon: roundCoord(lon), lat: roundCoord(lat) };
+    restrictSession.points.push(point);
+    renderRestrictPointList();
+    if (restrictSession.closed) refreshCurrentRestrictShape();
+    else renderRestrictDrawOverlay();
+    updateRestrictButtons();
+    setStatus(
+      `已记录第 ${restrictSession.points.length} 个点：${point.lon.toFixed(6)}, ${point.lat.toFixed(6)}（GCJ02）`
+    );
+  }
+
+  function addRestrictPointFromClient(clientX, clientY) {
+    if (!restrictSession || !restrictSession.drawing) return;
+    const now = Date.now();
+    if (
+      now - lastRestrictPick.t < 280 &&
+      Math.hypot(clientX - lastRestrictPick.x, clientY - lastRestrictPick.y) < 8
+    ) {
+      return;
+    }
+    lastRestrictPick = { t: now, x: clientX, y: clientY };
+    const { x: sx, y: sy } = getContainerPoint(clientX, clientY);
+    const mapPoint = screenToMap(sx, sy);
+    const gcj = utmToGcj02ForDisplay(mapPoint.x, mapPoint.y);
+    if (!gcj) {
+      setStatus("无法转换为 GCJ02，请确认地图 header 含 UTM 带号");
+      return;
+    }
+    pushRestrictPoint(gcj.lng, gcj.lat);
+  }
+
+  function addRestrictPointFromInputs() {
+    if (!requireMapForTool()) return;
+    if (!restrictSession) {
+      setStatus("请先点击开始，再添加顶点");
+      return;
+    }
+    const lon = Number(readTrim(restrictAddLon));
+    const lat = Number(readTrim(restrictAddLat));
+    if (!isValidLonLat(lon, lat)) {
+      setStatus("请输入有效的 GCJ02 经纬度");
+      return;
+    }
+    pushRestrictPoint(lon, lat);
+    if (restrictAddLon) restrictAddLon.value = "";
+    if (restrictAddLat) restrictAddLat.value = "";
+  }
+
+  function onRestrictAddKeydown(e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    addRestrictPointFromInputs();
+  }
+
+  function onRestrictPointEdit(e) {
+    if (!restrictSession || !e.target || !e.target.dataset) return;
+    const key = e.target.dataset.k;
+    if (key !== "lon" && key !== "lat") return;
+    const row = e.target.closest("[data-index]");
+    if (!row) return;
+    const index = Number(row.dataset.index);
+    const point = restrictSession.points[index];
+    if (!point) return;
+    const lon = Number(row.querySelector('[data-k="lon"]').value);
+    const lat = Number(row.querySelector('[data-k="lat"]').value);
+    if (!isValidLonLat(lon, lat)) return;
+    point.lon = roundCoord(lon);
+    point.lat = roundCoord(lat);
+    if (restrictSession.closed) refreshCurrentRestrictShape();
+    else renderRestrictDrawOverlay();
+  }
+
+  function onRestrictPointCommitDisplay(e) {
+    if (!e.target || !e.target.dataset || !e.target.dataset.k) return;
+    const n = Number(e.target.value);
+    if (Number.isFinite(n)) e.target.value = roundCoord(n).toFixed(6);
+    onRestrictPointEdit(e);
+  }
+
+  function onRestrictPointListClick(e) {
+    const button = e.target.closest("[data-action='remove']");
+    if (!button || !restrictSession) return;
+    const row = button.closest("[data-index]");
+    if (!row) return;
+    const index = Number(row.dataset.index);
+    if (!Number.isInteger(index) || index < 0 || index >= restrictSession.points.length) return;
+    restrictSession.points.splice(index, 1);
+    if (restrictSession.closed && restrictSession.points.length < 3) {
+      restrictSession.closed = false;
+      restrictSession.drawing = false;
+    }
+    renderRestrictPointList();
+    refreshCurrentRestrictShape();
+    updateRestrictButtons();
+    syncToolUi();
+    setStatus(`已删除第 ${index + 1} 个点`);
+  }
+
+  function onRestrictMetaInput() {
+    if (!restrictSession) return;
+    applyFormToSession(restrictSession);
+    if (restrictSession.closed && restrictSession.points.length >= 3) {
+      refreshCurrentRestrictShape();
+    }
+  }
+
+  function startRestrictDraw() {
+    if (!requireMapForTool()) return;
+    if (restrictSession && !restrictSession.closed) {
+      restrictSession.drawing = true;
+      applyFormToSession(restrictSession);
+      updateRestrictButtons();
+      syncToolUi();
+      setStatus("继续绘制禁行区：左键按顺序点击顶点");
+      return;
+    }
+    if (restrictSession && restrictSession.closed) {
+      applyFormToSession(restrictSession);
+      refreshCurrentRestrictShape();
+      if (restrictUpdatedAt) restrictUpdatedAt.value = "";
+    }
+    restrictSession = createRestrictSession();
+    if (restrictAreaId) restrictAreaId.value = String(restrictSession.id);
+    renderRestrictPointList();
+    renderRestrictDrawOverlay();
+    updateRestrictButtons();
+    syncToolUi();
+    setStatus("已开始绘制：在地图上按顺序左键点击顶点，结束时闭合");
+  }
+
+  function endRestrictDraw() {
+    if (!requireMapForTool()) return;
+    if (!restrictSession || !restrictSession.drawing) {
+      setStatus("请先点击开始");
+      return;
+    }
+    applyFormToSession(restrictSession);
+    if (restrictSession.points.length < 3) {
+      setStatus("至少需要 3 个点才能闭合禁行区");
+      return;
+    }
+    restrictSession.drawing = false;
+    restrictSession.closed = true;
+    if (!restrictSession.updatedAt) {
+      restrictSession.updatedAt = formatTimestamp(new Date());
+      if (restrictUpdatedAt) restrictUpdatedAt.value = restrictSession.updatedAt;
+    }
+    refreshCurrentRestrictShape();
+    updateRestrictButtons();
+    syncToolUi();
+    const name = restrictSession.areaName || "未命名禁行区";
+    setStatus(`已闭合禁行区「${name}」，共 ${restrictSession.points.length} 个 GCJ02 顶点`);
+  }
+
+  function undoRestrictPoint() {
+    if (!restrictSession || !restrictSession.drawing || !restrictSession.points.length) return;
+    restrictSession.points.pop();
+    renderRestrictPointList();
+    renderRestrictDrawOverlay();
+    updateRestrictButtons();
+    setStatus(
+      restrictSession.points.length ? `已撤销，剩余 ${restrictSession.points.length} 个点` : "已撤销全部顶点"
+    );
+  }
+
+  function clearCurrentRestrict() {
+    if (restrictSession) {
+      const key = restrictSession.key;
+      restrictSession = null;
+      restrictedAreaRecords = restrictedAreaRecords.filter((record) => record.sessionKey !== key);
+      const existing = findRestrictShape(key);
+      if (existing) existing.remove();
+    }
+    renderRestrictPointList();
+    renderRestrictDrawOverlay();
+    updateRestrictButtons();
+    syncToolUi();
+    setStatus("已清除本次禁行区");
+  }
+
+  function currentRestrictPayload() {
+    if (!restrictSession || restrictSession.points.length < 3) return null;
+    applyFormToSession(restrictSession);
+    return {
+      areaName: restrictSession.areaName,
+      cityCode: restrictSession.cityCode,
+      id: restrictSession.id,
+      points: restrictSession.points.map((point) => ({
+        lat: roundCoord(point.lat),
+        lon: roundCoord(point.lon),
+      })),
+      regionPath: restrictSession.regionPath,
+      remark: restrictSession.remark ? restrictSession.remark : null,
+      restrictType: restrictSession.restrictType,
+      status: restrictSession.status,
+      timeMode: restrictSession.timeMode,
+      timeRules: [],
+      updatedAt: restrictSession.updatedAt || formatTimestamp(new Date()),
+    };
+  }
+
+  function copyCurrentRestrictJson() {
+    const area = currentRestrictPayload();
+    if (!area) {
+      setStatus("至少需要 3 个点才能复制禁行区 JSON");
+      return;
+    }
+    copyTextToClipboard(JSON.stringify(area, null, 2))
+      .then(() => setStatus("已复制本次禁行区 JSON（GCJ02）"))
+      .catch((err) => setStatus(`复制失败: ${err.message}`));
+  }
+
+  function downloadCurrentRestrictJson() {
+    const area = currentRestrictPayload();
+    if (!area) {
+      setStatus("至少需要 3 个点才能下载禁行区 JSON");
+      return;
+    }
+    const doc = {
+      areas: [area],
+      cityCode: area.cityCode,
+      cityName: "",
+      total: 1,
+      vehicleUpdatedAt: area.updatedAt,
+      vin: "",
+    };
+    const blob = new Blob([JSON.stringify(doc, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const filename = (area.areaName || "restricted-area").replace(/[\\/:*?"<>|]+/g, "_");
+    link.href = url;
+    link.download = `${filename}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus("已下载本次禁行区 JSON（GCJ02）");
+  }
+
+  function projectRestrictedArea(record) {
+    record.utmPoints = record.points.map((point) => {
+      if (typeof CoordTransform === "undefined" || !CoordTransform.gcj02ToWgs84) {
+        throw new Error("缺少 GCJ02 转换，请强制刷新页面");
+      }
+      const wgs = CoordTransform.gcj02ToWgs84(point.lon, point.lat);
+      const utm = resolveLonLatToUtm(wgs.lng, wgs.lat, POINT_CRS.gcj02);
+      return { x: utm.x, y: utm.y };
+    });
+  }
+
+  function mountRestrictedArea(record) {
+    const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    polygon.setAttribute(
+      "points",
+      record.utmPoints
+        .map((point) => {
+          const local = utmToLocal(point.x, point.y);
+          return `${local.x},${local.y}`;
+        })
+        .join(" ")
+    );
+    polygon.setAttribute("class", "restricted-area-shape");
+    polygon.dataset.areaId = String(record.id);
+    if (record.sessionKey) {
+      polygon.dataset.sessionKey = record.sessionKey;
+      if (restrictSession && record.sessionKey === restrictSession.key) {
+        polygon.classList.add("is-active");
+      }
+    }
+    restrictedAreasLayer.appendChild(polygon);
+  }
+
+  function redrawRestrictedAreas() {
+    if (!restrictedAreasLayer) return;
+    restrictedAreasLayer.innerHTML = "";
+    if (mapData && restrictedAreaRecords.length) {
+      for (const record of restrictedAreaRecords) {
+        projectRestrictedArea(record);
+        mountRestrictedArea(record);
+      }
+    }
+    renderRestrictDrawOverlay();
+  }
+
+  function locateAllRestrictedAreas() {
+    const points = restrictedAreaRecords.flatMap((record) => record.utmPoints || []);
+    if (!points.length) return;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const point of points) {
+      minX = Math.min(minX, point.x);
+      maxX = Math.max(maxX, point.x);
+      minY = Math.min(minY, point.y);
+      maxY = Math.max(maxY, point.y);
+    }
+    const span = Math.max(40, maxX - minX, maxY - minY) * 1.15;
+    locateOnUtm((minX + maxX) / 2, (minY + maxY) / 2, span);
+  }
+
+  function importRestrictedAreasFromText(text) {
+    let body;
+    try {
+      body = JSON.parse(text);
+    } catch (_) {
+      throw new Error("JSON 格式不正确");
+    }
+    if (!body || !Array.isArray(body.areas)) {
+      throw new Error('JSON 缺少 "areas" 数组');
+    }
+
+    const next = [];
+    let skipped = 0;
+    body.areas.forEach((area, index) => {
+      if (!area || !Array.isArray(area.points) || area.points.length < 3) {
+        skipped += 1;
+        return;
+      }
+      const points = area.points.map((point) => ({
+        lon: Number(point && point.lon),
+        lat: Number(point && point.lat),
+      }));
+      const valid = points.every(
+        (point) =>
+          Number.isFinite(point.lon) &&
+          Number.isFinite(point.lat) &&
+          point.lon >= -180 &&
+          point.lon <= 180 &&
+          point.lat >= -90 &&
+          point.lat <= 90
+      );
+      if (!valid) {
+        skipped += 1;
+        return;
+      }
+      next.push({
+        id: area.id != null ? area.id : index + 1,
+        name: String(area.areaName || `未命名禁行区 ${index + 1}`),
+        points,
+        utmPoints: [],
+      });
+    });
+    if (!next.length) {
+      throw new Error("没有可绘制的禁行区（每个区域至少需要 3 个有效经纬度点）");
+    }
+
+    const drawnKept = restrictedAreaRecords.filter((record) => record.drawn);
+    restrictedAreaRecords = next.concat(drawnKept);
+    redrawRestrictedAreas();
+    locateAllRestrictedAreas();
+    let message = `已导入并绘制 ${next.length} 个禁行区`;
+    if (skipped) message += ` · 跳过 ${skipped} 个无效区域`;
+    setStatus(message);
+  }
+
+  function onRestrictedAreaFileSelected() {
+    const file =
+      restrictedAreaFileInput.files && restrictedAreaFileInput.files[0];
+    if (!file) return;
+    if (!requireMapForTool()) {
+      restrictedAreaFileInput.value = "";
+      return;
+    }
+    setStatus(`正在读取禁行区: ${file.name}…`);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        importRestrictedAreasFromText(String(reader.result || ""));
+      } catch (err) {
+        setStatus(`禁行区导入失败: ${err.message}`);
+      } finally {
+        restrictedAreaFileInput.value = "";
+      }
+    };
+    reader.onerror = () => {
+      setStatus("无法读取禁行区 JSON");
+      restrictedAreaFileInput.value = "";
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  function projectStopRecord(record) {
+    let lon = record.lon;
+    let lat = record.lat;
+    if (record.crs === POINT_CRS.gcj02) {
+      if (typeof CoordTransform === "undefined" || !CoordTransform.gcj02ToWgs84) {
+        throw new Error("缺少 GCJ02 转换，请强制刷新页面");
+      }
+      const wgs = CoordTransform.gcj02ToWgs84(lon, lat);
+      lon = wgs.lng;
+      lat = wgs.lat;
+    }
+    const utm = resolveLonLatToUtm(lon, lat, record.crs);
+    record.x = utm.x;
+    record.y = utm.y;
+    record.wgsLon = lon;
+    record.wgsLat = lat;
+    record.zone = utm.zone;
+  }
+
+  function stopMapLabel(record) {
+    const name = record.name || record.poi || record.grid || "临停点";
+    const shortName = name.length > 18 ? `${name.slice(0, 18)}…` : name;
+    return `${record.index} ${shortName}`;
+  }
+
+  function mountStopMarker(record) {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "stop-marker");
+    g.dataset.id = record.id;
+
+    const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    hit.setAttribute("r", "12");
+    hit.setAttribute("class", "stop-marker-hit");
+    g.appendChild(hit);
+
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("r", "6");
+    dot.setAttribute("class", "stop-marker-dot");
+    g.appendChild(dot);
+
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", "10");
+    label.setAttribute("y", "0");
+    label.setAttribute("dominant-baseline", "middle");
+    label.setAttribute("class", "stop-marker-label");
+    label.textContent = stopMapLabel(record);
+    g.appendChild(label);
+
+    g.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+      selectStop(record.id, true);
+    });
+    stopsLayer.appendChild(g);
+    record.group = g;
+  }
+
+  function syncStopMarkerTransforms() {
+    if (!stopsLayer || !stopRecords.length) return;
+    const scale = view.scale;
+    if (!Number.isFinite(scale) || scale <= 0) return;
+    stopsLayer.classList.toggle("stops-show-labels", scale >= 1.2);
+    const inv = 1 / scale;
+    for (const record of stopRecords) {
+      if (!record.group || record.x == null || record.y == null) continue;
+      const local = utmToLocal(record.x, record.y);
+      record.group.setAttribute(
+        "transform",
+        `translate(${local.x},${local.y}) scale(${inv},${-inv})`
+      );
+      record.group.classList.toggle("is-selected", record.id === selectedStopId);
+    }
+  }
+
+  function redrawStops() {
+    if (!stopsLayer) return;
+    stopsLayer.innerHTML = "";
+    if (!stopRecords.length || !mapData) {
+      renderStopsPanel();
+      return;
+    }
+    const failed = [];
+    for (const record of stopRecords) {
+      record.group = null;
+      try {
+        projectStopRecord(record);
+        mountStopMarker(record);
+      } catch (err) {
+        record.x = null;
+        record.y = null;
+        failed.push(`${record.index}: ${err.message}`);
+      }
+    }
+    renderStopsPanel();
+    syncStopMarkerTransforms();
+  }
+
+  function formatStopDetail(record) {
+    if (!record) return "点击列表或地图上的点查看详情";
+    const lines = [
+      record.name || "（未填写站点地址）",
+      `${record.city || "—"} · ${record.district || "—"}`,
+      `经度 ${record.lon}，纬度 ${record.lat}（${record.crs}）`,
+    ];
+    if (record.x != null && record.y != null) {
+      lines.push(
+        `UTM ${record.x.toFixed(2)}, ${record.y.toFixed(2)}（zone ${record.zone}）`
+      );
+    }
+    if (record.planned || record.capacity) {
+      lines.push(`计划投放 ${record.planned || "—"} · 最大可停靠 ${record.capacity || "—"}`);
+    }
+    if (record.grid) lines.push(`网格 ${record.grid}`);
+    if (record.poi) lines.push(`参考点 ${record.poi}`);
+    if (record.address) lines.push(record.address);
+    return lines.join("\n");
+  }
+
+  function stopMatchesFilter(record, query) {
+    if (!query) return true;
+    const blob = [record.name, record.city, record.district, record.grid, record.poi, record.address, record.crs]
+      .join(" ")
+      .toLowerCase();
+    return blob.includes(query);
+  }
+
+  function renderStopsPanel() {
+    if (!stopsPanel) return;
+    if (!stopRecords.length) {
+      stopsPanel.classList.add("is-hidden");
+      if (stopsList) stopsList.innerHTML = "";
+      if (stopsDetail) stopsDetail.textContent = "点击列表或地图上的点查看详情";
+      return;
+    }
+    stopsPanel.classList.remove("is-hidden");
+    const wgsCount = stopRecords.filter((r) => r.crs === "wgs84").length;
+    const gcjCount = stopRecords.filter((r) => r.crs === "gcj02").length;
+    if (stopsPanelTitle) {
+      stopsPanelTitle.textContent = `临停点 ${stopRecords.length}（WGS84 ${wgsCount} / GCJ02 ${gcjCount}）`;
+    }
+    const selected = stopRecords.find((r) => r.id === selectedStopId) || null;
+    if (stopsDetail) stopsDetail.textContent = formatStopDetail(selected);
+
+    if (!stopsList) return;
+    const query = stopsFilter ? stopsFilter.value.trim().toLowerCase() : "";
+    stopsList.innerHTML = "";
+    const matched = stopRecords.filter((r) => stopMatchesFilter(r, query));
+    if (!matched.length) {
+      const empty = document.createElement("li");
+      empty.className = "stops-empty";
+      empty.textContent = "没有匹配的临停点";
+      stopsList.appendChild(empty);
+      return;
+    }
+    for (const record of matched) {
+      const li = document.createElement("li");
+      li.className = "stops-item";
+      if (record.id === selectedStopId) li.classList.add("is-selected");
+      li.dataset.id = record.id;
+      const name = document.createElement("div");
+      name.className = "stops-item-name";
+      name.textContent = `${record.index}. ${record.name || record.poi || "未命名点位"}`;
+      const meta = document.createElement("div");
+      meta.className = "stops-item-meta";
+      const place = [record.city, record.district].filter(Boolean).join(" ");
+      meta.textContent = `${place ? place + " · " : ""}${record.lon}, ${record.lat} ${record.crs}`;
+      li.appendChild(name);
+      li.appendChild(meta);
+      stopsList.appendChild(li);
+    }
+  }
+
+  function selectStop(id, locate) {
+    const record = stopRecords.find((r) => r.id === id);
+    if (!record) return;
+    selectedStopId = id;
+    renderStopsPanel();
+    syncStopMarkerTransforms();
+    if (locate && record.x != null && record.y != null) {
+      locateOnUtm(record.x, record.y, 120);
+    }
+    const item = stopsList && stopsList.querySelector(`[data-id="${id}"]`);
+    if (item && locate) item.scrollIntoView({ block: "nearest" });
+  }
+
+  function onStopsListClick(e) {
+    const item = e.target.closest(".stops-item");
+    if (!item || !item.dataset.id) return;
+    if (isUserSelectingText()) return;
+    selectStop(item.dataset.id, true);
+  }
+
+  function locateAllStops() {
+    const placed = stopRecords.filter((r) => r.x != null && r.y != null);
+    if (!placed.length) {
+      setStatus("没有可定位的临停点");
+      return;
+    }
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const record of placed) {
+      if (record.x < minX) minX = record.x;
+      if (record.x > maxX) maxX = record.x;
+      if (record.y < minY) minY = record.y;
+      if (record.y > maxY) maxY = record.y;
+    }
+    const span = Math.max(120, maxX - minX, maxY - minY) * 1.25;
+    locateOnUtm((minX + maxX) / 2, (minY + maxY) / 2, span);
+  }
+
+  function clearStops(silent) {
+    stopRecords = [];
+    selectedStopId = null;
+    if (stopsFilter) stopsFilter.value = "";
+    if (stopsLayer) {
+      stopsLayer.innerHTML = "";
+      stopsLayer.classList.remove("stops-show-labels");
+    }
+    renderStopsPanel();
+    if (!silent) setStatus("已清除临停点");
+  }
+
+  function importStopsFromText(text) {
+    const rows = parseCsvRows(text);
+    const next = [];
+    let skipped = 0;
+    rows.forEach((cells) => {
+      const parsed = extractStopFromRow(cells);
+      if (!parsed) {
+        const city = cleanStopCell(cells[0]);
+        if (city && city !== "城市" && city !== "示例") skipped += 1;
+        return;
+      }
+      next.push(parsed);
+    });
+    if (!next.length) {
+      throw new Error("CSV 中没有有效临停点（需要 P/Q/R 列的经度、纬度、wgs84 或 gcj02）");
+    }
+
+    const failed = [];
+    next.forEach((record, idx) => {
+      record.index = idx + 1;
+      record.id = `stop-${idx + 1}`;
+      try {
+        projectStopRecord(record);
+      } catch (err) {
+        failed.push(`${record.index} ${record.name || ""}: ${err.message}`);
+      }
+    });
+    if (failed.length === next.length) {
+      throw new Error(failed[0]);
+    }
+
+    stopRecords = next;
+    selectedStopId = null;
+    if (stopsFilter) stopsFilter.value = "";
+    redrawStops();
+    locateAllStops();
+
+    const wgsCount = next.filter((r) => r.crs === "wgs84" && r.x != null).length;
+    const gcjCount = next.filter((r) => r.crs === "gcj02" && r.x != null).length;
+    const zone = next.find((r) => r.zone != null);
+    let msg = `已导入 ${wgsCount + gcjCount} 个临停点（WGS84 ${wgsCount}，GCJ02 ${gcjCount}）`;
+    if (zone) msg += ` · UTM zone ${zone.zone}`;
+    if (skipped) msg += ` · 跳过 ${skipped} 行`;
+    if (failed.length) msg += ` · ${failed.length} 个转换失败`;
+    setStatus(msg);
+  }
+
+  function onStopFileSelected() {
+    const file = stopFileInput.files && stopFileInput.files[0];
+    if (!file) return;
+    if (!requireMapForTool()) {
+      stopFileInput.value = "";
+      return;
+    }
+    setStatus(`正在读取临停点: ${file.name}…`);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = decodeCsvBuffer(reader.result);
+        importStopsFromText(text);
+      } catch (err) {
+        setStatus(`临停点导入失败: ${err.message}`);
+      } finally {
+        stopFileInput.value = "";
+      }
+    };
+    reader.onerror = () => {
+      setStatus("无法读取临停点 CSV");
+      stopFileInput.value = "";
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   function onFileSelected() {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HD Map 查看器</title>
-  <link rel="stylesheet" href="style.css?v=29" />
+  <link rel="stylesheet" href="style.css?v=32" />
 </head>
 <body>
   <div id="app">
@@ -12,6 +12,10 @@
       <h1>HD Map 查看器</h1>
       <input type="file" id="file-input" accept=".bin" />
       <button type="button" class="btn" id="btn-import">导入地图 (.bin)</button>
+      <input type="file" id="stop-file-input" accept=".csv,text/csv" />
+      <button type="button" class="btn" id="btn-import-stops" title="导入临停点 CSV，按 P/Q/R 列的经度、纬度、坐标类型落点" disabled>导入临停点</button>
+      <input type="file" id="restricted-area-file-input" accept=".json,application/json" />
+      <button type="button" class="btn" id="btn-import-restricted-areas" title="导入 GCJ02 禁行区 JSON 并绘制全部区域" disabled>导入禁行区</button>
       <button type="button" class="btn btn-secondary" id="btn-reset-view" disabled>重置视图</button>
       <span class="hint">滚轮缩放 · 左键平移 · 右键旋转 · 点击车道查看详情</span>
       <span class="spacer"></span>
@@ -33,9 +37,24 @@
             <g id="centerline-layer"></g>
             <g id="annotations-layer"></g>
             <g id="ops-buffer-layer"></g>
+            <g id="restricted-areas-layer"></g>
+            <g id="restricted-draw-layer"></g>
+            <g id="stops-layer"></g>
             <rect id="map-bounds-outline" class="map-bounds-outline" />
           </g>
         </svg>
+        <div id="stops-panel" class="stops-panel is-hidden" aria-live="polite">
+          <div class="stops-panel-header">
+            <span id="stops-panel-title">临停点</span>
+            <span class="stops-panel-actions">
+              <button type="button" class="btn-mini" id="btn-stops-fit">总览</button>
+              <button type="button" class="btn-mini" id="btn-stops-clear">清除</button>
+            </span>
+          </div>
+          <input type="search" id="stops-filter" class="stops-filter" placeholder="搜索站点、网格、POI…" />
+          <div id="stops-detail" class="stops-detail">点击列表或地图上的点查看详情</div>
+          <ul id="stops-list" class="stops-list"></ul>
+        </div>
         <div id="map-meta-panel" class="map-meta-panel is-hidden" aria-live="polite">
           <div class="map-meta-row">
             <span class="map-meta-label">文件</span>
@@ -94,6 +113,7 @@
         <div class="tool-bar" role="toolbar" aria-label="地图工具">
           <button type="button" class="tool-bar-btn" id="btn-tool-point" title="画点">画点</button>
           <button type="button" class="tool-bar-btn" id="btn-tool-box" title="画框">画框</button>
+          <button type="button" class="tool-bar-btn" id="btn-tool-restrict" title="绘制禁行区范围">禁行</button>
           <button type="button" class="tool-bar-btn" id="btn-tool-pick" title="点击显示坐标">坐标</button>
           <div class="tool-bar-divider"></div>
           <button type="button" class="tool-bar-btn" id="btn-lane-fade" title="车道变透明，便于查看底图标识">虚化</button>
@@ -201,6 +221,69 @@
             <button type="button" class="btn btn-tool-draw" id="btn-draw-ops">绘制</button>
             <button type="button" class="btn-mini" id="btn-clear-ops" style="align-self:flex-start">清除外扩圈</button>
           </div>
+          <div class="tool-panel-section" id="tool-panel-restrict">
+            <div class="tool-panel-title">禁行区范围</div>
+            <p class="tool-hint">点击开始后，在地图上按顺序左键加点。结束时按点序闭合成禁行区，顶点以 GCJ02 经纬度记录，并可直接修改。</p>
+            <div class="restrict-meta-grid">
+              <label class="tool-field span-2">
+                <span>名称 areaName</span>
+                <input type="text" id="restrict-area-name" placeholder="例如 测试" />
+              </label>
+              <label class="tool-field">
+                <span>ID</span>
+                <input type="number" id="restrict-area-id" step="1" placeholder="自动" />
+              </label>
+              <label class="tool-field">
+                <span>城市编码</span>
+                <input type="text" id="restrict-city-code" placeholder="440600" />
+              </label>
+              <label class="tool-field span-2">
+                <span>区域路径 regionPath</span>
+                <input type="text" id="restrict-region-path" placeholder="/440000/440600/" />
+              </label>
+              <label class="tool-field">
+                <span>类型 restrictType</span>
+                <input type="number" id="restrict-type" step="1" value="1" />
+              </label>
+              <label class="tool-field">
+                <span>状态 status</span>
+                <input type="number" id="restrict-status" step="1" value="1" />
+              </label>
+              <label class="tool-field">
+                <span>时间模式 timeMode</span>
+                <input type="number" id="restrict-time-mode" step="1" value="1" />
+              </label>
+              <label class="tool-field">
+                <span>更新时间</span>
+                <input type="text" id="restrict-updated-at" placeholder="结束时自动填写" />
+              </label>
+              <label class="tool-field span-2">
+                <span>备注 remark</span>
+                <input type="text" id="restrict-remark" placeholder="可空" />
+              </label>
+            </div>
+            <div class="restrict-actions">
+              <button type="button" class="btn btn-tool-draw" id="btn-restrict-start">开始</button>
+              <button type="button" class="btn btn-secondary btn-tool-draw" id="btn-restrict-end" disabled>结束</button>
+              <button type="button" class="btn btn-secondary btn-tool-draw" id="btn-restrict-undo" disabled>撤销</button>
+              <button type="button" class="btn btn-secondary btn-tool-draw" id="btn-restrict-clear">清除</button>
+            </div>
+            <div class="tool-record-block">
+              <div class="tool-record-block-header">
+                <span id="restrict-point-title">顶点（GCJ02）</span>
+              </div>
+              <ul id="restrict-point-list" class="tool-record-list restrict-point-list"></ul>
+              <div class="restrict-add-row">
+                <input type="text" id="restrict-add-lon" inputmode="decimal" placeholder="经度 lon" />
+                <input type="text" id="restrict-add-lat" inputmode="decimal" placeholder="纬度 lat" />
+                <button type="button" class="btn-mini" id="btn-restrict-add-point">添加</button>
+              </div>
+            </div>
+            <div class="restrict-actions">
+              <button type="button" class="btn btn-secondary btn-tool-draw" id="btn-restrict-copy">复制 JSON</button>
+              <button type="button" class="btn btn-secondary btn-tool-draw" id="btn-restrict-download">下载 JSON</button>
+            </div>
+          </div>
         </div>
       </aside>
       <aside class="sidebar" id="sidebar">
@@ -283,6 +366,6 @@
   <script src="coord_transform.js?v=3"></script>
   <script src="map_parser.js?v=7"></script>
   <script src="ops_buffer.js?v=1"></script>
-  <script src="app.js?v=48"></script>
+  <script src="app.js?v=51"></script>
 </body>
 </html>
